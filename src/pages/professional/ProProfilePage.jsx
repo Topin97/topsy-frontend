@@ -37,7 +37,21 @@ export default function ProProfilePage() {
   })
 
   const { mutate: save, isPending } = useMutation({
-    mutationFn: (data) => hasProfile ? profApi.update(data) : profApi.create(data),
+  mutationFn: async (data) => {
+    // Auto-geocode city
+    try {
+      const city = data.city || data.address
+      if (city) {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(city + ', España')}&format=json&limit=1`)
+        const results = await res.json()
+        if (results[0]) {
+          data.latitude  = parseFloat(results[0].lat)
+          data.longitude = parseFloat(results[0].lon)
+        }
+      }
+    } catch {}
+    return hasProfile ? profApi.update(data) : profApi.create(data)
+  },
     onSuccess: () => {
       toast.success(hasProfile ? 'Perfil actualizado ✓' : 'Perfil profesional creado ✓')
       qc.invalidateQueries({ queryKey: ['me'] })
