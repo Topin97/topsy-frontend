@@ -19,16 +19,9 @@ function ProfCard({ prof }) {
     : null
 
   return (
-    <Link to={`/professional/${prof.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
-      <style>{`
-  @media (max-width: 768px) {
-    .search-layout { flex-direction: column !important; }
-    .search-sidebar { display: none !important; }
-    .search-categories { flex-wrap: wrap !important; }
-  }
-`}</style>
+    <Link to={`/professional/${prof.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', width: '100%' }}>
       <div
-        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, overflow: 'hidden', transition: 'all 0.35s cubic-bezier(0.4,0,0.2,1)', cursor: 'pointer' }}
+        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, overflow: 'hidden', transition: 'all 0.35s cubic-bezier(0.4,0,0.2,1)', cursor: 'pointer', width: '100%' }}
         onMouseEnter={e => {
           e.currentTarget.style.border = '1px solid rgba(201,150,90,0.35)'
           e.currentTarget.style.transform = 'translateY(-4px)'
@@ -41,9 +34,9 @@ function ProfCard({ prof }) {
         }}
       >
         {/* Image */}
-        <div style={{ height: 190, background: 'linear-gradient(135deg, rgba(201,150,90,0.12) 0%, rgba(17,16,9,1) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4rem', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ height: 200, background: 'linear-gradient(135deg, rgba(201,150,90,0.12) 0%, rgba(17,16,9,1) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4rem', position: 'relative', overflow: 'hidden', width: '100%' }}>
           {prof.cover_image_url
-            ? <img src={prof.cover_image_url} alt={prof.business_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ? <img src={prof.cover_image_url} alt={prof.business_name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
             : <span style={{ opacity: 0.4 }}>✂️</span>
           }
           {prof.is_verified && (
@@ -88,8 +81,8 @@ function ProfCard({ prof }) {
 
 function SkeletonCard() {
   return (
-    <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, overflow: 'hidden' }}>
-      <div className="skeleton" style={{ height: 190 }} />
+    <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, overflow: 'hidden', width: '100%' }}>
+      <div className="skeleton" style={{ height: 200 }} />
       <div style={{ padding: 20 }}>
         <div className="skeleton" style={{ height: 20, width: '70%', marginBottom: 10, borderRadius: 6 }} />
         <div className="skeleton" style={{ height: 12, width: '40%', marginBottom: 10, borderRadius: 6 }} />
@@ -120,6 +113,16 @@ export default function SearchPage() {
 
   return (
     <div style={{ background: '#0A0806', minHeight: '100vh' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .search-layout { flex-direction: column !important; }
+          .search-sidebar { display: none !important; }
+          .search-bar-inner { flex-wrap: wrap !important; }
+          .search-city-input { width: 100% !important; }
+          .search-submit-btn { width: 100% !important; }
+        }
+      `}</style>
+
       {/* Header */}
       <div style={{ background: 'linear-gradient(180deg, rgba(13,11,8,1) 0%, rgba(10,8,6,0) 100%)', padding: '40px 0 0', borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
         <div className="container-app">
@@ -129,28 +132,28 @@ export default function SearchPage() {
 
           {/* Search bar */}
           <form onSubmit={handleSearch}>
-            <div style={{ display: 'flex', gap: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(201,150,90,0.15)', borderRadius: 14, padding: 8, marginBottom: 24, maxWidth: 700 }}>
+            <div className="search-bar-inner" style={{ display: 'flex', gap: 8, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(201,150,90,0.15)', borderRadius: 14, padding: 8, marginBottom: 24, maxWidth: 700 }}>
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Servicio, profesional..."
-                style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#F7F2EA', fontSize: 14, fontFamily: 'Outfit, sans-serif', padding: '8px 12px' }}
+                style={{ flex: 1, minWidth: 120, background: 'transparent', border: 'none', outline: 'none', color: '#F7F2EA', fontSize: 14, fontFamily: 'Outfit, sans-serif', padding: '8px 12px' }}
               />
-              <div style={{ width: 1, background: 'rgba(255,255,255,0.06)', margin: '4px 0' }} />
               <input
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
                 placeholder="Ciudad..."
-                style={{ width: 140, background: 'transparent', border: 'none', outline: 'none', color: '#F7F2EA', fontSize: 14, fontFamily: 'Outfit, sans-serif', padding: '8px 12px' }}
+                className="search-city-input"
+                style={{ width: 140, background: 'transparent', border: 'none', outline: 'none', color: '#F7F2EA', fontSize: 14, fontFamily: 'Outfit, sans-serif', padding: '8px 12px', borderLeft: '1px solid rgba(255,255,255,0.06)' }}
               />
-              <button type="submit" style={{ background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 8, padding: '10px 20px', color: '#0A0806', fontWeight: 700, fontSize: 13, fontFamily: 'Outfit, sans-serif', cursor: 'pointer' }}>
+              <button type="submit" className="search-submit-btn" style={{ background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 8, padding: '10px 20px', color: '#0A0806', fontWeight: 700, fontSize: 13, fontFamily: 'Outfit, sans-serif', cursor: 'pointer' }}>
                 Buscar
               </button>
             </div>
           </form>
 
           {/* Category pills */}
-          <div style={{ display: 'flex', gap: 8, paddingBottom: 20, overflowX: 'auto' }}>
+          <div style={{ display: 'flex', gap: 8, paddingBottom: 20, overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
             {CATEGORIES.map((cat) => (
               <button
                 key={cat.value}
@@ -173,7 +176,7 @@ export default function SearchPage() {
       </div>
 
       {/* Results */}
-      <div className="container-app" style={{ padding: '32px 24px' }}>
+      <div className="container-app" style={{ padding: '32px 16px' }}>
         <div className="search-layout" style={{ display: 'flex', gap: 32 }}>
           {/* Sidebar */}
           <aside className="search-sidebar" style={{ width: 220, flexShrink: 0 }}>
@@ -200,7 +203,6 @@ export default function SearchPage() {
                   </button>
                 ))}
               </div>
-
               {(search || city || category) && (
                 <>
                   <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '20px 0' }} />
@@ -222,14 +224,14 @@ export default function SearchPage() {
           </aside>
 
           {/* Grid */}
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: 1, minWidth: 0, width: '100%' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
               <p style={{ color: 'rgba(247,242,234,0.35)', fontSize: 13 }}>
                 {isLoading ? 'Buscando...' : `${data?.meta?.total ?? 0} profesionales encontrados`}
               </p>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 20 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: 16 }}>
               {isLoading
                 ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
                 : data?.data?.map((p) => <ProfCard key={p.id} prof={p} />)
