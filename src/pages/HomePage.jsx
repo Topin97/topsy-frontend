@@ -117,7 +117,7 @@ export default function HomePage() {
       `}</style>
 
       {/* ══ HERO ══════════════════════════════════════════════════ */}
-      <section style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', position: 'relative', overflow: 'hidden', paddingTop: 80 }}>
+      <section style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', position: 'relative', overflow: 'hidden', paddingTop: 0 }}>
         {/* Canvas particles */}
         <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }} />
 
@@ -129,7 +129,7 @@ export default function HomePage() {
           <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at center, transparent 30%, rgba(8,6,4,0.7) 100%)' }} />
         </div>
 
-        <div className="container-app" style={{ position: 'relative', zIndex: 1, paddingTop: 40, paddingBottom: 80 }}>
+        <div className="container-app" style={{ position: 'relative', zIndex: 1, paddingTop: 20, paddingBottom: 60 }}>
           <div className="hero-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 64, alignItems: 'center' }}>
 
             {/* Left */}
