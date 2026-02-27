@@ -140,16 +140,16 @@ export default function HomePage() {
                 <span style={{ fontSize: 11, color: 'rgba(247,242,234,0.55)', letterSpacing: '0.14em', textTransform: 'uppercase' }}>2.000+ profesionales activos</span>
               </div>
 
-              {/* Headline */}
-              <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 300, lineHeight: 1.0, marginBottom: 12 }}>
-                <span style={{ display: 'block', fontSize: 'clamp(2.8rem,5vw,5.5rem)', color: '#F7F2EA', letterSpacing: '-0.01em' }}>Tu espacio</span>
-                <span style={{ display: 'block', fontSize: 'clamp(2.8rem,5vw,5.5rem)', color: '#F7F2EA', letterSpacing: '-0.01em' }}>de</span>
-              </h1>
-              <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(2.8rem,5vw,5.5rem)', fontStyle: 'italic', marginBottom: 28, height: 'clamp(3rem,5.5vw,6rem)', overflow: 'hidden' }}>
-                <span className={`hero-word${visible ? '' : ' out'}`} style={{ color: '#C9965A' }}>
-                  {WORDS[wordIdx]}
+{/* Headline */}
+              <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontWeight: 300, lineHeight: 1.05, marginBottom: 28 }}>
+                <span style={{ display: 'block', fontSize: 'clamp(3rem,5vw,5.5rem)', color: '#F7F2EA', letterSpacing: '-0.01em' }}>El bienestar</span>
+                <span style={{ display: 'block', fontSize: 'clamp(3rem,5vw,5.5rem)', color: '#F7F2EA', letterSpacing: '-0.01em' }}>que mereces,</span>
+                <span style={{ display: 'block', fontSize: 'clamp(3rem,5vw,5.5rem)', fontStyle: 'italic', color: '#C9965A', minHeight: 'clamp(3.2rem,5.5vw,6rem)' }}>
+                  <span className={`hero-word${visible ? '' : ' out'}`}>
+                    {WORDS[wordIdx]}.
+                  </span>
                 </span>
-              </div>
+              </h1>
 
               <p style={{ color: 'rgba(247,242,234,0.4)', fontSize: '1.05rem', lineHeight: 1.9, marginBottom: 48, maxWidth: 420, animation: 'fadeUp 0.8s 0.2s ease both' }}>
                 Descubre y reserva con los mejores profesionales. Sin llamadas, sin esperas, solo tú y tu bienestar.
