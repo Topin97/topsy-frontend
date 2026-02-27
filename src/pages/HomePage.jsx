@@ -117,7 +117,7 @@ export default function HomePage() {
       `}</style>
 
       {/* ══ HERO ══════════════════════════════════════════════════ */}
-      <section style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', position: 'relative', overflow: 'hidden', paddingTop: 0 }}>
+      <section style={{ minHeight: '100vh', display: 'flex', alignItems: 'flex-start', position: 'relative', overflow: 'hidden', paddingTop: 'clamp(60px, 10vh, 100px)' }}>
         {/* Canvas particles */}
         <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }} />
 
