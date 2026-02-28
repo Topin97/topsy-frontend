@@ -64,19 +64,32 @@ export default function HomePage() {
             Sin llamadas, sin esperas. Confirmación instantánea.
           </p>
 
-          {/* Search bar */}
-          <div style={{ maxWidth: 560, margin: '0 auto 48px', animation: 'fadeUp 0.6s 0.3s ease both' }}>
-            <div className="search-box" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '6px 6px 6px 20px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 18, opacity: 0.4 }}>🔍</span>
-              <input
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && navigate(`/search?q=${search}`)}
-                placeholder="Buscar servicios o negocios..."
-                style={{ flex: 1, background: 'transparent', border: 'none', color: '#F0EDE8', fontSize: 15, fontFamily: 'Outfit, sans-serif', padding: '10px 0' }}
-              />
+{/* Search bar */}
+          <div style={{ maxWidth: 760, margin: '0 auto 48px', animation: 'fadeUp 0.6s 0.3s ease both' }}>
+            <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '6px', display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+              {/* Qué */}
+              <div style={{ flex: 2, minWidth: 140, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRight: '1px solid rgba(255,255,255,0.08)' }}>
+                <span style={{ opacity: 0.4, fontSize: 16 }}>🔍</span>
+                <input
+                  value={search}
+                  onChange={e => setSearch(e.target.value)}
+                  placeholder="Buscar servicios o negocios..."
+                  style={{ flex: 1, background: 'transparent', border: 'none', color: '#F0EDE8', fontSize: 14, fontFamily: 'Outfit, sans-serif', padding: '6px 0' }}
+                />
+              </div>
+              {/* Dónde */}
+              <div style={{ flex: 1, minWidth: 110, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRight: '1px solid rgba(255,255,255,0.08)' }}>
+                <span style={{ opacity: 0.4, fontSize: 16 }}>📍</span>
+                <input
+                  value={city}
+                  onChange={e => setCity(e.target.value)}
+                  placeholder="¿Dónde?"
+                  style={{ flex: 1, background: 'transparent', border: 'none', color: '#F0EDE8', fontSize: 14, fontFamily: 'Outfit, sans-serif', padding: '6px 0', minWidth: 0 }}
+                />
+              </div>
+              {/* Buscar */}
               <button
-                onClick={() => navigate(`/search?q=${search}`)}
+                onClick={() => navigate(`/search?q=${search}&city=${city}`)}
                 style={{ background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 10, padding: '12px 28px', color: '#0A0806', fontWeight: 700, fontSize: 14, fontFamily: 'Outfit, sans-serif', cursor: 'pointer', whiteSpace: 'nowrap' }}
               >
                 Buscar
