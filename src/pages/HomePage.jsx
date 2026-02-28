@@ -31,6 +31,9 @@ export default function HomePage() {
 
         .prof-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.5) !important; }
         .prof-card { transition: all 0.25s; }
+        
+        .cats-row::-webkit-scrollbar { display: none; }
+        .cats-row { -ms-overflow-style: none; scrollbar-width: none; }
 
         .search-box:focus-within { border-color: rgba(201,150,90,0.5) !important; box-shadow: 0 0 0 3px rgba(201,150,90,0.08); }
         .search-box { transition: all 0.2s; }
