@@ -105,7 +105,7 @@ export default function HomePage() {
                     <p style={{ fontSize: 11, color: 'rgba(240,237,232,0.35)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>Servicios populares</p>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                       {['Corte caballero','Manicura semipermanente','Corte fade','Corte para niño','Diseño de cejas','Uñas acrílicas','Depilación de cejas'].map(s => (
-                        <button key={s} onClick={() => { setSearch(s); setShowSearch(false) }} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 100, padding: '6px 14px', fontSize: 13, color: 'rgba(240,237,232,0.7)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s' }}
+                        <button key={s} onClick={() => { setSearch(s); setShowSearch(false); navigate(`/search?q=${s}&city=${city}`) }} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 100, padding: '6px 14px', fontSize: 13, color: 'rgba(240,237,232,0.7)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s' }}
                           onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(201,150,90,0.4)'}
                           onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'}
                         >{s}</button>
