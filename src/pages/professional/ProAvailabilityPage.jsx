@@ -71,11 +71,12 @@ export default function ProAvailabilityPage() {
           {schedule.map(day => {
             const dayInfo = DAYS.find(d => d.key === day.day_of_week)
             return (
-              <div key={day.day_of_week} className="day-row" style={{
+<div key={day.day_of_week} className="day-row" style={{
                 background: day.is_available ? 'rgba(201,150,90,0.05)' : 'rgba(255,255,255,0.02)',
                 border: `1px solid ${day.is_available ? 'rgba(201,150,90,0.15)' : 'rgba(255,255,255,0.05)'}`,
                 borderRadius: 16, padding: '16px 18px',
                 opacity: day.is_available ? 1 : 0.5,
+                overflow: 'hidden',
               }}>
                 {/* Row top: day name + toggle */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: day.is_available ? 14 : 0 }}>
@@ -121,14 +122,13 @@ export default function ProAvailabilityPage() {
           })}
         </div>
 
-        {/* Botón copiar — una sola vez */}
         {activeDays.length > 1 && (
           <button onClick={() => copyToAll(activeDays[0].day_of_week)} className="copy-btn" style={{
-            width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
-            borderRadius: 12, padding: '10px', cursor: 'pointer', marginBottom: 16,
-            color: 'rgba(247,242,234,0.3)', fontSize: 12, fontFamily: 'Outfit, sans-serif',
+            width: '100%', background: 'rgba(201,150,90,0.08)', border: '1px solid rgba(201,150,90,0.25)',
+            borderRadius: 12, padding: '12px', cursor: 'pointer', marginBottom: 16,
+            color: '#C9965A', fontSize: 13, fontFamily: 'Outfit, sans-serif',
           }}>
-            Aplicar horario del primer día activo a todos
+            ↓ Aplicar horario del primer día activo a todos
           </button>
         )}
 
