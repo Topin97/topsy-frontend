@@ -31,7 +31,7 @@ export default function HomePage() {
 
         .prof-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.5) !important; }
         .prof-card { transition: all 0.25s; }
-        
+
         .cats-row::-webkit-scrollbar { display: none; }
         .cats-row { -ms-overflow-style: none; scrollbar-width: none; }
 
@@ -49,7 +49,7 @@ export default function HomePage() {
       `}</style>
 
       {/* ══ HERO ═══════════════════════════════════════════════ */}
-      <section style={{ position: 'relative', overflow: 'hidden', background: 'linear-gradient(180deg, #1A1F1C 0%, #0F1210 100%)', paddingBottom: 64 }}>
+      <section style={{ position: 'relative', overflow: 'hidden', background: 'linear-gradient(180deg, #1A1F1C 0%, #0F1210 100%)', paddingBottom: 32 }}>
         {/* BG decoration */}
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
           <div style={{ position: 'absolute', top: '-20%', left: '50%', transform: 'translateX(-50%)', width: 800, height: 400, background: 'radial-gradient(ellipse, rgba(201,150,90,0.08) 0%, transparent 70%)', filter: 'blur(40px)' }} />
@@ -88,7 +88,7 @@ export default function HomePage() {
           </div>
 
           {/* Categories */}
-          <div className="cats-row" style={{ display: 'flex', justifyContent: 'center', gap: 20, flexWrap: 'nowrap', overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: 8, animation: 'fadeUp 0.6s 0.4s ease both' }}>
+          <div className="cats-row" style={{ display: 'flex', justifyContent: 'center', gap: 20, flexWrap: 'nowrap', overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: 8, marginBottom: 0, animation: 'fadeUp 0.6s 0.4s ease both' }}>
             {CATEGORIES.map(cat => (
               <button key={cat.value} className="cat-btn" onClick={() => navigate(`/search?category=${cat.value}`)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, fontFamily: 'Outfit, sans-serif' }}>
                 <div className="cat-circle" style={{ width: 76, height: 76, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>
