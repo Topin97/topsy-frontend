@@ -53,6 +53,15 @@ export default function ProAvailabilityPage() {
         .day-row:hover { border-color: rgba(201,150,90,0.2) !important; }
         .day-row { transition: all 0.2s; }
         .copy-btn:hover { background: rgba(201,150,90,0.1) !important; border-color: rgba(201,150,90,0.3) !important; color: #C9965A !important; }
+        * {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
       `}</style>
 
       <div className="container-app" style={{ padding: '32px 16px', maxWidth: 640 }}>
@@ -71,13 +80,13 @@ export default function ProAvailabilityPage() {
           {schedule.map(day => {
             const dayInfo = DAYS.find(d => d.key === day.day_of_week)
             return (
-<div key={day.day_of_week} className="day-row" style={{
-                background: day.is_available ? 'rgba(201,150,90,0.05)' : 'rgba(255,255,255,0.02)',
-                border: `1px solid ${day.is_available ? 'rgba(201,150,90,0.15)' : 'rgba(255,255,255,0.05)'}`,
-                borderRadius: 16, padding: '16px 18px',
-                opacity: day.is_available ? 1 : 0.5,
-                overflow: 'hidden',
-              }}>
+          <div key={day.day_of_week} className="day-row" style={{
+                          background: day.is_available ? 'rgba(201,150,90,0.05)' : 'rgba(255,255,255,0.02)',
+                          border: `1px solid ${day.is_available ? 'rgba(201,150,90,0.15)' : 'rgba(255,255,255,0.05)'}`,
+                          borderRadius: 16, padding: '16px 18px',
+                          opacity: day.is_available ? 1 : 0.5,
+                          overflow: 'hidden',
+                        }}>
                 {/* Row top: day name + toggle */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: day.is_available ? 14 : 0 }}>
                   <span style={{ fontWeight: 600, fontSize: 15, color: day.is_available ? '#F7F2EA' : 'rgba(247,242,234,0.4)' }}>
