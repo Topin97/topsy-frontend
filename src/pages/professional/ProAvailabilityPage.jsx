@@ -96,10 +96,10 @@ export default function ProAvailabilityPage() {
                   </div>
                 </div>
 
-                {/* Row bottom: times + copy (only when active) */}
-{day.is_available && (
+{/* Row bottom: times (only when active) */}
+                {day.is_available && (
                   <div>
-                    <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', marginBottom: 10 }}>
+                    <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
                       <div style={{ flex: 1 }}>
                         <p style={{ fontSize: 10, color: 'rgba(247,242,234,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Inicio</p>
                         <input type="time" value={day.start_time} onChange={e => updateDay(day.day_of_week, 'start_time', e.target.value)}
@@ -114,19 +114,23 @@ export default function ProAvailabilityPage() {
                         />
                       </div>
                     </div>
-                    <button onClick={() => copyToAll(day.day_of_week)} className="copy-btn" style={{
-                      width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
-                      borderRadius: 10, padding: '8px', cursor: 'pointer',
-                      color: 'rgba(247,242,234,0.3)', fontSize: 11, fontFamily: 'Outfit, sans-serif',
-                    }}>
-                      Copiar horario a todos los días activos
-                    </button>
                   </div>
                 )}
               </div>
             )
           })}
         </div>
+
+        {/* Botón copiar — una sola vez */}
+        {activeDays.length > 1 && (
+          <button onClick={() => copyToAll(activeDays[0].day_of_week)} className="copy-btn" style={{
+            width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: 12, padding: '10px', cursor: 'pointer', marginBottom: 16,
+            color: 'rgba(247,242,234,0.3)', fontSize: 12, fontFamily: 'Outfit, sans-serif',
+          }}>
+            Aplicar horario del primer día activo a todos
+          </button>
+        )}
 
         {/* Summary */}
         {activeDays.length > 0 && (
