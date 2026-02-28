@@ -94,7 +94,7 @@ export default function HomePage() {
                 <input
                   value={search}
                   onChange={e => { setSearch(e.target.value); setShowSearch(true) }}
-                  onFocus={() => setShowSearch(true)}
+                  onFocus={() => { setShowSearch(true); if (window.innerWidth < 640) { document.activeElement.blur() } }}
                   onBlur={() => setTimeout(() => setShowSearch(false), 200)}
                   placeholder="Buscar servicios o negocios..."
                   style={{ flex: 1, background: 'transparent', border: 'none', color: '#F0EDE8', fontSize: 16, fontFamily: 'Outfit, sans-serif', padding: '6px 0' }}
