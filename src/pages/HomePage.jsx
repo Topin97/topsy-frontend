@@ -17,6 +17,19 @@ export default function HomePage() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
   const [city, setCity] = useState('')
+  const [showSearch, setShowSearch] = useState(false)
+  const [showCity, setShowCity]     = useState(false)
+  const handleGeolocate = () => {
+  if (!navigator.geolocation) return
+  navigator.geolocation.getCurrentPosition(async (pos) => {
+    try {
+      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${pos.coords.latitude}&lon=${pos.coords.longitude}&format=json`)
+      const data = await res.json()
+      const cityName = data.address?.city || data.address?.town || data.address?.village || data.address?.municipality
+      if (cityName) setCity(cityName)
+    } catch {}
+  })
+}
 
   return (
     <div style={{ background: '#0F1210', color: '#F0EDE8', fontFamily: 'Outfit, sans-serif', minHeight: '100vh' }}>
@@ -69,30 +82,64 @@ export default function HomePage() {
             Sin llamadas, sin esperas. Confirmación instantánea.
           </p>
 
-          {/* Search bar */}
-          <div style={{ maxWidth: 760, margin: '0 auto 48px', animation: 'fadeUp 0.6s 0.3s ease both' }}>
-            <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '6px', display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
+{/* Search bar */}
+          <div style={{ maxWidth: 760, margin: '0 auto 48px', animation: 'fadeUp 0.6s 0.3s ease both', position: 'relative' }}>
+            <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '6px', display: 'flex', alignItems: 'center', gap: 2 }}>
               {/* Qué */}
-              <div style={{ flex: 2, minWidth: 140, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRight: '1px solid rgba(255,255,255,0.08)' }}>
+              <div style={{ flex: 2, minWidth: 140, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRight: '1px solid rgba(255,255,255,0.08)', position: 'relative' }}>
                 <span style={{ opacity: 0.4, fontSize: 16 }}>🔍</span>
                 <input
                   value={search}
-                  onChange={e => setSearch(e.target.value)}
+                  onChange={e => { setSearch(e.target.value); setShowSearch(true) }}
+                  onFocus={() => setShowSearch(true)}
+                  onBlur={() => setTimeout(() => setShowSearch(false), 200)}
                   placeholder="Buscar servicios o negocios..."
                   style={{ flex: 1, background: 'transparent', border: 'none', color: '#F0EDE8', fontSize: 14, fontFamily: 'Outfit, sans-serif', padding: '6px 0' }}
                 />
+                {showSearch && (
+                  <div style={{ position: 'absolute', top: 'calc(100% + 12px)', left: 0, right: 0, background: '#1C1F1D', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '16px', zIndex: 100, boxShadow: '0 8px 32px rgba(0,0,0,0.6)', minWidth: 280 }}>
+                    <p style={{ fontSize: 11, color: 'rgba(240,237,232,0.35)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>Servicios populares</p>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      {['Corte caballero','Manicura semipermanente','Corte fade','Corte para niño','Diseño de cejas','Uñas acrílicas','Depilación de cejas'].map(s => (
+                        <button key={s} onClick={() => { setSearch(s); setShowSearch(false) }} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 100, padding: '6px 14px', fontSize: 13, color: 'rgba(240,237,232,0.7)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s' }}
+                          onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(201,150,90,0.4)'}
+                          onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.08)'}
+                        >{s}</button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
+
               {/* Dónde */}
-              <div className="search-where" style={{ flex: 1, minWidth: 110, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRight: '1px solid rgba(255,255,255,0.08)' }}>
+              <div className="search-where" style={{ flex: 1, minWidth: 110, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRight: '1px solid rgba(255,255,255,0.08)', position: 'relative' }}>
                 <span style={{ opacity: 0.4, fontSize: 16 }}>📍</span>
                 <input
                   value={city}
-                  onChange={e => setCity(e.target.value)}
+                  onChange={e => { setCity(e.target.value); setShowCity(true) }}
+                  onFocus={() => setShowCity(true)}
+                  onBlur={() => setTimeout(() => setShowCity(false), 200)}
                   placeholder="¿Dónde?"
                   style={{ flex: 1, background: 'transparent', border: 'none', color: '#F0EDE8', fontSize: 14, fontFamily: 'Outfit, sans-serif', padding: '6px 0', minWidth: 0 }}
                 />
+                {showCity && (
+                  <div style={{ position: 'absolute', top: 'calc(100% + 12px)', left: 0, right: 0, background: '#1C1F1D', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '8px', zIndex: 100, boxShadow: '0 8px 32px rgba(0,0,0,0.6)', minWidth: 260 }}>
+                    <button onClick={() => { handleGeolocate(); setShowCity(false) }} style={{ width: '100%', textAlign: 'left', background: 'transparent', border: 'none', padding: '10px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'Outfit, sans-serif', borderBottom: '1px solid rgba(255,255,255,0.06)', marginBottom: 4 }}>
+                      <span style={{ color: '#C9965A', fontSize: 16 }}>📍</span>
+                      <span style={{ color: '#C9965A', fontWeight: 600, fontSize: 14 }}>Usar mi ubicación actual</span>
+                    </button>
+                    {['Madrid', 'Barcelona', 'Sevilla', 'Valencia', 'Málaga'].map(c => (
+                      <button key={c} onClick={() => { setCity(c); setShowCity(false) }} style={{ width: '100%', textAlign: 'left', background: 'transparent', border: 'none', padding: '10px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'Outfit, sans-serif', color: 'rgba(240,237,232,0.7)', fontSize: 14, borderRadius: 8, transition: 'background 0.15s' }}
+                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'}
+                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                      >
+                        <span style={{ opacity: 0.4, fontSize: 14 }}>📍</span> {c}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
-              {/* Buscar */}
+
               <button
                 onClick={() => navigate(`/search?q=${search}&city=${city}`)}
                 style={{ background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 10, padding: '12px 28px', color: '#0A0806', fontWeight: 700, fontSize: 14, fontFamily: 'Outfit, sans-serif', cursor: 'pointer', whiteSpace: 'nowrap' }}
