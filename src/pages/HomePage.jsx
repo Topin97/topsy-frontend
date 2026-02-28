@@ -94,7 +94,7 @@ export default function HomePage() {
                   onFocus={() => setShowSearch(true)}
                   onBlur={() => setTimeout(() => setShowSearch(false), 200)}
                   placeholder="Buscar servicios o negocios..."
-                  style={{ flex: 1, background: 'transparent', border: 'none', color: '#F0EDE8', fontSize: 14, fontFamily: 'Outfit, sans-serif', padding: '6px 0' }}
+                  style={{ flex: 1, background: 'transparent', border: 'none', color: '#F0EDE8', fontSize: 16, fontFamily: 'Outfit, sans-serif', padding: '6px 0' }}
                 />
                 {showSearch && (
                   <div style={{ position: 'absolute', top: 'calc(100% + 12px)', left: 0, right: 0, background: '#1C1F1D', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '16px', zIndex: 100, boxShadow: '0 8px 32px rgba(0,0,0,0.6)', minWidth: 280 }}>
@@ -120,7 +120,7 @@ export default function HomePage() {
                   onFocus={() => setShowCity(true)}
                   onBlur={() => setTimeout(() => setShowCity(false), 200)}
                   placeholder="¿Dónde?"
-                  style={{ flex: 1, background: 'transparent', border: 'none', color: '#F0EDE8', fontSize: 14, fontFamily: 'Outfit, sans-serif', padding: '6px 0', minWidth: 0 }}
+                  style={{ flex: 1, background: 'transparent', border: 'none', color: '#F0EDE8', fontSize: 16, fontFamily: 'Outfit, sans-serif', padding: '6px 0', minWidth: 0 }}
                 />
                 {showCity && (
                   <div style={{ position: 'absolute', top: 'calc(100% + 12px)', left: 0, right: 0, background: '#1C1F1D', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '8px', zIndex: 100, boxShadow: '0 8px 32px rgba(0,0,0,0.6)', minWidth: 260 }}>
