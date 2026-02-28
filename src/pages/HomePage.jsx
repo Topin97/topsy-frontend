@@ -2,12 +2,9 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const CATEGORIES = [
-  { icon: '💇‍♀️', label: 'Peluquería',  value: 'hair' },
-  { icon: '🪒',    label: 'Barbería',    value: 'barber' },
-  { icon: '💅',    label: 'Uñas',        value: 'nails' },
-  { icon: '🧖‍♀️', label: 'Spa',         value: 'spa' },
-  { icon: '✨',    label: 'Estética',    value: 'aesthetic' },
-  { icon: '👁️',   label: 'Cejas',       value: 'brows' },
+  { icon: '💇‍♀️', label: 'Peluquería', value: 'hair' },
+  { icon: '🪒',    label: 'Barbería',   value: 'barber' },
+  { icon: '✨',    label: 'Estética',   value: 'aesthetic' },
 ]
 
 const FEATURED = [
