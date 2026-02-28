@@ -4,16 +4,16 @@ import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
 
 const DAYS = [
-  { key: 'monday',    label: 'Lunes' },
-  { key: 'tuesday',   label: 'Martes' },
-  { key: 'wednesday', label: 'Miércoles' },
-  { key: 'thursday',  label: 'Jueves' },
-  { key: 'friday',    label: 'Viernes' },
-  { key: 'saturday',  label: 'Sábado' },
-  { key: 'sunday',    label: 'Domingo' },
+  { key: 'monday',    label: 'Lunes',     short: 'Lun' },
+  { key: 'tuesday',   label: 'Martes',    short: 'Mar' },
+  { key: 'wednesday', label: 'Miércoles', short: 'Mié' },
+  { key: 'thursday',  label: 'Jueves',    short: 'Jue' },
+  { key: 'friday',    label: 'Viernes',   short: 'Vie' },
+  { key: 'saturday',  label: 'Sábado',    short: 'Sáb' },
+  { key: 'sunday',    label: 'Domingo',   short: 'Dom' },
 ]
 
-const DEFAULT_SCHEDULE = DAYS.map((d) => ({
+const DEFAULT_SCHEDULE = DAYS.map(d => ({
   day_of_week:  d.key,
   is_available: !['saturday', 'sunday'].includes(d.key),
   start_time:   '09:00',
@@ -23,18 +23,6 @@ const DEFAULT_SCHEDULE = DAYS.map((d) => ({
 export default function ProAvailabilityPage() {
   const qc = useQueryClient()
   const [schedule, setSchedule] = useState(DEFAULT_SCHEDULE)
-
-  const { data: me } = useQuery({
-    queryKey: ['me'],
-    queryFn: () => authApi.me().then((r) => r.data.user),
-  })
-
-  // Pre-fill with existing availability
-  useEffect(() => {
-    if (me?.professional_profiles?.id) {
-      // Will be populated from professional profile data
-    }
-  }, [me])
 
   const { mutate: save, isPending } = useMutation({
     mutationFn: () => profApi.setAvail({ availability: schedule }),
@@ -46,131 +34,128 @@ export default function ProAvailabilityPage() {
   })
 
   const updateDay = (dayKey, field, value) => {
-    setSchedule((prev) =>
-      prev.map((d) => d.day_of_week === dayKey ? { ...d, [field]: value } : d)
-    )
+    setSchedule(prev => prev.map(d => d.day_of_week === dayKey ? { ...d, [field]: value } : d))
   }
 
   const copyToAll = (sourceKey) => {
-    const source = schedule.find((d) => d.day_of_week === sourceKey)
-    setSchedule((prev) =>
-      prev.map((d) => d.is_available ? { ...d, start_time: source.start_time, end_time: source.end_time } : d)
-    )
+    const source = schedule.find(d => d.day_of_week === sourceKey)
+    setSchedule(prev => prev.map(d => d.is_available ? { ...d, start_time: source.start_time, end_time: source.end_time } : d))
     toast.success('Horario copiado a todos los días activos')
   }
 
+  const activeDays = schedule.filter(d => d.is_available)
+
   return (
-    <div className="container-app" style={{ padding: '40px 24px', maxWidth: 700 }}>
-      <p className="section-tag" style={{ marginBottom: 8 }}>Panel profesional</p>
-      <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.5rem', fontWeight: 300, marginBottom: 8 }}>
-        Mi <em style={{ color: '#C9965A' }}>disponibilidad</em>
-      </h1>
-      <p style={{ color: 'rgba(247,242,234,0.4)', fontSize: 14, marginBottom: 32 }}>
-        Configura los días y horarios en los que aceptas citas
-      </p>
+    <div style={{ background: '#0A0806', minHeight: '100vh', paddingBottom: 100 }}>
+      <style>{`
+        input[type="time"] { color-scheme: dark; }
+        input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0.5); }
+        .day-row:hover { border-color: rgba(201,150,90,0.2) !important; }
+        .day-row { transition: all 0.2s; }
+        .copy-btn:hover { background: rgba(201,150,90,0.1) !important; border-color: rgba(201,150,90,0.3) !important; color: #C9965A !important; }
+      `}</style>
 
-      <div className="card" style={{ padding: 24, marginBottom: 24 }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-          {/* Header */}
-          <div style={{ display: 'grid', gridTemplateColumns: '120px 80px 1fr 1fr 80px', gap: 12, padding: '8px 12px', marginBottom: 8 }}>
-            {['Día', 'Activo', 'Inicio', 'Fin', ''].map((h) => (
-              <span key={h} style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.3)' }}>{h}</span>
-            ))}
-          </div>
+      <div className="container-app" style={{ padding: '32px 16px', maxWidth: 640 }}>
+        <p style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.6)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={{ display: 'inline-block', width: 20, height: 1, background: '#C9965A' }} /> Panel profesional
+        </p>
+        <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(2rem,5vw,2.8rem)', fontWeight: 300, marginBottom: 8 }}>
+          Mi <em style={{ color: '#C9965A' }}>disponibilidad</em>
+        </h1>
+        <p style={{ color: 'rgba(247,242,234,0.35)', fontSize: 13, marginBottom: 32 }}>
+          Configura los días y horarios en los que aceptas citas
+        </p>
 
-          {schedule.map((day) => {
-            const dayLabel = DAYS.find((d) => d.key === day.day_of_week)?.label
+        {/* Days */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
+          {schedule.map(day => {
+            const dayInfo = DAYS.find(d => d.key === day.day_of_week)
             return (
-              <div
-                key={day.day_of_week}
-                style={{
-                  display: 'grid', gridTemplateColumns: '120px 80px 1fr 1fr 80px',
-                  gap: 12, alignItems: 'center', padding: '12px',
-                  borderRadius: 12, background: day.is_available ? 'rgba(201,150,90,0.05)' : 'transparent',
-                  border: `1px solid ${day.is_available ? 'rgba(201,150,90,0.15)' : 'rgba(255,255,255,0.04)'}`,
-                  opacity: day.is_available ? 1 : 0.5, transition: 'all 0.2s',
-                }}
-              >
-                <span style={{ fontWeight: 500, fontSize: 14 }}>{dayLabel}</span>
-
-                {/* Toggle */}
-                <div
-                  onClick={() => updateDay(day.day_of_week, 'is_available', !day.is_available)}
-                  style={{
-                    width: 44, height: 24, borderRadius: 12, cursor: 'pointer',
+              <div key={day.day_of_week} className="day-row" style={{
+                background: day.is_available ? 'rgba(201,150,90,0.05)' : 'rgba(255,255,255,0.02)',
+                border: `1px solid ${day.is_available ? 'rgba(201,150,90,0.15)' : 'rgba(255,255,255,0.05)'}`,
+                borderRadius: 16, padding: '16px 18px',
+                opacity: day.is_available ? 1 : 0.5,
+              }}>
+                {/* Row top: day name + toggle */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: day.is_available ? 14 : 0 }}>
+                  <span style={{ fontWeight: 600, fontSize: 15, color: day.is_available ? '#F7F2EA' : 'rgba(247,242,234,0.4)' }}>
+                    {dayInfo?.label}
+                  </span>
+                  <div onClick={() => updateDay(day.day_of_week, 'is_available', !day.is_available)} style={{
+                    width: 48, height: 26, borderRadius: 13, cursor: 'pointer',
                     background: day.is_available ? '#C9965A' : 'rgba(255,255,255,0.1)',
-                    position: 'relative', transition: 'background 0.2s',
-                  }}
-                >
-                  <div style={{
-                    width: 18, height: 18, borderRadius: '50%', background: '#fff',
-                    position: 'absolute', top: 3,
-                    left: day.is_available ? 23 : 3,
-                    transition: 'left 0.2s',
-                  }} />
+                    position: 'relative', transition: 'background 0.2s', flexShrink: 0,
+                  }}>
+                    <div style={{
+                      width: 20, height: 20, borderRadius: '50%', background: '#fff',
+                      position: 'absolute', top: 3,
+                      left: day.is_available ? 25 : 3,
+                      transition: 'left 0.2s', boxShadow: '0 1px 4px rgba(0,0,0,0.3)',
+                    }} />
+                  </div>
                 </div>
 
-                <input
-                  type="time"
-                  value={day.start_time}
-                  onChange={(e) => updateDay(day.day_of_week, 'start_time', e.target.value)}
-                  disabled={!day.is_available}
-                  className="input"
-                  style={{ padding: '8px 12px', fontSize: 14 }}
-                />
-
-                <input
-                  type="time"
-                  value={day.end_time}
-                  onChange={(e) => updateDay(day.day_of_week, 'end_time', e.target.value)}
-                  disabled={!day.is_available}
-                  className="input"
-                  style={{ padding: '8px 12px', fontSize: 14 }}
-                />
-
-                <button
-                  onClick={() => copyToAll(day.day_of_week)}
-                  disabled={!day.is_available}
-                  title="Copiar a todos"
-                  style={{
-                    background: 'transparent', border: '1px solid rgba(255,255,255,0.1)',
-                    borderRadius: 8, padding: '6px 8px', cursor: 'pointer',
-                    color: 'rgba(247,242,234,0.4)', fontSize: 12, fontFamily: 'Outfit, sans-serif',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  Copiar
-                </button>
+                {/* Row bottom: times + copy (only when active) */}
+                {day.is_available && (
+                  <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 10, color: 'rgba(247,242,234,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Inicio</p>
+                      <input type="time" value={day.start_time} onChange={e => updateDay(day.day_of_week, 'start_time', e.target.value)}
+                        style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 12px', color: '#F7F2EA', fontSize: 15, fontFamily: 'Outfit, sans-serif', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                    <div style={{ paddingTop: 18, color: 'rgba(247,242,234,0.2)', fontSize: 18 }}>—</div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 10, color: 'rgba(247,242,234,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Fin</p>
+                      <input type="time" value={day.end_time} onChange={e => updateDay(day.day_of_week, 'end_time', e.target.value)}
+                        style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 12px', color: '#F7F2EA', fontSize: 15, fontFamily: 'Outfit, sans-serif', boxSizing: 'border-box' }}
+                      />
+                    </div>
+                    <div style={{ paddingTop: 18 }}>
+                      <button onClick={() => copyToAll(day.day_of_week)} className="copy-btn" title="Copiar a todos" style={{
+                        background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
+                        borderRadius: 10, padding: '10px 12px', cursor: 'pointer',
+                        color: 'rgba(247,242,234,0.35)', fontSize: 11, fontFamily: 'Outfit, sans-serif',
+                        whiteSpace: 'nowrap',
+                      }}>
+                        Copiar
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             )
           })}
         </div>
-      </div>
 
-      {/* Summary */}
-      <div className="card" style={{ padding: 20, marginBottom: 24 }}>
-        <p className="section-tag" style={{ marginBottom: 16, fontSize: 10 }}>Resumen</p>
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          {schedule.filter((d) => d.is_available).map((d) => (
-            <div key={d.day_of_week} style={{ background: 'rgba(201,150,90,0.1)', border: '1px solid rgba(201,150,90,0.2)', borderRadius: 8, padding: '6px 12px', fontSize: 12 }}>
-              <span style={{ fontWeight: 600, color: '#C9965A' }}>{DAYS.find((x) => x.key === d.day_of_week)?.label.slice(0, 3)}</span>
-              <span style={{ color: 'rgba(247,242,234,0.5)', marginLeft: 6 }}>{d.start_time} – {d.end_time}</span>
+        {/* Summary */}
+        {activeDays.length > 0 && (
+          <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '18px 20px', marginBottom: 24 }}>
+            <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.6)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ display: 'inline-block', width: 16, height: 1, background: '#C9965A' }} /> Resumen
+            </p>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              {activeDays.map(d => (
+                <div key={d.day_of_week} style={{ background: 'rgba(201,150,90,0.08)', border: '1px solid rgba(201,150,90,0.18)', borderRadius: 10, padding: '7px 12px', fontSize: 12 }}>
+                  <span style={{ fontWeight: 700, color: '#C9965A' }}>{DAYS.find(x => x.key === d.day_of_week)?.short}</span>
+                  <span style={{ color: 'rgba(247,242,234,0.45)', marginLeft: 6 }}>{d.start_time} – {d.end_time}</span>
+                </div>
+              ))}
             </div>
-          ))}
-          {schedule.every((d) => !d.is_available) && (
-            <p style={{ color: 'rgba(247,242,234,0.3)', fontSize: 13, fontStyle: 'italic' }}>Ningún día activo</p>
-          )}
-        </div>
-      </div>
+          </div>
+        )}
 
-      <button
-        onClick={() => save()}
-        disabled={isPending}
-        className="btn-primary"
-        style={{ width: '100%', padding: '14px', fontSize: '14px' }}
-      >
-        {isPending ? 'Guardando...' : 'Guardar disponibilidad'}
-      </button>
+        <button onClick={() => save()} disabled={isPending} style={{
+          width: '100%', border: 'none', borderRadius: 12, padding: '16px',
+          background: 'linear-gradient(135deg, #C9965A, #E8B97A)', color: '#0A0806',
+          fontWeight: 700, fontSize: 14, fontFamily: 'Outfit, sans-serif',
+          cursor: isPending ? 'not-allowed' : 'pointer', letterSpacing: '0.08em', textTransform: 'uppercase',
+          opacity: isPending ? 0.7 : 1,
+        }}>
+          {isPending ? 'Guardando...' : 'Guardar disponibilidad'}
+        </button>
+      </div>
     </div>
   )
 }
