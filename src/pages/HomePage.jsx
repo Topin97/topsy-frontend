@@ -85,7 +85,7 @@ export default function HomePage() {
           </div>
 
           {/* Categories */}
-          <div className="cats-row" style={{ display: 'flex', justifyContent: 'center', gap: 20, flexWrap: 'wrap', animation: 'fadeUp 0.6s 0.4s ease both' }}>
+          <div className="cats-row" style={{ display: 'flex', justifyContent: 'center', gap: 20, flexWrap: 'nowrap', overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: 8, animation: 'fadeUp 0.6s 0.4s ease both' }}>
             {CATEGORIES.map(cat => (
               <button key={cat.value} className="cat-btn" onClick={() => navigate(`/search?category=${cat.value}`)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, fontFamily: 'Outfit, sans-serif' }}>
                 <div className="cat-circle" style={{ width: 76, height: 76, borderRadius: '50%', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>
