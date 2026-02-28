@@ -64,7 +64,7 @@ export default function HomePage() {
             Sin llamadas, sin esperas. Confirmación instantánea.
           </p>
 
-{/* Search bar */}
+          {/* Search bar */}
           <div style={{ maxWidth: 760, margin: '0 auto 48px', animation: 'fadeUp 0.6s 0.3s ease both' }}>
             <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 16, padding: '6px', display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
               {/* Qué */}
