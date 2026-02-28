@@ -51,6 +51,9 @@ export default function HomePage() {
         input::placeholder { color: rgba(240,237,232,0.3) !important; }
         input:focus { outline: none; }
         @media (max-width: 640px) {
+  .search-dropdown { position: fixed !important; top: auto !important; bottom: 0 !important; left: 0 !important; right: 0 !important; border-radius: 20px 20px 0 0 !important; min-width: unset !important; }
+}
+        @media (max-width: 640px) {
   .search-where { display: none !important; }
   .search-divider { display: none !important; }
 }
@@ -97,7 +100,7 @@ export default function HomePage() {
                   style={{ flex: 1, background: 'transparent', border: 'none', color: '#F0EDE8', fontSize: 16, fontFamily: 'Outfit, sans-serif', padding: '6px 0' }}
                 />
                 {showSearch && (
-                  <div style={{ position: 'absolute', top: 'calc(100% + 12px)', left: 0, right: 0, background: '#1C1F1D', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '16px', zIndex: 100, boxShadow: '0 8px 32px rgba(0,0,0,0.6)', minWidth: 280 }}>
+                  <div className="search-dropdown" style={{ position: 'absolute', top: 'calc(100% + 12px)', left: 0, right: 0, background: '#1C1F1D', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '16px', zIndex: 100, boxShadow: '0 8px 32px rgba(0,0,0,0.6)', minWidth: 280 }}>
                     <p style={{ fontSize: 11, color: 'rgba(240,237,232,0.35)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>Servicios populares</p>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                       {['Corte caballero','Manicura semipermanente','Corte fade','Corte para niño','Diseño de cejas','Uñas acrílicas','Depilación de cejas'].map(s => (
@@ -123,7 +126,7 @@ export default function HomePage() {
                   style={{ flex: 1, background: 'transparent', border: 'none', color: '#F0EDE8', fontSize: 16, fontFamily: 'Outfit, sans-serif', padding: '6px 0', minWidth: 0 }}
                 />
                 {showCity && (
-                  <div style={{ position: 'absolute', top: 'calc(100% + 12px)', left: 0, right: 0, background: '#1C1F1D', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '8px', zIndex: 100, boxShadow: '0 8px 32px rgba(0,0,0,0.6)', minWidth: 260 }}>
+                  <div className="search-dropdown" style={{ position: 'absolute', top: 'calc(100% + 12px)', left: 0, right: 0, background: '#1C1F1D', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '8px', zIndex: 100, boxShadow: '0 8px 32px rgba(0,0,0,0.6)', minWidth: 260 }}>
                     <button onClick={() => { handleGeolocate(); setShowCity(false) }} style={{ width: '100%', textAlign: 'left', background: 'transparent', border: 'none', padding: '10px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, fontFamily: 'Outfit, sans-serif', borderBottom: '1px solid rgba(255,255,255,0.06)', marginBottom: 4 }}>
                       <span style={{ color: '#C9965A', fontSize: 16 }}>📍</span>
                       <span style={{ color: '#C9965A', fontWeight: 600, fontSize: 14 }}>Usar mi ubicación actual</span>
