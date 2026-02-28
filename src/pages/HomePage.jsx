@@ -16,6 +16,7 @@ const FEATURED = [
 export default function HomePage() {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
+  const [city, setCity] = useState('')
 
   return (
     <div style={{ background: '#0F1210', color: '#F0EDE8', fontFamily: 'Outfit, sans-serif', minHeight: '100vh' }}>
