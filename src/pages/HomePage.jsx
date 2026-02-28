@@ -37,6 +37,10 @@ export default function HomePage() {
         .search-box { transition: all 0.2s; }
         input::placeholder { color: rgba(240,237,232,0.3) !important; }
         input:focus { outline: none; }
+        @media (max-width: 640px) {
+  .search-where { display: none !important; }
+  .search-divider { display: none !important; }
+}
 
         @media (max-width: 768px) {
           .hero-title { font-size: clamp(1.8rem, 7vw, 2.5rem) !important; }
@@ -79,7 +83,7 @@ export default function HomePage() {
                 />
               </div>
               {/* Dónde */}
-              <div style={{ flex: 1, minWidth: 110, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRight: '1px solid rgba(255,255,255,0.08)' }}>
+              <div className="search-where" style={{ flex: 1, minWidth: 110, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRight: '1px solid rgba(255,255,255,0.08)' }}>
                 <span style={{ opacity: 0.4, fontSize: 16 }}>📍</span>
                 <input
                   value={city}
