@@ -53,15 +53,6 @@ export default function ProAvailabilityPage() {
         .day-row:hover { border-color: rgba(201,150,90,0.2) !important; }
         .day-row { transition: all 0.2s; }
         .copy-btn:hover { background: rgba(201,150,90,0.1) !important; border-color: rgba(201,150,90,0.3) !important; color: #C9965A !important; }
-        * {
-  box-sizing: border-box;
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-}
       `}</style>
 
       <div className="container-app" style={{ padding: '32px 16px', maxWidth: 640 }}>
@@ -83,7 +74,7 @@ html, body {
           <div key={day.day_of_week} className="day-row" style={{
                           background: day.is_available ? 'rgba(201,150,90,0.05)' : 'rgba(255,255,255,0.02)',
                           border: `1px solid ${day.is_available ? 'rgba(201,150,90,0.15)' : 'rgba(255,255,255,0.05)'}`,
-                          borderRadius: 16, padding: '16px 18px',
+                          borderRadius: 16, padding: '16px 16px',
                           opacity: day.is_available ? 1 : 0.5,
                           overflow: 'hidden',
                         }}>
@@ -110,14 +101,14 @@ html, body {
                 {day.is_available && (
                   <div>
                     <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
-                      <div style={{ flex: 1 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
                         <p style={{ fontSize: 10, color: 'rgba(247,242,234,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Inicio</p>
                         <input type="time" value={day.start_time} onChange={e => updateDay(day.day_of_week, 'start_time', e.target.value)}
                           style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 12px', color: '#F7F2EA', fontSize: 15, fontFamily: 'Outfit, sans-serif', boxSizing: 'border-box' }}
                         />
                       </div>
                       <div style={{ paddingBottom: 12, color: 'rgba(247,242,234,0.2)', fontSize: 18 }}>—</div>
-                      <div style={{ flex: 1 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
                         <p style={{ fontSize: 10, color: 'rgba(247,242,234,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Fin</p>
                         <input type="time" value={day.end_time} onChange={e => updateDay(day.day_of_week, 'end_time', e.target.value)}
                           style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 12px', color: '#F7F2EA', fontSize: 15, fontFamily: 'Outfit, sans-serif', boxSizing: 'border-box' }}
