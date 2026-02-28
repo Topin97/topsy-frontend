@@ -91,14 +91,15 @@ export default function HomePage() {
               {/* Qué */}
               <div style={{ flex: 2, minWidth: 140, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', borderRight: '1px solid rgba(255,255,255,0.08)', position: 'relative' }}>
                 <span style={{ opacity: 0.4, fontSize: 16 }}>🔍</span>
-                <input
-                  value={search}
-                  onChange={e => { setSearch(e.target.value); setShowSearch(true) }}
-                  onFocus={() => { setShowSearch(true); if (window.innerWidth < 640) { document.activeElement.blur() } }}
-                  onBlur={() => setTimeout(() => setShowSearch(false), 200)}
-                  placeholder="Buscar servicios o negocios..."
-                  style={{ flex: 1, background: 'transparent', border: 'none', color: '#F0EDE8', fontSize: 16, fontFamily: 'Outfit, sans-serif', padding: '6px 0' }}
-                />
+              <input
+                value={search}
+                onChange={e => { setSearch(e.target.value); setShowSearch(true) }}
+                onFocus={() => { setShowSearch(true); if (window.innerWidth < 640) { document.activeElement.blur() } }}
+                onBlur={() => setTimeout(() => setShowSearch(false), 300)}
+                onTouchStart={() => setShowSearch(s => !s)}
+                placeholder="Buscar servicios o negocios..."
+                style={{ flex: 1, background: 'transparent', border: 'none', color: '#F0EDE8', fontSize: 16, fontFamily: 'Outfit, sans-serif', padding: '6px 0' }}
+              />
                 {showSearch && (
                   <div className="search-dropdown" style={{ position: 'absolute', top: 'calc(100% + 12px)', left: 0, right: 0, background: '#1C1F1D', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '16px', zIndex: 100, boxShadow: '0 8px 32px rgba(0,0,0,0.6)', minWidth: 280 }}>
                     <p style={{ fontSize: 11, color: 'rgba(240,237,232,0.35)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 12 }}>Servicios populares</p>
