@@ -104,14 +104,14 @@ export default function ProAvailabilityPage() {
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <p style={{ fontSize: 10, color: 'rgba(247,242,234,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Inicio</p>
                         <input type="time" value={day.start_time} onChange={e => updateDay(day.day_of_week, 'start_time', e.target.value)}
-                          style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 12px', color: '#F7F2EA', fontSize: 15, fontFamily: 'Outfit, sans-serif', boxSizing: 'border-box' }}
+                          style={{ width: '100%', maxWidth: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 12px', color: '#F7F2EA', fontSize: 14, fontFamily: 'Outfit, sans-serif', boxSizing: 'border-box', appearance: 'none', WebkitAppearance: 'none' }}
                         />
                       </div>
                       <div style={{ paddingBottom: 12, color: 'rgba(247,242,234,0.2)', fontSize: 18 }}>—</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <p style={{ fontSize: 10, color: 'rgba(247,242,234,0.3)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 6 }}>Fin</p>
                         <input type="time" value={day.end_time} onChange={e => updateDay(day.day_of_week, 'end_time', e.target.value)}
-                          style={{ width: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 12px', color: '#F7F2EA', fontSize: 15, fontFamily: 'Outfit, sans-serif', boxSizing: 'border-box' }}
+                          style={{ width: '100%', maxWidth: '100%', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '10px 12px', color: '#F7F2EA', fontSize: 14, fontFamily: 'Outfit, sans-serif', boxSizing: 'border-box', appearance: 'none', WebkitAppearance: 'none' }}
                         />
                       </div>
                     </div>
