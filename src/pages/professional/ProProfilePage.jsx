@@ -112,12 +112,7 @@ function ImageUpload({ label, currentUrl, bucket, onUploaded, aspect = 16/9, tok
   return (
     <>
       {srcForCrop && (
-        <CropModal
-          src={srcForCrop}
-          aspect={aspect}
-          onConfirm={handleConfirm}
-          onCancel={() => setSrcForCrop(null)}
-        />
+        <CropModal src={srcForCrop} aspect={aspect} onConfirm={handleConfirm} onCancel={() => setSrcForCrop(null)} />
       )}
       <div style={{ marginBottom: 20 }}>
         <label style={{ display: 'block', fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.4)', marginBottom: 8 }}>
@@ -176,7 +171,7 @@ export default function ProProfilePage() {
 
   const hasProfile = !!me?.professional_profiles
 
-  const { register, handleSubmit, formState: { errors, isDirty } } = useForm({
+  const { register, handleSubmit, watch, formState: { errors } } = useForm({
     values: {
       business_name: me?.professional_profiles?.business_name ?? '',
       description:   me?.professional_profiles?.description   ?? '',
@@ -185,6 +180,8 @@ export default function ProProfilePage() {
       city:          me?.professional_profiles?.city          ?? '',
     },
   })
+
+  const selectedCategory = watch('category')
 
   const { mutate: save, isPending } = useMutation({
     mutationFn: async (data) => {
@@ -240,6 +237,7 @@ export default function ProProfilePage() {
         {(hasProfile || creating) && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
+            {/* Fotos */}
             <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: 24 }}>
               <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.6)', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ display: 'inline-block', width: 16, height: 1, background: '#C9965A' }} /> Fotos
@@ -249,7 +247,7 @@ export default function ProProfilePage() {
                 currentUrl={coverUrl ?? me?.professional_profiles?.cover_image_url}
                 bucket="covers"
                 aspect={16/9}
-                onUploaded={(url) => { setCoverUrl(url); profApi.update({ cover_image_url: url }).then(() => qc.invalidateQueries(['me'])) }}
+                onUploaded={(url) => { setCoverUrl(url); profApi.update({ cover_image_url: url }).then(() => qc.invalidateQueries({ queryKey: ['me'] })) }}
                 token={token}
               />
               <ImageUpload
@@ -257,33 +255,46 @@ export default function ProProfilePage() {
                 currentUrl={avatarUrl ?? me?.profiles?.avatar_url}
                 bucket="avatars"
                 aspect={1}
-                onUploaded={(url) => { setAvatarUrl(url); authApi.updateProfile({ avatar_url: url }).then(() => qc.invalidateQueries(['me'])) }}
+                onUploaded={(url) => { setAvatarUrl(url); authApi.updateProfile({ avatar_url: url }).then(() => qc.invalidateQueries({ queryKey: ['me'] })) }}
                 token={token}
               />
             </div>
 
+            {/* Información */}
             <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: 24 }}>
               <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.6)', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ display: 'inline-block', width: 16, height: 1, background: '#C9965A' }} /> Información
               </p>
               <form onSubmit={handleSubmit(d => save(d))}>
+
                 <div style={{ marginBottom: 18 }}>
                   <label style={{ display: 'block', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.35)', marginBottom: 8 }}>Nombre del negocio *</label>
                   <input {...register('business_name', { required: 'Campo requerido' })} placeholder="Ej: Salón Lucía García" className="input" />
                   {errors.business_name && <p style={{ color: '#f87171', fontSize: 12, marginTop: 4 }}>{errors.business_name.message}</p>}
                 </div>
 
+                {/* Categoría */}
                 <div style={{ marginBottom: 18 }}>
-                  <label style={{ display: 'block', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.35)', marginBottom: 8 }}>Categoría *</label>
+                  <label style={{ display: 'block', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.35)', marginBottom: 10 }}>Categoría *</label>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
-                    {CATEGORIES.map(cat => (
-                      <label key={cat.value} style={{ cursor: 'pointer' }}>
-                        <input {...register('category')} type="radio" value={cat.value} style={{ display: 'none' }} />
-                        <div style={{ padding: '10px 12px', borderRadius: 10, fontSize: 13, textAlign: 'center', border: '1px solid rgba(255,255,255,0.1)', transition: 'all 0.2s', cursor: 'pointer' }} className="cat-option">
-                          {cat.label}
-                        </div>
-                      </label>
-                    ))}
+                    {CATEGORIES.map(cat => {
+                      const isSelected = selectedCategory === cat.value
+                      return (
+                        <label key={cat.value} style={{ cursor: 'pointer' }}>
+                          <input {...register('category')} type="radio" value={cat.value} style={{ display: 'none' }} />
+                          <div style={{
+                            padding: '10px 12px', borderRadius: 10, fontSize: 13, textAlign: 'center',
+                            border: `1px solid ${isSelected ? '#C9965A' : 'rgba(255,255,255,0.08)'}`,
+                            background: isSelected ? 'rgba(201,150,90,0.12)' : 'rgba(255,255,255,0.02)',
+                            color: isSelected ? '#C9965A' : 'rgba(247,242,234,0.55)',
+                            fontWeight: isSelected ? 600 : 400,
+                            cursor: 'pointer', transition: 'all 0.2s',
+                          }}>
+                            {cat.label}
+                          </div>
+                        </label>
+                      )
+                    })}
                   </div>
                 </div>
 
@@ -306,7 +317,9 @@ export default function ProProfilePage() {
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
                   {creating && !hasProfile && (
-                    <button type="button" onClick={() => setCreating(false)} className="btn-ghost">Cancelar</button>
+                    <button type="button" onClick={() => setCreating(false)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 24px', color: 'rgba(247,242,234,0.5)', fontSize: 13, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+                      Cancelar
+                    </button>
                   )}
                   <button type="submit" disabled={isPending} className="btn-primary" style={{ padding: '12px 32px' }}>
                     {isPending ? 'Guardando...' : hasProfile ? 'Guardar cambios' : 'Crear perfil'}
@@ -315,6 +328,7 @@ export default function ProProfilePage() {
               </form>
             </div>
 
+            {/* Estado del perfil */}
             {hasProfile && (
               <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '16px 20px' }}>
                 <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.6)', marginBottom: 12 }}>Estado del perfil</p>
