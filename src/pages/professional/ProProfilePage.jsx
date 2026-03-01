@@ -257,7 +257,7 @@ export default function ProProfilePage() {
                 currentUrl={avatarUrl ?? me?.profiles?.avatar_url}
                 bucket="avatars"
                 aspect={1}
-                onUploaded={(url) => setAvatarUrl(url)}
+                onUploaded={(url) => { setAvatarUrl(url); profApi.update({ avatar_url: url }).then(() => qc.invalidateQueries(['me'])) }}
                 token={token}
               />
             </div>
