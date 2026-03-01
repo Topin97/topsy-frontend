@@ -15,6 +15,7 @@ import ProfilePage      from './pages/ProfilePage'
 import AdminPage        from './pages/admin/AdminPage'
 import WelcomePage      from './pages/WelcomePage'
 import NotFoundPage from './pages/NotFoundPage'
+import ForgotPasswordPage from './pages/ForgotPasswordPage'
 
 // Panel profesional
 import ProDashboardPage    from './pages/professional/ProDashboardPage'
@@ -104,6 +105,7 @@ Finalmente en Supabase → **Authentication** → **URL Configuration** → **Re
 ```
 https://topsy-frontend.vercel.app/welcome
         </Routes>
+        <Route path="forgot-password" element={<ForgotPasswordPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </BrowserRouter>
     </QueryClientProvider>
