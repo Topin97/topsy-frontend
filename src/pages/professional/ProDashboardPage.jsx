@@ -1,7 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { profApi, bookingsApi } from '../../services/api'
 import { useAuthStore } from '../../store/authStore'
-import { Link, useLocation } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import toast from 'react-hot-toast'
@@ -14,16 +14,8 @@ const STATUS = {
   cancelled: { label: 'Cancelada',  color: '#f87171', bg: 'rgba(248,113,113,0.1)' },
 }
 
-const BOTTOM_NAV = [
-  { to: '/pro/dashboard',    icon: '📊', label: 'Dashboard' },
-  { to: '/pro/services',     icon: '✂️', label: 'Servicios' },
-  { to: '/pro/availability', icon: '🕐', label: 'Horarios' },
-  { to: '/pro/profile',      icon: '⚙️', label: 'Perfil' },
-]
-
 export default function ProDashboardPage() {
   const { user } = useAuthStore()
-  const location = useLocation()
   const queryClient = useQueryClient()
 
   const { data: stats, isLoading: loadingStats } = useQuery({
@@ -69,7 +61,6 @@ export default function ProDashboardPage() {
     return 'Buenas noches'
   }
 
-  // Mini bar chart data from stats
   const weekData = stats?.bookings_by_day
     ? Object.entries(stats.bookings_by_day).slice(-7).map(([date, count]) => ({
         day: format(new Date(date), 'EEE', { locale: es }),
@@ -79,7 +70,7 @@ export default function ProDashboardPage() {
   const maxCount = Math.max(...weekData.map(d => d.count), 1)
 
   return (
-    <div style={{ background: '#0A0806', minHeight: '100vh', paddingBottom: 90 }}>
+    <div style={{ background: '#0A0806', minHeight: '100vh', paddingBottom: 40 }}>
       <style>{`
         .nav-btn:hover { background: rgba(201,150,90,0.1) !important; border-color: rgba(201,150,90,0.3) !important; color: #C9965A !important; }
         .booking-card:hover { border-color: rgba(201,150,90,0.15) !important; }
@@ -202,7 +193,6 @@ export default function ProDashboardPage() {
                   return (
                     <div key={b.id} className="booking-card" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 14, padding: '14px 16px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        {/* Avatar cliente */}
                         <div style={{ width: 36, height: 36, borderRadius: '50%', overflow: 'hidden', background: 'rgba(201,150,90,0.1)', border: '1px solid rgba(201,150,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           {b.profiles?.avatar_url
                             ? <img src={b.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -257,7 +247,6 @@ export default function ProDashboardPage() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {upcoming.slice(0, 8).map(b => (
                   <div key={b.id} className="booking-card" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 14, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
-                    {/* Avatar */}
                     <div style={{ width: 32, height: 32, borderRadius: '50%', overflow: 'hidden', background: 'rgba(201,150,90,0.1)', border: '1px solid rgba(201,150,90,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       {b.profiles?.avatar_url
                         ? <img src={b.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -282,20 +271,6 @@ export default function ProDashboardPage() {
             )}
           </div>
         </div>
-      </div>
-
-      {/* Mobile bottom nav */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'rgba(8,6,4,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '10px 0 16px', zIndex: 50, display: 'flex', justifyContent: 'space-around' }}>
-        {BOTTOM_NAV.map(({ to, icon, label }) => {
-          const active = location.pathname === to
-          return (
-            <Link key={to} to={to} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '4px 16px', position: 'relative' }}>
-              {active && <span style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', width: 20, height: 2, background: '#C9965A', borderRadius: 2 }} />}
-              <span style={{ fontSize: '1.3rem' }}>{icon}</span>
-              <span style={{ fontSize: 10, color: active ? '#C9965A' : 'rgba(247,242,234,0.3)', fontFamily: 'Outfit, sans-serif', letterSpacing: '0.05em', transition: 'color 0.2s' }}>{label}</span>
-            </Link>
-          )
-        })}
       </div>
     </div>
   )
