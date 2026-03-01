@@ -69,7 +69,7 @@ export default function ProfessionalPage() {
         </button>
 
         {/* Avatar circular */}
-<div style={{ position: 'absolute', bottom: -44, left: 20, width: 88, height: 88, borderRadius: '50%', border: '4px solid #0A0806', overflow: 'hidden', background: 'rgba(201,150,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
+<div style={{ position: 'absolute', bottom: -20, left: 20, width: 88, height: 88, borderRadius: '50%', border: '4px solid #0A0806', overflow: 'hidden', background: 'rgba(201,150,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
           {prof.profiles?.avatar_url
             ? <img src={prof.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             : <span style={{ fontSize: '1.8rem' }}>👤</span>
