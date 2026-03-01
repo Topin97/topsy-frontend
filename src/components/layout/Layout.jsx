@@ -187,57 +187,9 @@ export default function Layout() {
             )}
           </div>
 
-          {/* Hamburger */}
-          <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, display: 'none', flexDirection: 'column', gap: 5 }}>
-            {[0,1,2].map(i => (
-              <span key={i} style={{
-                display: 'block', width: 22, height: 1.5, background: '#C9965A', borderRadius: 2, transition: 'all 0.3s',
-                transform: menuOpen ? i === 0 ? 'rotate(45deg) translate(4px, 4px)' : i === 2 ? 'rotate(-45deg) translate(4px, -4px)' : 'scaleX(0)' : 'none',
-              }} />
-            ))}
-          </button>
         </div>
 
-        {/* Mobile menu */}
-        <div className="mobile-menu" style={{ overflow: 'hidden', transition: 'max-height 0.35s ease', maxHeight: menuOpen ? '500px' : '0', borderTop: menuOpen ? '1px solid rgba(201,150,90,0.1)' : 'none' }}>
-          <div style={{ padding: '16px 24px 28px', display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {token && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', marginBottom: 8, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <div style={{ width: 40, height: 40, borderRadius: '50%', overflow: 'hidden', border: '1.5px solid rgba(201,150,90,0.4)', background: 'rgba(201,150,90,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  {avatarUrl
-                    ? <img src={avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', color: '#C9965A' }}>{user?.full_name?.[0]?.toUpperCase()}</span>
-                  }
-                </div>
-                <div>
-                  <p style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>{user?.full_name}</p>
-                  <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.3)' }}>
-                    {isAdmin ? '⚙️ Administrador' : isProfessional() ? '✂️ Profesional' : '👤 Cliente'}
-                  </p>
-                </div>
-              </div>
-            )}
-            {navLinks.map(({ to, label }) => (
-              <Link key={to} to={to} style={{ textDecoration: 'none', padding: '12px 4px', fontSize: 14, letterSpacing: '0.08em', textTransform: 'uppercase', color: isActive(to) ? '#C9965A' : 'rgba(247,242,234,0.6)', borderBottom: '1px solid rgba(255,255,255,0.04)', fontWeight: 500 }}>{label}</Link>
-            ))}
-            {isAdmin && (
-              <Link to="/admin" style={{ textDecoration: 'none', padding: '12px 4px', fontSize: 14, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#C9965A', borderBottom: '1px solid rgba(255,255,255,0.04)', fontWeight: 500 }}>⚙️ Admin</Link>
-            )}
-            <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {token ? (
-                <>
-                  <Link to={profileLink} style={{ textDecoration: 'none', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '12px', color: 'rgba(247,242,234,0.7)', fontSize: 13, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Mi perfil</Link>
-                  <button onClick={handleLogout} style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.15)', borderRadius: 10, padding: '12px', color: 'rgba(248,113,113,0.7)', fontSize: 13, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Cerrar sesión</button>
-                </>
-              ) : (
-                <>
-                  <Link to="/login" style={{ textDecoration: 'none', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '12px', color: 'rgba(247,242,234,0.7)', fontSize: 13, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 500 }}>Entrar</Link>
-                  <Link to="/register" style={{ textDecoration: 'none', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', borderRadius: 10, padding: '12px', color: '#0A0806', fontSize: 13, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>Crear cuenta gratis</Link>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
+
       </nav>
 
       {/* ── BOTTOM NAV MÓVIL ────────────────────────────────── */}
