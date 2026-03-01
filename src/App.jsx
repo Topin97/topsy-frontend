@@ -13,6 +13,7 @@ import BookingPage      from './pages/BookingPage'
 import DashboardPage    from './pages/DashboardPage'
 import ProfilePage      from './pages/ProfilePage'
 import AdminPage        from './pages/admin/AdminPage'
+import WelcomePage      from './pages/WelcomePage'
 
 // Panel profesional
 import ProDashboardPage    from './pages/professional/ProDashboardPage'
@@ -93,8 +94,14 @@ export default function App() {
             <Route path="pro/profile"      element={<ProRoute><ProProfilePage /></ProRoute>} />
 
             {/* Admin */}
-            <Route path="admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
+            redirectTo: `${process.env.FRONTEND_URL ?? 'https://topsy-frontend.vercel.app'}/welcome`,
           </Route>
+          <Route path="welcome" element={<WelcomePage />} />
+```
+
+Finalmente en Supabase → **Authentication** → **URL Configuration** → **Redirect URLs**, cambia la URL de redirección a:
+```
+https://topsy-frontend.vercel.app/welcome
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
