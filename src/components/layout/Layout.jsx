@@ -184,7 +184,7 @@ export default function Layout() {
 
       {/* ── BOTTOM NAV MÓVIL ────────────────────────────────── */}
       {!hideBottomNav && (
-        <div className="bottom-nav" style={{ display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0, background: 'rgba(8,6,4,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '8px 0 18px', zIndex: 90, justifyContent: 'space-around', alignItems: 'center' }}>
+        <div className="bottom-nav" style={{ display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0, background: 'rgba(8,6,4,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '8px 0 18px', zIndex: 80, justifyContent: 'space-around', alignItems: 'center' }}>
           {bottomNav.map(({ to, icon, label, avatar }) => {
             const active = to === '/' ? location.pathname === '/' : location.pathname.startsWith(to)
             return (
