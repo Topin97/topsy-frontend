@@ -10,7 +10,6 @@ export default function Layout() {
   const navigate  = useNavigate()
   const location  = useLocation()
   const [scrolled, setScrolled] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef(null)
 
@@ -23,13 +22,15 @@ export default function Layout() {
   const avatarUrl = me?.avatar_url
   const isAdmin = user?.role === 'admin'
 
+  const hideBottomNav = ['/login', '/register', '/welcome', '/forgot-password', '/reset-password'].includes(location.pathname)
+
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', fn)
     return () => window.removeEventListener('scroll', fn)
   }, [])
 
-  useEffect(() => { setMenuOpen(false); setDropdownOpen(false) }, [location.pathname])
+  useEffect(() => { setDropdownOpen(false) }, [location.pathname])
 
   useEffect(() => {
     const fn = (e) => { if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setDropdownOpen(false) }
@@ -59,17 +60,13 @@ export default function Layout() {
   ]
 
   const profileLink = isAdmin ? '/admin' : isProfessional() ? '/pro/profile' : '/profile'
+  const bookingsLink = token ? (isProfessional() ? '/pro/dashboard' : '/dashboard') : '/login'
 
-  const bookingsLink = token
-    ? isProfessional() ? '/pro/dashboard' : '/dashboard'
-    : '/login'
-
-  // Bottom nav items
   const bottomNav = [
-    { to: '/',            icon: '❤️', label: 'TopSy' },
-    { to: '/search',      icon: '🔍', label: 'Explorar' },
-    { to: bookingsLink,   icon: '📅', label: 'Reservas' },
-    { to: token ? profileLink : '/login', icon: avatarUrl ? null : '👤', label: 'Perfil', avatar: avatarUrl },
+    { to: '/',          icon: '❤️', label: 'TopSy' },
+    { to: '/search',    icon: '🔍', label: 'Explorar' },
+    { to: bookingsLink, icon: '📅', label: 'Reservas' },
+    { to: token ? profileLink : '/login', icon: '👤', label: 'Perfil', avatar: avatarUrl },
   ]
 
   return (
@@ -77,25 +74,21 @@ export default function Layout() {
       <style>{`
         @media (max-width: 768px) {
           .nav-links-desktop, .nav-right-desktop { display: none !important; }
-          .hamburger { display: flex !important; }
           .bottom-nav { display: flex !important; }
         }
         @media (min-width: 769px) {
-          .hamburger { display: none !important; }
-          .mobile-menu { display: none !important; }
           .bottom-nav { display: none !important; }
         }
         .nav-link:hover { color: #C9965A !important; }
         .dropdown-item:hover { background: rgba(255,255,255,0.04) !important; }
-        .bottom-nav-item span { transition: color 0.2s; }
       `}</style>
 
       {/* ── TOP NAV ─────────────────────────────────────────── */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        background: scrolled || menuOpen ? 'rgba(8,6,4,0.97)' : 'linear-gradient(180deg, rgba(8,6,4,0.85) 0%, transparent 100%)',
-        backdropFilter: scrolled || menuOpen ? 'blur(24px)' : 'none',
-        borderBottom: scrolled || menuOpen ? '1px solid rgba(201,150,90,0.1)' : 'none',
+        background: scrolled ? 'rgba(8,6,4,0.97)' : 'linear-gradient(180deg, rgba(8,6,4,0.85) 0%, transparent 100%)',
+        backdropFilter: scrolled ? 'blur(24px)' : 'none',
+        borderBottom: scrolled ? '1px solid rgba(201,150,90,0.1)' : 'none',
         transition: 'all 0.3s',
       }}>
         <div className="container-app" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: scrolled ? 56 : 66, transition: 'height 0.3s' }}>
@@ -186,35 +179,34 @@ export default function Layout() {
               </>
             )}
           </div>
-
         </div>
-
-
       </nav>
 
       {/* ── BOTTOM NAV MÓVIL ────────────────────────────────── */}
-      <div className="bottom-nav" style={{ display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0, background: 'rgba(8,6,4,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '8px 0 18px', zIndex: 90, justifyContent: 'space-around', alignItems: 'center' }}>
-        {bottomNav.map(({ to, icon, label, avatar }) => {
-          const active = to === '/' ? location.pathname === '/' : location.pathname.startsWith(to)
-          return (
-            <Link key={to} to={to} className="bottom-nav-item" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, padding: '4px 0', position: 'relative' }}>
-              {active && (
-                <span style={{ position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)', width: 20, height: 2, background: '#C9965A', borderRadius: 2 }} />
-              )}
-              {avatar ? (
-                <div style={{ width: 24, height: 24, borderRadius: '50%', overflow: 'hidden', border: `1.5px solid ${active ? '#C9965A' : 'rgba(255,255,255,0.2)'}`, flexShrink: 0 }}>
-                  <img src={avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                </div>
-              ) : (
-                <span style={{ fontSize: '1.4rem', lineHeight: 1 }}>{icon}</span>
-              )}
-              <span style={{ fontSize: 10, color: active ? '#C9965A' : 'rgba(247,242,234,0.35)', fontFamily: 'Outfit, sans-serif', letterSpacing: '0.04em' }}>{label}</span>
-            </Link>
-          )
-        })}
-      </div>
+      {!hideBottomNav && (
+        <div className="bottom-nav" style={{ display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0, background: 'rgba(8,6,4,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '8px 0 18px', zIndex: 90, justifyContent: 'space-around', alignItems: 'center' }}>
+          {bottomNav.map(({ to, icon, label, avatar }) => {
+            const active = to === '/' ? location.pathname === '/' : location.pathname.startsWith(to)
+            return (
+              <Link key={to} to={to} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, padding: '4px 0', position: 'relative' }}>
+                {active && (
+                  <span style={{ position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)', width: 20, height: 2, background: '#C9965A', borderRadius: 2 }} />
+                )}
+                {avatar ? (
+                  <div style={{ width: 24, height: 24, borderRadius: '50%', overflow: 'hidden', border: `1.5px solid ${active ? '#C9965A' : 'rgba(255,255,255,0.2)'}` }}>
+                    <img src={avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                ) : (
+                  <span style={{ fontSize: '1.4rem', lineHeight: 1 }}>{icon}</span>
+                )}
+                <span style={{ fontSize: 10, color: active ? '#C9965A' : 'rgba(247,242,234,0.35)', fontFamily: 'Outfit, sans-serif', letterSpacing: '0.04em' }}>{label}</span>
+              </Link>
+            )
+          })}
+        </div>
+      )}
 
-      <main style={{ paddingTop: '68px', paddingBottom: 70 }}>
+      <main style={{ paddingTop: '68px', paddingBottom: hideBottomNav ? 0 : 70 }}>
         <Outlet />
       </main>
     </div>
