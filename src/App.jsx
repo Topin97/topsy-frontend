@@ -12,6 +12,7 @@ import ProfessionalPage from './pages/ProfessionalPage'
 import BookingPage      from './pages/BookingPage'
 import DashboardPage    from './pages/DashboardPage'
 import ProfilePage      from './pages/ProfilePage'
+import AdminPage        from './pages/admin/AdminPage'
 
 // Panel profesional
 import ProDashboardPage    from './pages/professional/ProDashboardPage'
@@ -39,6 +40,13 @@ const ProRoute = ({ children }) => {
   const { token, isProfessional } = useAuthStore()
   if (!token) return <Navigate to="/login" replace />
   if (!isProfessional()) return <Navigate to="/dashboard" replace />
+  return children
+}
+
+const AdminRoute = ({ children }) => {
+  const { token, user } = useAuthStore()
+  if (!token) return <Navigate to="/login" replace />
+  if (user?.role !== 'admin') return <Navigate to="/dashboard" replace />
   return children
 }
 
@@ -79,10 +87,13 @@ export default function App() {
             } />
 
             {/* Panel profesional */}
-            <Route path="pro/dashboard"   element={<ProRoute><ProDashboardPage /></ProRoute>} />
-            <Route path="pro/services"    element={<ProRoute><ProServicesPage /></ProRoute>} />
+            <Route path="pro/dashboard"    element={<ProRoute><ProDashboardPage /></ProRoute>} />
+            <Route path="pro/services"     element={<ProRoute><ProServicesPage /></ProRoute>} />
             <Route path="pro/availability" element={<ProRoute><ProAvailabilityPage /></ProRoute>} />
-            <Route path="pro/profile"     element={<ProRoute><ProProfilePage /></ProRoute>} />
+            <Route path="pro/profile"      element={<ProRoute><ProProfilePage /></ProRoute>} />
+
+            {/* Admin */}
+            <Route path="admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
           </Route>
         </Routes>
       </BrowserRouter>
