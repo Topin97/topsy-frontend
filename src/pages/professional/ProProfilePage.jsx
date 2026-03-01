@@ -308,7 +308,7 @@ export default function ProProfilePage() {
                   {creating && !hasProfile && (
                     <button type="button" onClick={() => setCreating(false)} className="btn-ghost">Cancelar</button>
                   )}
-                  <button type="submit" disabled={isPending || (!isDirty && hasProfile && !coverUrl)} className="btn-primary" style={{ padding: '12px 32px' }}>
+                  <button type="submit" disabled={isPending} className="btn-primary" style={{ padding: '12px 32px' }}>
                     {isPending ? 'Guardando...' : hasProfile ? 'Guardar cambios' : 'Crear perfil'}
                   </button>
                 </div>
