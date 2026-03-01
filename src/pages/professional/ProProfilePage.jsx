@@ -215,6 +215,11 @@ export default function ProProfilePage() {
 
   return (
     <div style={{ background: '#0A0806', minHeight: '100vh', paddingBottom: 80 }}>
+  <style>{`
+    @media (max-width: 480px) {
+      .cat-grid { grid-template-columns: repeat(2, 1fr) !important; }
+    }
+  `}</style>
       <div className="container-app" style={{ padding: '32px 16px', maxWidth: 700 }}>
         <p style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.6)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ display: 'inline-block', width: 20, height: 1, background: '#C9965A' }} /> Panel profesional
