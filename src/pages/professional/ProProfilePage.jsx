@@ -281,7 +281,7 @@ export default function ProProfilePage() {
                 {/* Categoría */}
                 <div style={{ marginBottom: 18 }}>
                   <label style={{ display: 'block', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.35)', marginBottom: 10 }}>Categoría *</label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+                  <div className="cat-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
                     {CATEGORIES.map(cat => {
                       const isSelected = selectedCategory === cat.value
                       return (

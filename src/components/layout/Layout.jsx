@@ -60,21 +60,37 @@ export default function Layout() {
 
   const profileLink = isAdmin ? '/admin' : isProfessional() ? '/pro/profile' : '/profile'
 
+  const bookingsLink = token
+    ? isProfessional() ? '/pro/dashboard' : '/dashboard'
+    : '/login'
+
+  // Bottom nav items
+  const bottomNav = [
+    { to: '/',            icon: '❤️', label: 'TopSy' },
+    { to: '/search',      icon: '🔍', label: 'Explorar' },
+    { to: bookingsLink,   icon: '📅', label: 'Reservas' },
+    { to: token ? profileLink : '/login', icon: avatarUrl ? null : '👤', label: 'Perfil', avatar: avatarUrl },
+  ]
+
   return (
     <div style={{ minHeight: '100vh', background: '#0A0806' }}>
       <style>{`
         @media (max-width: 768px) {
           .nav-links-desktop, .nav-right-desktop { display: none !important; }
           .hamburger { display: flex !important; }
+          .bottom-nav { display: flex !important; }
         }
         @media (min-width: 769px) {
           .hamburger { display: none !important; }
           .mobile-menu { display: none !important; }
+          .bottom-nav { display: none !important; }
         }
         .nav-link:hover { color: #C9965A !important; }
         .dropdown-item:hover { background: rgba(255,255,255,0.04) !important; }
+        .bottom-nav-item span { transition: color 0.2s; }
       `}</style>
 
+      {/* ── TOP NAV ─────────────────────────────────────────── */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
         background: scrolled || menuOpen ? 'rgba(8,6,4,0.97)' : 'linear-gradient(180deg, rgba(8,6,4,0.85) 0%, transparent 100%)',
@@ -118,7 +134,7 @@ export default function Layout() {
           <div className="nav-right-desktop" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
             {token ? (
               <div ref={dropdownRef} style={{ position: 'relative' }}>
-                <button onClick={() => setDropdownOpen(!dropdownOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, padding: '4px 8px 4px 4px', borderRadius: 100, transition: 'background 0.2s', background: dropdownOpen ? 'rgba(255,255,255,0.05)' : 'transparent' }}>
+                <button onClick={() => setDropdownOpen(!dropdownOpen)} style={{ background: dropdownOpen ? 'rgba(255,255,255,0.05)' : 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, padding: '4px 8px 4px 4px', borderRadius: 100, transition: 'background 0.2s' }}>
                   <div style={{ width: 34, height: 34, borderRadius: '50%', overflow: 'hidden', border: '1.5px solid rgba(201,150,90,0.4)', flexShrink: 0, background: 'rgba(201,150,90,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {avatarUrl
                       ? <img src={avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -129,53 +145,34 @@ export default function Layout() {
                   <span style={{ fontSize: 10, color: 'rgba(247,242,234,0.3)', transition: 'transform 0.2s', transform: dropdownOpen ? 'rotate(180deg)' : 'none' }}>▼</span>
                 </button>
 
-                {/* Dropdown */}
                 {dropdownOpen && (
                   <div style={{ position: 'absolute', top: 'calc(100% + 10px)', right: 0, background: '#1C1812', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, minWidth: 200, boxShadow: '0 12px 40px rgba(0,0,0,0.6)', overflow: 'hidden', zIndex: 200 }}>
-                    {/* User info */}
                     <div style={{ padding: '16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                       <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>{user?.full_name}</p>
-                      <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.3)', textTransform: 'capitalize' }}>
+                      <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.3)' }}>
                         {isAdmin ? '⚙️ Administrador' : isProfessional() ? '✂️ Profesional' : '👤 Cliente'}
                       </p>
                     </div>
-
-                    {/* Links */}
                     <div style={{ padding: '8px' }}>
                       {isAdmin && (
-                        <Link to="/admin" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: '#C9965A', fontSize: 13, transition: 'background 0.15s' }}>
-                          ⚙️ Panel admin
-                        </Link>
+                        <Link to="/admin" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: '#C9965A', fontSize: 13, transition: 'background 0.15s' }}>⚙️ Panel admin</Link>
                       )}
                       {isProfessional() && (
                         <>
-                          <Link to="/pro/dashboard" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>
-                            📊 Dashboard
-                          </Link>
-                          <Link to="/pro/profile" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>
-                            ✏️ Mi perfil
-                          </Link>
+                          <Link to="/pro/dashboard" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>📊 Dashboard</Link>
+                          <Link to="/pro/profile" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>✏️ Mi perfil</Link>
                         </>
                       )}
                       {!isProfessional() && !isAdmin && (
                         <>
-                          <Link to="/dashboard" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>
-                            📅 Mis citas
-                          </Link>
-                          <Link to="/profile" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>
-                            👤 Mi perfil
-                          </Link>
+                          <Link to="/dashboard" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>📅 Mis citas</Link>
+                          <Link to="/profile" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>👤 Mi perfil</Link>
                         </>
                       )}
-                      <Link to="/search" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>
-                        🔍 Explorar
-                      </Link>
+                      <Link to="/search" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>🔍 Explorar</Link>
                     </div>
-
                     <div style={{ padding: '8px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                      <button onClick={handleLogout} className="dropdown-item" style={{ width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, background: 'transparent', border: 'none', color: 'rgba(248,113,113,0.7)', fontSize: 13, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'background 0.15s' }}>
-                        🚪 Cerrar sesión
-                      </button>
+                      <button onClick={handleLogout} className="dropdown-item" style={{ width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, background: 'transparent', border: 'none', color: 'rgba(248,113,113,0.7)', fontSize: 13, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'background 0.15s' }}>🚪 Cerrar sesión</button>
                     </div>
                   </div>
                 )}
@@ -191,7 +188,7 @@ export default function Layout() {
           </div>
 
           {/* Hamburger */}
-          <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, display: 'flex', flexDirection: 'column', gap: 5 }}>
+          <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 8, display: 'none', flexDirection: 'column', gap: 5 }}>
             {[0,1,2].map(i => (
               <span key={i} style={{
                 display: 'block', width: 22, height: 1.5, background: '#C9965A', borderRadius: 2, transition: 'all 0.3s',
@@ -204,7 +201,6 @@ export default function Layout() {
         {/* Mobile menu */}
         <div className="mobile-menu" style={{ overflow: 'hidden', transition: 'max-height 0.35s ease', maxHeight: menuOpen ? '500px' : '0', borderTop: menuOpen ? '1px solid rgba(201,150,90,0.1)' : 'none' }}>
           <div style={{ padding: '16px 24px 28px', display: 'flex', flexDirection: 'column', gap: 4 }}>
-
             {token && (
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0', marginBottom: 8, borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                 <div style={{ width: 40, height: 40, borderRadius: '50%', overflow: 'hidden', border: '1.5px solid rgba(201,150,90,0.4)', background: 'rgba(201,150,90,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -215,46 +211,28 @@ export default function Layout() {
                 </div>
                 <div>
                   <p style={{ fontSize: 14, fontWeight: 600, marginBottom: 2 }}>{user?.full_name}</p>
-                  <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.3)', textTransform: 'capitalize' }}>
+                  <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.3)' }}>
                     {isAdmin ? '⚙️ Administrador' : isProfessional() ? '✂️ Profesional' : '👤 Cliente'}
                   </p>
                 </div>
               </div>
             )}
-
             {navLinks.map(({ to, label }) => (
-              <Link key={to} to={to} style={{
-                textDecoration: 'none', padding: '12px 4px', fontSize: 14,
-                letterSpacing: '0.08em', textTransform: 'uppercase',
-                color: isActive(to) ? '#C9965A' : 'rgba(247,242,234,0.6)',
-                borderBottom: '1px solid rgba(255,255,255,0.04)', fontWeight: 500,
-              }}>{label}</Link>
+              <Link key={to} to={to} style={{ textDecoration: 'none', padding: '12px 4px', fontSize: 14, letterSpacing: '0.08em', textTransform: 'uppercase', color: isActive(to) ? '#C9965A' : 'rgba(247,242,234,0.6)', borderBottom: '1px solid rgba(255,255,255,0.04)', fontWeight: 500 }}>{label}</Link>
             ))}
-
             {isAdmin && (
-              <Link to="/admin" style={{ textDecoration: 'none', padding: '12px 4px', fontSize: 14, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#C9965A', borderBottom: '1px solid rgba(255,255,255,0.04)', fontWeight: 500 }}>
-                ⚙️ Admin
-              </Link>
+              <Link to="/admin" style={{ textDecoration: 'none', padding: '12px 4px', fontSize: 14, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#C9965A', borderBottom: '1px solid rgba(255,255,255,0.04)', fontWeight: 500 }}>⚙️ Admin</Link>
             )}
-
             <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
               {token ? (
                 <>
-                  <Link to={profileLink} style={{ textDecoration: 'none', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '12px', color: 'rgba(247,242,234,0.7)', fontSize: 13, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                    Mi perfil
-                  </Link>
-                  <button onClick={handleLogout} style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.15)', borderRadius: 10, padding: '12px', color: 'rgba(248,113,113,0.7)', fontSize: 13, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-                    Cerrar sesión
-                  </button>
+                  <Link to={profileLink} style={{ textDecoration: 'none', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '12px', color: 'rgba(247,242,234,0.7)', fontSize: 13, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Mi perfil</Link>
+                  <button onClick={handleLogout} style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.15)', borderRadius: 10, padding: '12px', color: 'rgba(248,113,113,0.7)', fontSize: 13, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Cerrar sesión</button>
                 </>
               ) : (
                 <>
-                  <Link to="/login" style={{ textDecoration: 'none', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '12px', color: 'rgba(247,242,234,0.7)', fontSize: 13, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 500 }}>
-                    Entrar
-                  </Link>
-                  <Link to="/register" style={{ textDecoration: 'none', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', borderRadius: 10, padding: '12px', color: '#0A0806', fontSize: 13, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>
-                    Crear cuenta gratis
-                  </Link>
+                  <Link to="/login" style={{ textDecoration: 'none', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '12px', color: 'rgba(247,242,234,0.7)', fontSize: 13, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 500 }}>Entrar</Link>
+                  <Link to="/register" style={{ textDecoration: 'none', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', borderRadius: 10, padding: '12px', color: '#0A0806', fontSize: 13, textAlign: 'center', textTransform: 'uppercase', letterSpacing: '0.1em', fontWeight: 700 }}>Crear cuenta gratis</Link>
                 </>
               )}
             </div>
@@ -262,7 +240,29 @@ export default function Layout() {
         </div>
       </nav>
 
-      <main style={{ paddingTop: '68px' }}>
+      {/* ── BOTTOM NAV MÓVIL ────────────────────────────────── */}
+      <div className="bottom-nav" style={{ display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0, background: 'rgba(8,6,4,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '8px 0 18px', zIndex: 90, justifyContent: 'space-around', alignItems: 'center' }}>
+        {bottomNav.map(({ to, icon, label, avatar }) => {
+          const active = to === '/' ? location.pathname === '/' : location.pathname.startsWith(to)
+          return (
+            <Link key={to} to={to} className="bottom-nav-item" style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, padding: '4px 0', position: 'relative' }}>
+              {active && (
+                <span style={{ position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)', width: 20, height: 2, background: '#C9965A', borderRadius: 2 }} />
+              )}
+              {avatar ? (
+                <div style={{ width: 24, height: 24, borderRadius: '50%', overflow: 'hidden', border: `1.5px solid ${active ? '#C9965A' : 'rgba(255,255,255,0.2)'}`, flexShrink: 0 }}>
+                  <img src={avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                </div>
+              ) : (
+                <span style={{ fontSize: '1.4rem', lineHeight: 1 }}>{icon}</span>
+              )}
+              <span style={{ fontSize: 10, color: active ? '#C9965A' : 'rgba(247,242,234,0.35)', fontFamily: 'Outfit, sans-serif', letterSpacing: '0.04em' }}>{label}</span>
+            </Link>
+          )
+        })}
+      </div>
+
+      <main style={{ paddingTop: '68px', paddingBottom: 70 }}>
         <Outlet />
       </main>
     </div>
