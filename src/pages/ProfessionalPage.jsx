@@ -69,7 +69,7 @@ export default function ProfessionalPage() {
         </button>
 
         {/* Avatar circular */}
-        <div style={{ position: 'absolute', bottom: -36, left: 20, width: 72, height: 72, borderRadius: '50%', border: '3px solid #0A0806', overflow: 'hidden', background: 'rgba(201,150,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10 }}>
+<div style={{ position: 'absolute', bottom: -44, left: 20, width: 88, height: 88, borderRadius: '50%', border: '4px solid #0A0806', overflow: 'hidden', background: 'rgba(201,150,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
           {prof.profiles?.avatar_url
             ? <img src={prof.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             : <span style={{ fontSize: '1.8rem' }}>👤</span>
@@ -78,7 +78,7 @@ export default function ProfessionalPage() {
       </div>
 
       {/* Info */}
-      <div style={{ padding: '48px 20px 0' }}>
+      <div style={{ padding: '56px 20px 0' }}>
         <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.5rem,4vw,2.2rem)', marginBottom: 4 }}>
           {prof.business_name}
           {prof.is_verified && <span style={{ fontSize: 11, background: 'rgba(201,150,90,0.15)', color: '#C9965A', padding: '2px 8px', borderRadius: 100, border: '1px solid rgba(201,150,90,0.2)', marginLeft: 10, verticalAlign: 'middle' }}>✓ Verificado</span>}
