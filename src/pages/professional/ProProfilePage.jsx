@@ -3,8 +3,9 @@ import { useForm } from 'react-hook-form'
 import { profApi, authApi } from '../../services/api'
 import { useAuthStore } from '../../store/authStore'
 import { createClient } from '@supabase/supabase-js'
+import Cropper from 'react-easy-crop'
 import toast from 'react-hot-toast'
-import { useState, useRef } from 'react'
+import { useState, useRef, useCallback } from 'react'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -21,23 +22,81 @@ const CATEGORIES = [
   { value: 'brows',     label: '👁️ Cejas' },
 ]
 
-function ImageUpload({ label, currentUrl, bucket, onUploaded, aspect = 'cover', token }) {
+async function getCroppedBlob(imageSrc, croppedAreaPixels) {
+  const image = await new Promise((resolve, reject) => {
+    const img = new Image()
+    img.addEventListener('load', () => resolve(img))
+    img.addEventListener('error', reject)
+    img.src = imageSrc
+  })
+  const canvas = document.createElement('canvas')
+  canvas.width = croppedAreaPixels.width
+  canvas.height = croppedAreaPixels.height
+  const ctx = canvas.getContext('2d')
+  ctx.drawImage(image, croppedAreaPixels.x, croppedAreaPixels.y, croppedAreaPixels.width, croppedAreaPixels.height, 0, 0, croppedAreaPixels.width, croppedAreaPixels.height)
+  return new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.9))
+}
+
+function CropModal({ src, aspect, onConfirm, onCancel }) {
+  const [crop, setCrop] = useState({ x: 0, y: 0 })
+  const [zoom, setZoom] = useState(1)
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState(null)
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,0.9)', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ flex: 1, position: 'relative' }}>
+        <Cropper
+          image={src}
+          crop={crop}
+          zoom={zoom}
+          aspect={aspect}
+          onCropChange={setCrop}
+          onZoomChange={setZoom}
+          onCropComplete={(_, pixels) => setCroppedAreaPixels(pixels)}
+        />
+      </div>
+      <div style={{ padding: '20px 24px', background: '#0F0D0A', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ fontSize: 12, color: 'rgba(247,242,234,0.4)', minWidth: 50 }}>Zoom</span>
+          <input type="range" min={1} max={3} step={0.01} value={zoom} onChange={e => setZoom(Number(e.target.value))}
+            style={{ flex: 1, accentColor: '#C9965A' }} />
+        </div>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button onClick={onCancel} style={{ flex: 1, background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '12px', color: 'rgba(247,242,234,0.6)', fontSize: 14, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+            Cancelar
+          </button>
+          <button onClick={() => onConfirm(croppedAreaPixels)} style={{ flex: 1, background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 12, padding: '12px', color: '#0A0806', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+            Aplicar recorte
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ImageUpload({ label, currentUrl, bucket, onUploaded, aspect = 16/9, token }) {
   const [uploading, setUploading] = useState(false)
+  const [srcForCrop, setSrcForCrop] = useState(null)
   const inputRef = useRef()
 
-  const handleFile = async (e) => {
+  const handleFile = (e) => {
     const file = e.target.files[0]
     if (!file) return
-    if (file.size > 5 * 1024 * 1024) { toast.error('La imagen no puede superar 5MB'); return }
+    if (file.size > 10 * 1024 * 1024) { toast.error('La imagen no puede superar 10MB'); return }
+    const reader = new FileReader()
+    reader.onload = () => setSrcForCrop(reader.result)
+    reader.readAsDataURL(file)
+    e.target.value = ''
+  }
 
+  const handleConfirm = useCallback(async (croppedAreaPixels) => {
+    setSrcForCrop(null)
     setUploading(true)
     try {
-      const ext = file.name.split('.').pop()
-      const path = `${Date.now()}.${ext}`
-
+      const blob = await getCroppedBlob(srcForCrop, croppedAreaPixels)
+      const path = `${Date.now()}.jpg`
       await supabase.auth.setSession({ access_token: token, refresh_token: token })
-
-      const { error } = await supabase.storage.from(bucket).upload(path, file, { upsert: true })
+      const { error } = await supabase.storage.from(bucket).upload(path, blob, { upsert: true, contentType: 'image/jpeg' })
       if (error) throw error
       const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(path)
       onUploaded(publicUrl)
@@ -48,47 +107,63 @@ function ImageUpload({ label, currentUrl, bucket, onUploaded, aspect = 'cover', 
     } finally {
       setUploading(false)
     }
-  }
-
-  const isCover = aspect === 'cover'
+  }, [srcForCrop, bucket, token, onUploaded])
 
   return (
-    <div style={{ marginBottom: 20 }}>
-      <label style={{ display: 'block', fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.4)', marginBottom: 8 }}>
-        {label}
-      </label>
-      <div
-        onClick={() => !uploading && inputRef.current.click()}
-        style={{
-          width: '100%', height: isCover ? 160 : 100,
-          borderRadius: 14, border: '2px dashed rgba(201,150,90,0.25)',
-          background: 'rgba(255,255,255,0.02)', cursor: 'pointer',
-          overflow: 'hidden', position: 'relative',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}
-      >
-        {currentUrl ? (
-          <img src={currentUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        ) : (
-          <div style={{ textAlign: 'center', padding: 20 }}>
-            <p style={{ fontSize: '2rem', marginBottom: 8 }}>{uploading ? '⏳' : '📸'}</p>
-            <p style={{ fontSize: 13, color: 'rgba(247,242,234,0.35)' }}>{uploading ? 'Subiendo...' : 'Pulsa para subir foto'}</p>
-            <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.2)', marginTop: 4 }}>JPG, PNG · máx 5MB</p>
-          </div>
-        )}
-        {uploading && (
-          <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <p style={{ color: '#C9965A', fontSize: 13 }}>Subiendo...</p>
-          </div>
-        )}
+    <>
+      {srcForCrop && (
+        <CropModal
+          src={srcForCrop}
+          aspect={aspect}
+          onConfirm={handleConfirm}
+          onCancel={() => setSrcForCrop(null)}
+        />
+      )}
+      <div style={{ marginBottom: 20 }}>
+        <label style={{ display: 'block', fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.4)', marginBottom: 8 }}>
+          {label}
+        </label>
+        <div
+          onClick={() => !uploading && inputRef.current.click()}
+          style={{
+            width: '100%', height: aspect > 1 ? 160 : 120,
+            borderRadius: 14, border: '2px dashed rgba(201,150,90,0.25)',
+            background: 'rgba(255,255,255,0.02)', cursor: 'pointer',
+            overflow: 'hidden', position: 'relative',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}
+        >
+          {currentUrl ? (
+            <>
+              <img src={currentUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.2s' }}
+                onMouseEnter={e => e.currentTarget.style.opacity = 1}
+                onMouseLeave={e => e.currentTarget.style.opacity = 0}
+              >
+                <p style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>✏️ Cambiar foto</p>
+              </div>
+            </>
+          ) : (
+            <div style={{ textAlign: 'center', padding: 20 }}>
+              <p style={{ fontSize: '2rem', marginBottom: 8 }}>{uploading ? '⏳' : '📸'}</p>
+              <p style={{ fontSize: 13, color: 'rgba(247,242,234,0.35)' }}>{uploading ? 'Subiendo...' : 'Pulsa para subir foto'}</p>
+              <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.2)', marginTop: 4 }}>JPG, PNG · máx 10MB</p>
+            </div>
+          )}
+          {uploading && (
+            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.7)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <p style={{ color: '#C9965A', fontSize: 13 }}>Subiendo...</p>
+            </div>
+          )}
+        </div>
+        <input ref={inputRef} type="file" accept="image/*" onChange={handleFile} style={{ display: 'none' }} />
       </div>
-      <input ref={inputRef} type="file" accept="image/*" onChange={handleFile} style={{ display: 'none' }} />
-    </div>
+    </>
   )
 }
 
 export default function ProProfilePage() {
-  const { user, token } = useAuthStore()
+  const { token } = useAuthStore()
   const qc = useQueryClient()
   const [creating, setCreating] = useState(false)
   const [coverUrl, setCoverUrl] = useState(null)
@@ -165,30 +240,28 @@ export default function ProProfilePage() {
         {(hasProfile || creating) && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-            {/* Fotos */}
             <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: 24 }}>
               <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.6)', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ display: 'inline-block', width: 16, height: 1, background: '#C9965A' }} /> Fotos
               </p>
               <ImageUpload
-                label="Foto de portada del negocio"
+                label="Foto de portada (16:9)"
                 currentUrl={coverUrl ?? me?.professional_profiles?.cover_image_url}
                 bucket="covers"
+                aspect={16/9}
                 onUploaded={(url) => { setCoverUrl(url); profApi.update({ cover_image_url: url }).then(() => qc.invalidateQueries(['me'])) }}
-                aspect="cover"
                 token={token}
               />
               <ImageUpload
-                label="Foto de perfil / avatar"
+                label="Foto de perfil (1:1)"
                 currentUrl={avatarUrl ?? me?.profiles?.avatar_url}
                 bucket="avatars"
+                aspect={1}
                 onUploaded={(url) => setAvatarUrl(url)}
-                aspect="avatar"
                 token={token}
               />
             </div>
 
-            {/* Datos */}
             <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: 24 }}>
               <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.6)', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ display: 'inline-block', width: 16, height: 1, background: '#C9965A' }} /> Información
@@ -242,7 +315,6 @@ export default function ProProfilePage() {
               </form>
             </div>
 
-            {/* Estado */}
             {hasProfile && (
               <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '16px 20px' }}>
                 <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.6)', marginBottom: 12 }}>Estado del perfil</p>
