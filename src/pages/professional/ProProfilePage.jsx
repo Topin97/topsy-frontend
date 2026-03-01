@@ -9,9 +9,7 @@ import { useState, useRef } from 'react'
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
   import.meta.env.VITE_SUPABASE_ANON_KEY,
-  {
-    auth: { persistSession: false }
-  }
+  { auth: { persistSession: false } }
 )
 
 const CATEGORIES = [
@@ -23,7 +21,7 @@ const CATEGORIES = [
   { value: 'brows',     label: '👁️ Cejas' },
 ]
 
-function ImageUpload({ label, currentUrl, bucket, onUploaded, aspect = 'cover' }) {
+function ImageUpload({ label, currentUrl, bucket, onUploaded, aspect = 'cover', token }) {
   const [uploading, setUploading] = useState(false)
   const inputRef = useRef()
 
@@ -36,12 +34,16 @@ function ImageUpload({ label, currentUrl, bucket, onUploaded, aspect = 'cover' }
     try {
       const ext = file.name.split('.').pop()
       const path = `${Date.now()}.${ext}`
+
+      await supabase.auth.setSession({ access_token: token, refresh_token: token })
+
       const { error } = await supabase.storage.from(bucket).upload(path, file, { upsert: true })
       if (error) throw error
       const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(path)
       onUploaded(publicUrl)
       toast.success('Foto subida ✓')
     } catch (err) {
+      console.error(err)
       toast.error('Error al subir la imagen')
     } finally {
       setUploading(false)
@@ -61,17 +63,12 @@ function ImageUpload({ label, currentUrl, bucket, onUploaded, aspect = 'cover' }
           width: '100%', height: isCover ? 160 : 100,
           borderRadius: 14, border: '2px dashed rgba(201,150,90,0.25)',
           background: 'rgba(255,255,255,0.02)', cursor: 'pointer',
-          overflow: 'hidden', position: 'relative', transition: 'border-color 0.2s',
+          overflow: 'hidden', position: 'relative',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}
       >
         {currentUrl ? (
-          <>
-            <img src={currentUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: 0, transition: 'opacity 0.2s' }} className="img-overlay">
-              <p style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>Cambiar foto</p>
-            </div>
-          </>
+          <img src={currentUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         ) : (
           <div style={{ textAlign: 'center', padding: 20 }}>
             <p style={{ fontSize: '2rem', marginBottom: 8 }}>{uploading ? '⏳' : '📸'}</p>
@@ -86,13 +83,12 @@ function ImageUpload({ label, currentUrl, bucket, onUploaded, aspect = 'cover' }
         )}
       </div>
       <input ref={inputRef} type="file" accept="image/*" onChange={handleFile} style={{ display: 'none' }} />
-      <style>{`.img-overlay { opacity: 0 !important; } div:hover > .img-overlay { opacity: 1 !important; }`}</style>
     </div>
   )
 }
 
 export default function ProProfilePage() {
-  const { user } = useAuthStore()
+  const { user, token } = useAuthStore()
   const qc = useQueryClient()
   const [creating, setCreating] = useState(false)
   const [coverUrl, setCoverUrl] = useState(null)
@@ -101,10 +97,6 @@ export default function ProProfilePage() {
   const { data: me, isLoading } = useQuery({
     queryKey: ['me'],
     queryFn: () => authApi.me().then(r => r.data.user),
-    onSuccess: (data) => {
-      if (data?.professional_profiles?.cover_image_url && !coverUrl) setCoverUrl(data.professional_profiles.cover_image_url)
-      if (data?.profiles?.avatar_url && !avatarUrl) setAvatarUrl(data.profiles.avatar_url)
-    }
   })
 
   const hasProfile = !!me?.professional_profiles
@@ -184,13 +176,15 @@ export default function ProProfilePage() {
                 bucket="covers"
                 onUploaded={(url) => { setCoverUrl(url); profApi.update({ cover_image_url: url }).then(() => qc.invalidateQueries(['me'])) }}
                 aspect="cover"
+                token={token}
               />
               <ImageUpload
                 label="Foto de perfil / avatar"
                 currentUrl={avatarUrl ?? me?.profiles?.avatar_url}
                 bucket="avatars"
-                onUploaded={(url) => { setAvatarUrl(url) }}
+                onUploaded={(url) => setAvatarUrl(url)}
                 aspect="avatar"
+                token={token}
               />
             </div>
 
