@@ -37,13 +37,13 @@ body {
 }
 
 /* Mejor scroll en móvil */
+/* DESPUÉS */
 body {
-  overscroll-behavior: none;
-  overflow-x: hidden;
+  overscroll-behavior-y: none;  /* solo bloquea el pull-to-refresh vertical */
 }
 
 #root {
-  overflow-x: hidden;
+  /* quita overflow-x: hidden o ponlo en auto */
 }
 
 /* Scrollbar */
