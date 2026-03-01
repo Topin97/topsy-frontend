@@ -8,7 +8,10 @@ import { useState, useRef } from 'react'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
+  import.meta.env.VITE_SUPABASE_ANON_KEY,
+  {
+    auth: { persistSession: false }
+  }
 )
 
 const CATEGORIES = [
