@@ -14,61 +14,93 @@ const CATEGORIES = [
   { value: 'brows',      label: 'Cejas',       icon: '👁️' },
 ]
 
-function ProfCard({ prof }) {
+function ProfCard({ prof, userLocation }) {
   const minPrice = prof.services?.length
-    ? Math.min(...prof.services.map((s) => s.price))
+    ? Math.min(...prof.services.map(s => s.price))
+    : null
+
+  const topServices = prof.services?.slice(0, 3) ?? []
+
+  const distance = userLocation && prof.latitude && prof.longitude
+    ? (() => {
+        const R = 6371
+        const dLat = (prof.latitude - userLocation.latitude) * Math.PI / 180
+        const dLon = (prof.longitude - userLocation.longitude) * Math.PI / 180
+        const a = Math.sin(dLat/2)**2 + Math.cos(userLocation.latitude * Math.PI/180) * Math.cos(prof.latitude * Math.PI/180) * Math.sin(dLon/2)**2
+        return (R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))).toFixed(1)
+      })()
     : null
 
   return (
-    <Link to={`/professional/${prof.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block', width: '100%' }}>
-      <div
-        style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, overflow: 'hidden', transition: 'all 0.35s cubic-bezier(0.4,0,0.2,1)', cursor: 'pointer', width: '100%' }}
-        onMouseEnter={e => {
-          e.currentTarget.style.border = '1px solid rgba(201,150,90,0.35)'
-          e.currentTarget.style.transform = 'translateY(-4px)'
-          e.currentTarget.style.boxShadow = '0 20px 50px rgba(0,0,0,0.5)'
-        }}
-        onMouseLeave={e => {
-          e.currentTarget.style.border = '1px solid rgba(255,255,255,0.06)'
-          e.currentTarget.style.transform = 'translateY(0)'
-          e.currentTarget.style.boxShadow = 'none'
-        }}
+    <Link to={`/professional/${prof.id}`} style={{ textDecoration: 'none', color: 'inherit', display: 'block' }}>
+      <div style={{
+        background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)',
+        borderRadius: 20, overflow: 'visible', transition: 'all 0.3s', cursor: 'pointer',
+      }}
+        onMouseEnter={e => { e.currentTarget.style.border = '1px solid rgba(201,150,90,0.35)'; e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 20px 50px rgba(0,0,0,0.5)' }}
+        onMouseLeave={e => { e.currentTarget.style.border = '1px solid rgba(255,255,255,0.06)'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none' }}
       >
-        <div style={{ height: 200, background: 'linear-gradient(135deg, rgba(201,150,90,0.12) 0%, rgba(17,16,9,1) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '4rem', position: 'relative', overflow: 'hidden', width: '100%' }}>
+        {/* Cover */}
+        <div style={{ height: 160, borderRadius: '20px 20px 0 0', overflow: 'hidden', position: 'relative', background: 'linear-gradient(135deg, rgba(201,150,90,0.12), #111009)' }}>
           {prof.cover_image_url
-            ? <img src={prof.cover_image_url} alt={prof.business_name} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-            : <span style={{ opacity: 0.4 }}>✂️</span>
+            ? <img src={prof.cover_image_url} alt={prof.business_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', opacity: 0.3 }}>✂️</div>
           }
-          {prof.is_verified && (
-            <div style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(10,8,6,0.85)', backdropFilter: 'blur(8px)', border: '1px solid rgba(201,150,90,0.3)', borderRadius: 100, padding: '3px 10px', fontSize: 11, color: '#C9965A' }}>
-              ✓ Verificado
-            </div>
-          )}
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 50%, rgba(10,8,6,0.7) 100%)' }} />
+
+          {/* Badges top */}
+          <div style={{ position: 'absolute', top: 10, right: 10, display: 'flex', gap: 6 }}>
+            {prof.is_verified && (
+              <div style={{ background: 'rgba(10,8,6,0.85)', backdropFilter: 'blur(8px)', border: '1px solid rgba(201,150,90,0.3)', borderRadius: 100, padding: '3px 10px', fontSize: 10, color: '#C9965A' }}>✓ Verificado</div>
+            )}
+          </div>
+
+          {/* Precio bottom left */}
           {minPrice != null && (
-            <div style={{ position: 'absolute', bottom: 12, left: 12, background: 'rgba(10,8,6,0.85)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '4px 12px' }}>
-              <span style={{ fontSize: 11, color: 'rgba(247,242,234,0.5)' }}>Desde </span>
-              <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', color: '#C9965A', fontStyle: 'italic' }}>{minPrice}€</span>
+            <div style={{ position: 'absolute', bottom: 10, left: 10, background: 'rgba(10,8,6,0.85)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, padding: '4px 10px' }}>
+              <span style={{ fontSize: 10, color: 'rgba(247,242,234,0.5)' }}>Desde </span>
+              <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', color: '#C9965A', fontStyle: 'italic' }}>{minPrice}€</span>
             </div>
           )}
+
+          {/* Avatar circular */}
+          <div style={{ position: 'absolute', bottom: -24, left: 16, width: 52, height: 52, borderRadius: '50%', border: '3px solid rgba(10,8,6,1)', overflow: 'hidden', background: 'rgba(201,150,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2, flexShrink: 0 }}>
+            {prof.profiles?.avatar_url
+              ? <img src={prof.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : <span style={{ fontSize: '1.2rem' }}>👤</span>
+            }
+          </div>
         </div>
-        <div style={{ padding: '20px' }}>
-          <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.25rem', fontWeight: 600, marginBottom: 6 }}>{prof.business_name}</h3>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
-            <div style={{ display: 'flex', gap: 1 }}>
-              {Array.from({ length: 5 }).map((_, i) => (
-                <span key={i} style={{ color: i < Math.round(prof.avg_rating ?? 0) ? '#C9965A' : 'rgba(255,255,255,0.1)', fontSize: 11 }}>★</span>
+
+        {/* Body */}
+        <div style={{ padding: '32px 16px 16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+            <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.15rem', fontWeight: 600, lineHeight: 1.2, flex: 1, minWidth: 0, marginRight: 8 }}>{prof.business_name}</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+              <span style={{ color: '#C9965A', fontSize: 11 }}>★</span>
+              <span style={{ fontSize: 12, fontWeight: 600 }}>{prof.avg_rating ?? '—'}</span>
+              <span style={{ fontSize: 11, color: 'rgba(247,242,234,0.3)' }}>({prof.total_reviews})</span>
+            </div>
+          </div>
+
+          {/* Ubicación + distancia */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+            <span style={{ fontSize: 11, color: 'rgba(247,242,234,0.35)' }}>📍 {prof.city}</span>
+            {distance && <span style={{ fontSize: 11, color: 'rgba(201,150,90,0.6)', background: 'rgba(201,150,90,0.08)', padding: '2px 8px', borderRadius: 100 }}>{distance} km</span>}
+          </div>
+
+          {/* Servicios destacados */}
+          {topServices.length > 0 && (
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
+              {topServices.map(s => (
+                <span key={s.id} style={{ fontSize: 11, color: 'rgba(247,242,234,0.45)', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 100, padding: '3px 10px' }}>
+                  {s.name}
+                </span>
               ))}
             </div>
-            <span style={{ fontSize: 12, color: 'rgba(247,242,234,0.5)' }}>{prof.avg_rating ?? '—'}</span>
-            <span style={{ fontSize: 12, color: 'rgba(247,242,234,0.25)' }}>({prof.total_reviews})</span>
-          </div>
-          <p style={{ color: 'rgba(247,242,234,0.35)', fontSize: 12, marginBottom: 14, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', lineHeight: 1.5 }}>
-            {prof.description || 'Profesional de belleza y bienestar'}
-          </p>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 12, color: 'rgba(247,242,234,0.3)', display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ fontSize: 10 }}>📍</span> {prof.city}
-            </span>
+          )}
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
             <span style={{ fontSize: 11, color: '#C9965A', letterSpacing: '0.08em', textTransform: 'uppercase', fontWeight: 500 }}>Ver perfil →</span>
           </div>
         </div>
@@ -348,7 +380,7 @@ export default function SearchPage() {
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 280px), 1fr))', gap: 16 }}>
                 {isLoading
                   ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
-                  : professionals.map((p) => <ProfCard key={p.id} prof={p} />)
+                  : professionals.map((p) => <ProfCard key={p.id} prof={p} userLocation={userLocation} />)
                 }
               </div>
               {!isLoading && professionals.length === 0 && (
