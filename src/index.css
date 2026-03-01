@@ -39,6 +39,11 @@ body {
 /* Mejor scroll en móvil */
 body {
   overscroll-behavior: none;
+  overflow-x: hidden;
+}
+
+#root {
+  overflow-x: hidden;
 }
 
 /* Scrollbar */
