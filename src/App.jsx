@@ -16,6 +16,7 @@ import AdminPage           from './pages/admin/AdminPage'
 import WelcomePage         from './pages/WelcomePage'
 import NotFoundPage        from './pages/NotFoundPage'
 import ForgotPasswordPage  from './pages/ForgotPasswordPage'
+import ResetPasswordPage from './pages/ResetPasswordPage'
 
 // Panel profesional
 import ProDashboardPage    from './pages/professional/ProDashboardPage'
@@ -78,6 +79,7 @@ export default function App() {
             <Route path="login"    element={<PublicRoute><LoginPage /></PublicRoute>} />
             <Route path="register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
             <Route path="forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="reset-password" element={<ResetPasswordPage />} />
             <Route path="welcome" element={<WelcomePage />} />
 
             {/* Cliente */}
