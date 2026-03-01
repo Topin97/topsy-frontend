@@ -3,18 +3,19 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'react-hot-toast'
 import { useAuthStore } from './store/authStore'
 
-import Layout           from './components/layout/Layout'
-import HomePage         from './pages/HomePage'
-import LoginPage        from './pages/LoginPage'
-import RegisterPage     from './pages/RegisterPage'
-import SearchPage       from './pages/SearchPage'
-import ProfessionalPage from './pages/ProfessionalPage'
-import BookingPage      from './pages/BookingPage'
-import DashboardPage    from './pages/DashboardPage'
-import ProfilePage      from './pages/ProfilePage'
-import AdminPage        from './pages/admin/AdminPage'
-import WelcomePage      from './pages/WelcomePage'
-
+import Layout              from './components/layout/Layout'
+import HomePage            from './pages/HomePage'
+import LoginPage           from './pages/LoginPage'
+import RegisterPage        from './pages/RegisterPage'
+import SearchPage          from './pages/SearchPage'
+import ProfessionalPage    from './pages/ProfessionalPage'
+import BookingPage         from './pages/BookingPage'
+import DashboardPage       from './pages/DashboardPage'
+import ProfilePage         from './pages/ProfilePage'
+import AdminPage           from './pages/admin/AdminPage'
+import WelcomePage         from './pages/WelcomePage'
+import NotFoundPage        from './pages/NotFoundPage'
+import ForgotPasswordPage  from './pages/ForgotPasswordPage'
 
 // Panel profesional
 import ProDashboardPage    from './pages/professional/ProDashboardPage'
@@ -76,6 +77,8 @@ export default function App() {
             <Route path="professional/:id" element={<ProfessionalPage />} />
             <Route path="login"    element={<PublicRoute><LoginPage /></PublicRoute>} />
             <Route path="register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+            <Route path="forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="welcome" element={<WelcomePage />} />
 
             {/* Cliente */}
             <Route path="booking/:professionalId/:serviceId" element={
@@ -95,14 +98,11 @@ export default function App() {
             <Route path="pro/profile"      element={<ProRoute><ProProfilePage /></ProRoute>} />
 
             {/* Admin */}
-            redirectTo: `${process.env.FRONTEND_URL ?? 'https://topsy-frontend.vercel.app'}/welcome`,
-          </Route>
-          <Route path="welcome" element={<WelcomePage />} />
-```
+            <Route path="admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
 
-Finalmente en Supabase → **Authentication** → **URL Configuration** → **Redirect URLs**, cambia la URL de redirección a:
-```
-https://topsy-frontend.vercel.app/welcome
+            {/* 404 */}
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
