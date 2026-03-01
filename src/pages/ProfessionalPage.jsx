@@ -57,7 +57,7 @@ export default function ProfessionalPage() {
       `}</style>
 
       {/* Cover */}
-      <div style={{ position: 'relative', height: 260, overflow: 'hidden', background: 'linear-gradient(135deg, rgba(201,150,90,0.2), #111009)' }}>
+      <div style={{ position: 'relative', height: 260,  background: 'linear-gradient(135deg, rgba(201,150,90,0.2), #111009)' }}>
         {prof.cover_image_url ? (
           <img src={prof.cover_image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', animation: 'fadeIn 0.6s ease' }} />
         ) : (
