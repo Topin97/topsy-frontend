@@ -33,7 +33,6 @@ function getLastSlot(endTime, durationMinutes) {
 export default function ProAvailabilityPage() {
   const qc = useQueryClient()
   const [schedule, setSchedule] = useState(DEFAULT_SCHEDULE)
-  const [initialized, setInitialized] = useState(false)
 
   // Cargar datos guardados
   const { data: me, isLoading } = useQuery({
@@ -41,22 +40,24 @@ export default function ProAvailabilityPage() {
     queryFn: () => authApi.me().then(r => r.data.user),
   })
 
-  // Inicializar schedule con datos de la API
-  useEffect(() => {
-    if (!me || initialized) return
-    const saved = me?.professional_profiles?.availability
-    if (saved && saved.length > 0) {
-      // Mergear con DEFAULT para asegurar que todos los días están presentes
-      const merged = DAYS.map(d => {
-        const found = saved.find(s => s.day_of_week === d.key)
-        return found
-          ? { day_of_week: d.key, is_available: found.is_available, start_time: found.start_time?.slice(0,5) ?? '09:00', end_time: found.end_time?.slice(0,5) ?? '18:00' }
-          : DEFAULT_SCHEDULE.find(s => s.day_of_week === d.key)
-      })
-      setSchedule(merged)
-    }
-    setInitialized(true)
-  }, [me])
+useEffect(() => {
+  if (!me) return
+  const saved = me?.professional_profiles?.availability
+  if (saved && saved.length > 0) {
+    const merged = DAYS.map(d => {
+      const found = saved.find(s => s.day_of_week === d.key)
+      return found
+        ? {
+            day_of_week:  d.key,
+            is_available: found.is_available,
+            start_time:   found.start_time?.slice(0, 5) ?? '09:00',
+            end_time:     found.end_time?.slice(0, 5)   ?? '18:00',
+          }
+        : DEFAULT_SCHEDULE.find(s => s.day_of_week === d.key)
+    })
+    setSchedule(merged)
+  }
+}, [me?.professional_profiles?.availability])
 
   const { mutate: save, isPending } = useMutation({
     mutationFn: () => profApi.setAvail({ availability: schedule }),
