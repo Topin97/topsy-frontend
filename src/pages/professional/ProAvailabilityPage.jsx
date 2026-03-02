@@ -57,7 +57,7 @@ useEffect(() => {
     })
     setSchedule(merged)
   }
-}, [JSON.stringify(me?.professional_profiles?.availability)])
+}, [me?.professional_profiles?.availability])
 
   const { mutate: save, isPending } = useMutation({
     mutationFn: () => profApi.setAvail({ availability: schedule }),
