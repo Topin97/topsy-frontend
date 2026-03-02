@@ -30,7 +30,7 @@ export default function BookingPage() {
   const [selectedDate, setSelectedDate]  = useState(null)
   const [selectedSlot, setSelectedSlot]  = useState(null)
   const [notes, setNotes]                = useState('')
-  const [daysWithSlots, setDaysWithSlots] = useState({}) // { 'yyyy-MM-dd': true/false }
+  const [daysData, setDaysData] = useState({}) // { 'yyyy-MM-dd': { total, available } } // { 'yyyy-MM-dd': true/false }
   const [booked, setBooked]              = useState(false)
   const [animSlot, setAnimSlot]          = useState(null)
   const [animDay, setAnimDay]            = useState(null)
@@ -57,12 +57,35 @@ export default function BookingPage() {
 
   const freeSlots = slotsData?.filter(s => s.available) ?? []
 
-  // Guardar si el día tenía slots disponibles
-  useEffect(() => {
-    if (!selectedDate || loadingSlots) return
-    const key = format(selectedDate, 'yyyy-MM-dd')
-    setDaysWithSlots(prev => ({ ...prev, [key]: freeSlots.length > 0 }))
-  }, [slotsData, loadingSlots])
+// Guardar slots del día seleccionado
+useEffect(() => {
+  if (!selectedDate || loadingSlots) return
+  const key = format(selectedDate, 'yyyy-MM-dd')
+  const total = slotsData?.length ?? 0
+  const available = freeSlots.length
+  setDaysData(prev => ({ ...prev, [key]: { total, available } }))
+}, [slotsData, loadingSlots])
+
+// Precargar slots de los próximos 14 días en segundo plano
+useEffect(() => {
+  if (!service || !professionalId || !serviceId) return
+  const days = Array.from({ length: 14 }, (_, i) => addDays(new Date(), i))
+  days.forEach(async (day) => {
+    const key = format(day, 'yyyy-MM-dd')
+    if (daysData[key] !== undefined) return
+    try {
+      const res = await bookingsApi.getSlots({
+        professional_id: professionalId,
+        service_id: serviceId,
+        date: key,
+      })
+      const slots = res.data.data ?? []
+      const total = slots.length
+      const available = slots.filter(s => s.available).length
+      setDaysData(prev => ({ ...prev, [key]: { total, available } }))
+    } catch {}
+  })
+}, [service, professionalId, serviceId])
 
   const handleSelectDate = (day) => {
     setSelectedDate(day)
@@ -233,8 +256,10 @@ export default function BookingPage() {
                   const todayMark  = isToday(day)
                   const disabled   = isPast || !inMonth
                   const key        = format(day, 'yyyy-MM-dd')
-                  const hasSlots   = daysWithSlots[key] === true
-                  const noSlots    = daysWithSlots[key] === false
+                  const dayInfo  = daysData[key]
+                  const hasSlots = dayInfo?.available > 0
+                  const noSlots  = dayInfo !== undefined && dayInfo.available === 0
+                  const fewSlots = dayInfo?.available > 0 && dayInfo.available <= 3
                   const isAnim     = animDay === day.toISOString()
 
                   return (
@@ -257,26 +282,33 @@ export default function BookingPage() {
                     >
                       {inMonth ? format(day, 'd') : ''}
                       {/* Punto disponibilidad */}
-                      {inMonth && !disabled && hasSlots && !isSelected && (
-                        <span style={{ width: 4, height: 4, borderRadius: '50%', background: '#C9965A', display: 'block' }} />
-                      )}
-                      {inMonth && !disabled && noSlots && !isSelected && (
-                        <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'rgba(248,113,113,0.5)', display: 'block' }} />
-                      )}
+                  {inMonth && !disabled && dayInfo !== undefined && !isSelected && (
+                    <span style={{
+                      width: '60%', height: 3, borderRadius: 2, display: 'block', marginTop: 1,
+                      background: noSlots
+                        ? '#f87171'
+                        : fewSlots
+                          ? '#fb923c'
+                          : '#4ade80',
+                    }} />
+                  )}
                     </button>
                   )
                 })}
               </div>
 
-              {/* Leyenda */}
-              <div style={{ display: 'flex', gap: 16, marginTop: 12, justifyContent: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: 'rgba(247,242,234,0.3)' }}>
-                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#C9965A', display: 'inline-block' }} /> Disponible
+                          {/* Leyenda */}
+            <div style={{ display: 'flex', gap: 14, marginTop: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+              {[
+                { color: '#4ade80', label: 'Disponible' },
+                { color: '#fb923c', label: 'Pocas citas' },
+                { color: '#f87171', label: 'Completo' },
+              ].map(({ color, label }) => (
+                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: 'rgba(247,242,234,0.3)' }}>
+                  <span style={{ width: 14, height: 3, borderRadius: 2, background: color, display: 'inline-block' }} /> {label}
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: 'rgba(247,242,234,0.3)' }}>
-                  <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'rgba(248,113,113,0.5)', display: 'inline-block' }} /> Sin hueco
-                </div>
-              </div>
+              ))}
+            </div>
             </div>
 
             {/* Paso 2: Horas */}
