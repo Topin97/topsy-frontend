@@ -4,6 +4,10 @@ import { useQuery } from '@tanstack/react-query'
 import { authApi } from '../../services/api'
 import toast from 'react-hot-toast'
 import { useState, useEffect, useRef } from 'react'
+import navHome     from '../../assets/icons/nav-home.png'
+import navExplore  from '../../assets/icons/nav-explore.png'
+import navBookings from '../../assets/icons/nav-bookings.png'
+import navProfile  from '../../assets/icons/nav-profile.png'
 
 export default function Layout() {
   const { user, token, logout, isProfessional } = useAuthStore()
@@ -63,12 +67,11 @@ export default function Layout() {
   const bookingsLink = token ? (isProfessional() ? '/pro/dashboard' : '/dashboard') : '/login'
 
 const bottomNav = [
-  { to: '/',          img: '/src/assets/icons/nav-home.png',     label: 'TopSy' },
-  { to: '/search',    img: '/src/assets/icons/nav-explore.png',  label: 'Explorar' },
-  { to: bookingsLink, img: '/src/assets/icons/nav-bookings.png', label: 'Reservas' },
-  { to: token ? profileLink : '/login', img: '/src/assets/icons/nav-profile.png', label: 'Perfil', avatar: avatarUrl },
+  { to: '/',          img: navHome,     label: 'TopSy' },
+  { to: '/search',    img: navExplore,  label: 'Explorar' },
+  { to: bookingsLink, img: navBookings, label: 'Reservas' },
+  { to: token ? profileLink : '/login', img: navProfile, label: 'Perfil', avatar: avatarUrl },
 ]
-
   return (
     <div style={{ minHeight: '100vh', background: '#1C1C1E' }}>
       <style>{`
