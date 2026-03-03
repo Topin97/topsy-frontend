@@ -159,7 +159,7 @@ export default function BookingPage() {
   const freeSlots = slotsData?.filter(s => s.available) ?? []
   const selectedDateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null
   const selectedDayInfo = selectedDateKey ? daysData[selectedDateKey] : null
-  const isDayFull = selectedDayInfo !== undefined && selectedDayInfo.available === 0 && selectedDayInfo.total > 0
+  const isDayFull = selectedDayInfo != null && selectedDayInfo.available === 0 && selectedDayInfo.total > 0
 
 // Guardar slots del día seleccionado
 useEffect(() => {
