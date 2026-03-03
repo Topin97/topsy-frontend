@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import { profApi, bookingsApi } from '../services/api'
+import api, { profApi, bookingsApi } from '../services/api'
 import {
   format, addDays, isSameDay, startOfMonth, endOfMonth,
   startOfWeek, endOfWeek, addMonths, subMonths,
@@ -9,7 +9,6 @@ import {
 } from 'date-fns'
 import { es } from 'date-fns/locale'
 import toast from 'react-hot-toast'
-import api from '../services/api'
 
 
 function buildCalendarDays(month) {
