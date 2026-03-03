@@ -9,6 +9,8 @@ import {
 } from 'date-fns'
 import { es } from 'date-fns/locale'
 import toast from 'react-hot-toast'
+import api from '../services/api'
+
 
 function buildCalendarDays(month) {
   const start = startOfWeek(startOfMonth(month), { weekStartsOn: 1 })
@@ -22,6 +24,105 @@ function buildCalendarDays(month) {
 const WEEK_DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
 const TODAY = new Date(); TODAY.setHours(0,0,0,0)
 
+
+// ── Modal lista de espera ──────────────────────────────────────
+function WaitlistModal({ date, profName, serviceName, professionalId, serviceId, onClose }) {
+  const [timePreference, setTimePreference] = useState('any')
+  const [loading, setLoading] = useState(false)
+  const [done, setDone] = useState(false)
+
+  const handleJoin = async () => {
+    setLoading(true)
+    try {
+      await api.post('/waitlist', {
+        professional_id: professionalId,
+        service_id: serviceId,
+        date: format(date, 'yyyy-MM-dd'),
+        time_preference: timePreference,
+      })
+      setDone(true)
+    } catch (err) {
+      const msg = err.response?.data?.error ?? 'Error al apuntarse'
+      if (msg.includes('Ya estás')) {
+        toast('Ya estás en la lista de espera para este día', { icon: 'ℹ️' })
+        onClose()
+      } else {
+        toast.error(msg)
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 2000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
+      onClick={e => { if (e.target === e.currentTarget) onClose() }}>
+      <div style={{ background: '#242426', borderRadius: '20px 20px 0 0', padding: '28px 24px 40px', width: '100%', maxWidth: 480, border: '1px solid rgba(255,255,255,0.08)', borderBottom: 'none' }}>
+        {done ? (
+          <div style={{ textAlign: 'center', paddingTop: 8 }}>
+            <div style={{ fontSize: '3rem', marginBottom: 16 }}>🔔</div>
+            <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.6rem', fontWeight: 300, marginBottom: 8, color: '#F7F2EA' }}>
+              ¡Apuntado a la<br /><em style={{ color: '#C9965A' }}>lista de espera!</em>
+            </h3>
+            <p style={{ fontSize: 13, color: 'rgba(247,242,234,0.4)', marginBottom: 8, lineHeight: 1.6 }}>
+              Te avisaremos por email si se libera un hueco el <strong style={{ color: '#F7F2EA' }}>{format(date, "d 'de' MMMM", { locale: es })}</strong> en {profName}.
+            </p>
+            <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.25)', marginBottom: 28 }}>
+              Turno: {timePreference === 'morning' ? '☀️ Mañana' : timePreference === 'afternoon' ? '🌙 Tarde' : '☀️🌙 Cualquier turno'}
+            </p>
+            <button onClick={onClose} style={{ width: '100%', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 12, padding: '14px', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: '#0A0806', cursor: 'pointer' }}>
+              Entendido
+            </button>
+          </div>
+        ) : (
+          <>
+            <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', margin: '0 auto 24px' }} />
+            <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', fontWeight: 300, marginBottom: 6, color: '#F7F2EA' }}>
+              Lista de <em style={{ color: '#C9965A' }}>espera</em>
+            </h3>
+            <p style={{ fontSize: 13, color: 'rgba(247,242,234,0.4)', marginBottom: 24, lineHeight: 1.6 }}>
+              Te avisaremos si alguien cancela el <strong style={{ color: '#F7F2EA' }}>{format(date, "d 'de' MMMM", { locale: es })}</strong> en {profName} para <strong style={{ color: '#F7F2EA' }}>{serviceName}</strong>.
+            </p>
+            <p style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.3)', marginBottom: 12 }}>¿Qué turno prefieres?</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
+              {[
+                { value: 'morning',   icon: '☀️', label: 'Mañana',          desc: 'Primer turno del día' },
+                { value: 'afternoon', icon: '🌙', label: 'Tarde',           desc: 'Segundo turno del día' },
+                { value: 'any',       icon: '✨', label: 'Cualquier turno', desc: 'Me da igual el horario' },
+              ].map(opt => (
+                <button key={opt.value} onClick={() => setTimePreference(opt.value)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px',
+                    borderRadius: 12, cursor: 'pointer', textAlign: 'left',
+                    border: `1.5px solid ${timePreference === opt.value ? 'rgba(201,150,90,0.5)' : 'rgba(255,255,255,0.07)'}`,
+                    background: timePreference === opt.value ? 'rgba(201,150,90,0.08)' : 'rgba(255,255,255,0.02)',
+                    transition: 'all 0.15s', fontFamily: 'Outfit, sans-serif',
+                  }}>
+                  <span style={{ fontSize: '1.4rem', flexShrink: 0 }}>{opt.icon}</span>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: timePreference === opt.value ? '#C9965A' : '#F7F2EA', margin: 0, marginBottom: 2 }}>{opt.label}</p>
+                    <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.3)', margin: 0 }}>{opt.desc}</p>
+                  </div>
+                  {timePreference === opt.value && (
+                    <span style={{ marginLeft: 'auto', color: '#C9965A', fontSize: 16, flexShrink: 0 }}>✓</span>
+                  )}
+                </button>
+              ))}
+            </div>
+            <button onClick={handleJoin} disabled={loading}
+              style={{ width: '100%', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 12, padding: '15px', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: '#0A0806', cursor: 'pointer', letterSpacing: '0.05em' }}>
+              {loading ? '⏳ Apuntando...' : '🔔 Avisarme si hay hueco'}
+            </button>
+            <button onClick={onClose} style={{ width: '100%', background: 'none', border: 'none', padding: '12px', fontSize: 13, color: 'rgba(247,242,234,0.3)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', marginTop: 4 }}>
+              Cancelar
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
 export default function BookingPage() {
   const { professionalId, serviceId } = useParams()
   const navigate = useNavigate()
@@ -34,6 +135,7 @@ export default function BookingPage() {
   const [booked, setBooked]              = useState(false)
   const [animSlot, setAnimSlot]          = useState(null)
   const [animDay, setAnimDay]            = useState(null)
+  const [showWaitlist, setShowWaitlist]  = useState(false)
 
   const calDays = buildCalendarDays(currentMonth)
   const isCurrentMonth = isSameMonth(currentMonth, new Date())
@@ -56,6 +158,9 @@ export default function BookingPage() {
   })
 
   const freeSlots = slotsData?.filter(s => s.available) ?? []
+  const selectedDateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null
+  const selectedDayInfo = selectedDateKey ? daysData[selectedDateKey] : null
+  const isDayFull = selectedDayInfo !== undefined && selectedDayInfo.available === 0 && selectedDayInfo.total > 0
 
 // Guardar slots del día seleccionado
 useEffect(() => {
@@ -182,7 +287,16 @@ useEffect(() => {
         .month-nav-btn { width: 34px; height: 34px; border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(247,242,234,0.6); font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
         .month-nav-btn:hover:not(:disabled) { background: rgba(201,150,90,0.1); border-color: rgba(201,150,90,0.3); color: #C9965A; }
         .month-nav-btn:disabled { opacity: 0.2; cursor: default; }
+        .waitlist-btn:hover { background: rgba(248,113,113,0.15) !important; border-color: rgba(248,113,113,0.4) !important; }
       `}</style>
+
+      {showWaitlist && selectedDate && (
+        <WaitlistModal
+          date={selectedDate} profName={prof?.business_name} serviceName={service?.name}
+          professionalId={professionalId} serviceId={serviceId}
+          onClose={() => setShowWaitlist(false)}
+        />
+      )}
 
       {/* ── Header con cover ── */}
       <div className="booking-header" style={{ background: 'rgba(10,8,6,0.97)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
@@ -324,9 +438,24 @@ useEffect(() => {
                     {Array.from({ length: 8 }).map((_, i) => <div key={i} className="skeleton" style={{ height: 42, borderRadius: 8 }} />)}
                   </div>
                 ) : freeSlots.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                    <p style={{ fontSize: '1.5rem', marginBottom: 6 }}>😔</p>
-                    <p style={{ fontSize: 13, color: 'rgba(247,242,234,0.3)', margin: 0 }}>Sin disponibilidad · Prueba otro día</p>
+                  <div style={{ textAlign: 'center', padding: '16px 0 8px' }}>
+                    <p style={{ fontSize: '2rem', marginBottom: 8 }}>😔</p>
+                    <p style={{ fontSize: 14, color: 'rgba(247,242,234,0.5)', marginBottom: 4, fontWeight: 500 }}>Día completo</p>
+                    <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.25)', marginBottom: 20 }}>
+                      {isDayFull ? 'Todas las citas están ocupadas' : 'El profesional no trabaja este día'}
+                    </p>
+                    {isDayFull && (
+                      <button className="waitlist-btn" onClick={() => setShowWaitlist(true)}
+                        style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 8,
+                          background: 'rgba(248,113,113,0.08)', border: '1.5px solid rgba(248,113,113,0.25)',
+                          borderRadius: 12, padding: '12px 20px', cursor: 'pointer',
+                          fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 600,
+                          color: '#f87171', transition: 'all 0.2s',
+                        }}>
+                        🔔 Avisarme si hay hueco
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <div className="slots-grid">
@@ -430,16 +559,29 @@ useEffect(() => {
           </div>
           <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', color: '#C9965A', fontStyle: 'italic', lineHeight: 1, flexShrink: 0, margin: 0 }}>{service?.price}€</p>
         </div>
-        <button onClick={() => book()} disabled={!selectedSlot || isPending} style={{
-          width: '100%', border: 'none', borderRadius: 12, padding: '16px',
-          fontSize: 15, fontWeight: 700, fontFamily: 'Outfit, sans-serif',
-          cursor: selectedSlot ? 'pointer' : 'not-allowed', letterSpacing: '0.05em', transition: 'all 0.2s',
-          background: selectedSlot ? 'linear-gradient(135deg, #C9965A, #E8B97A)' : 'rgba(255,255,255,0.08)',
-          color: selectedSlot ? '#0A0806' : 'rgba(247,242,234,0.3)',
-          boxShadow: selectedSlot ? '0 8px 24px rgba(201,150,90,0.3)' : 'none',
-        }}>
-          {isPending ? '⏳ Confirmando...' : selectedSlot ? '✓ Confirmar cita' : 'Selecciona un horario'}
-        </button>
+        {isDayFull && selectedDate && !selectedSlot ? (
+          <button className="waitlist-btn" onClick={() => setShowWaitlist(true)}
+            style={{
+              width: '100%', border: '1.5px solid rgba(248,113,113,0.3)', borderRadius: 12, padding: '14px',
+              fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif',
+              cursor: 'pointer', letterSpacing: '0.05em', transition: 'all 0.2s',
+              background: 'rgba(248,113,113,0.08)', color: '#f87171',
+            }}>
+            🔔 Avisarme si hay hueco
+          </button>
+        ) : (
+          <button onClick={() => book()} disabled={!selectedSlot || isPending}
+            style={{
+              width: '100%', border: 'none', borderRadius: 12, padding: '16px',
+              fontSize: 15, fontWeight: 700, fontFamily: 'Outfit, sans-serif',
+              cursor: selectedSlot ? 'pointer' : 'not-allowed', letterSpacing: '0.05em', transition: 'all 0.2s',
+              background: selectedSlot ? 'linear-gradient(135deg, #C9965A, #E8B97A)' : 'rgba(255,255,255,0.08)',
+              color: selectedSlot ? '#0A0806' : 'rgba(247,242,234,0.3)',
+              boxShadow: selectedSlot ? '0 8px 24px rgba(201,150,90,0.3)' : 'none',
+            }}>
+            {isPending ? '⏳ Confirmando...' : selectedSlot ? '✓ Confirmar cita' : 'Selecciona un horario'}
+          </button>
+        )}
         <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.2)', textAlign: 'center', margin: 0 }}>Puedes cancelar hasta 24h antes</p>
       </div>
     </div>
