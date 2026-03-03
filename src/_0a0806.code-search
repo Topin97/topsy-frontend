@@ -1,0 +1,173 @@
+# Query: #0a0806
+# ContextLines: 1
+
+38 results - 17 files
+
+src\App.jsx:
+  69              },
+  70:             success: { iconTheme: { primary: '#C9965A', secondary: '#1C1C1E' } },
+  71            }}
+
+src\index.css:
+   99    background: linear-gradient(135deg, var(--color-gold), var(--color-gold2));
+  100:   color: #1C1C1E;
+  101    font-weight: 600;
+
+  145    background: var(--color-gold);
+  146:   color: #1C1C1E;
+  147  }
+
+src\components\layout\Layout.jsx:
+   72    return (
+   73:     <div style={{ minHeight: '100vh', background: '#1C1C1E' }}>
+   74        <style>{`
+
+  175                  <Link to="/login" style={{ textDecoration: 'none', fontSize: '12px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.5)', fontWeight: 500 }}>Entrar</Link>
+  176:                 <Link to="/register" style={{ textDecoration: 'none', fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700, color: '#1C1C1E', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', padding: '9px 20px', borderRadius: 8, boxShadow: '0 4px 20px rgba(201,150,90,0.2)' }}>
+  177                    Registrarse
+
+src\pages\BookingPage.jsx:
+  115    if (booked) return (
+  116:     <div style={{ background: '#1C1C1E', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+  117        <style>{`
+
+  147            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+  148:             <button onClick={() => navigate('/dashboard')} style={{ width: '100%', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 12, padding: '15px', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: '#1C1C1E', cursor: 'pointer', letterSpacing: '0.05em' }}>
+  149                Ver mis citas
+
+  160    return (
+  161:     <div style={{ background: '#1C1C1E', minHeight: '100vh', paddingBottom: 200 }}>
+  162        <style>{`
+
+  276                          background: isSelected ? 'linear-gradient(135deg, #C9965A, #E8B97A)' : 'transparent',
+  277:                         color: isSelected ? '#1C1C1E' : disabled ? 'rgba(247,242,234,0.1)' : todayMark ? '#C9965A' : 'rgba(247,242,234,0.75)',
+  278                          boxShadow: isSelected ? '0 4px 14px rgba(201,150,90,0.35)' : 'none',
+
+  342                            background: active ? 'linear-gradient(135deg, #C9965A, #E8B97A)' : 'rgba(255,255,255,0.02)',
+  343:                           color: active ? '#1C1C1E' : 'rgba(247,242,234,0.65)',
+  344                            boxShadow: active ? '0 4px 12px rgba(201,150,90,0.3)' : 'none',
+
+  400                    background: selectedSlot ? 'linear-gradient(135deg, #C9965A, #E8B97A)' : 'rgba(255,255,255,0.06)',
+  401:                   color: selectedSlot ? '#1C1C1E' : 'rgba(247,242,234,0.3)',
+  402                    boxShadow: selectedSlot ? '0 8px 24px rgba(201,150,90,0.3)' : 'none',
+
+  437            background: selectedSlot ? 'linear-gradient(135deg, #C9965A, #E8B97A)' : 'rgba(255,255,255,0.08)',
+  438:           color: selectedSlot ? '#1C1C1E' : 'rgba(247,242,234,0.3)',
+  439            boxShadow: selectedSlot ? '0 8px 24px rgba(201,150,90,0.3)' : 'none',
+
+src\pages\ForgotPasswordPage.jsx:
+  35          </p>
+  36:         <Link to="/login" style={{ display: 'inline-block', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', color: '#1C1C1E', textDecoration: 'none', padding: '14px 40px', borderRadius: 10, fontWeight: 700, fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>
+  37            Volver al login
+
+src\pages\HomePage.jsx:
+   47    return (
+   48:     <div style={{ background: '#1C1C1E', color: '#F7F2EA', fontFamily: 'Outfit, sans-serif', minHeight: '100vh' }}>
+   49        <style>{`
+
+   68        {/* ══ HERO ══════════════════════════════════════════════ */}
+   69:       <section style={{ position: 'relative', overflow: 'hidden', background: 'linear-gradient(180deg, #13100A 0%, #1C1C1E 100%)', paddingBottom: 0 }}>
+   70          <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+
+  148                <button onClick={() => navigate(`/search?q=${search}&city=${city}`)}
+  149:                 style={{ background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 10, padding: '13px 28px', color: '#1C1C1E', fontWeight: 700, fontSize: 14, fontFamily: 'Outfit, sans-serif', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
+  150                  Buscar
+
+  225                        {/* Avatar */}
+  226:                       <div style={{ position: 'absolute', bottom: -20, left: 16, width: 44, height: 44, borderRadius: '50%', border: '3px solid #1C1C1E', overflow: 'hidden', background: 'rgba(201,150,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+  227                          {p.profiles?.avatar_url
+
+  312            <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+  313:             <Link to="/register" style={{ background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 10, padding: '16px 40px', color: '#1C1C1E', fontWeight: 700, fontSize: 14, fontFamily: 'Outfit, sans-serif', cursor: 'pointer', textDecoration: 'none', letterSpacing: '0.05em' }}>
+  314                Registrar mi negocio →
+
+src\pages\LoginPage.jsx:
+  109                  <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+  110:                   <span style={{ width: 16, height: 16, border: '2px solid rgba(10,8,6,0.3)', borderTopColor: '#1C1C1E', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
+  111                    Entrando...
+
+src\pages\NotFoundPage.jsx:
+  16          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+  17:           <Link to="/" style={{ background: 'linear-gradient(135deg, #C9965A, #E8B97A)', color: '#1C1C1E', textDecoration: 'none', padding: '14px 32px', borderRadius: 10, fontWeight: 700, fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>
+  18              Ir al inicio
+
+src\pages\ProfessionalPage.jsx:
+  46    return (
+  47:     <div style={{ background: '#1C1C1E', minHeight: '100vh', paddingBottom: 80 }}>
+  48        <style>{`
+
+  54          .reservar-btn { transition: all 0.2s ease; }
+  55:         .reservar-btn:hover { background: #C9965A !important; color: #1C1C1E !important; }
+  56          @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
+  71          {/* Avatar circular */}
+  72: <div style={{ position: 'absolute', bottom: -20, left: 20, width: 88, height: 88, borderRadius: '50%', border: '4px solid #1C1C1E', overflow: 'hidden', background: 'rgba(201,150,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 10, boxShadow: '0 4px 20px rgba(0,0,0,0.5)' }}>
+  73            {prof.profiles?.avatar_url
+
+src\pages\ProfilePage.jsx:
+  108    return (
+  109:     <div style={{ background: '#1C1C1E', minHeight: '100vh', paddingBottom: 80 }}>
+  110        <div className="container-app" style={{ padding: '32px 16px', maxWidth: 700 }}>
+
+  131              )}
+  132:             <div style={{ position: 'absolute', bottom: 0, right: 0, width: 26, height: 26, borderRadius: '50%', background: '#C9965A', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, border: '2px solid #1C1C1E', cursor: 'pointer' }}>✏️</div>
+  133            </div>
+
+src\pages\RegisterPage.jsx:
+  54          </p>
+  55:         <Link to="/login" style={{ display: 'inline-block', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', color: '#1C1C1E', textDecoration: 'none', padding: '14px 40px', borderRadius: 10, fontWeight: 700, fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>
+  56            Ir al inicio de sesión
+
+src\pages\SearchPage.jsx:
+  208    return (
+  209:     <div style={{ background: '#1C1C1E', minHeight: '100vh' }}>
+  210        <style>{`
+
+  266  
+  267:               <button type="submit" style={{ background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 8, padding: '10px 20px', color: '#1C1C1E', fontWeight: 700, fontSize: 13, fontFamily: 'Outfit, sans-serif', cursor: 'pointer', flexShrink: 0 }}>
+  268                  Buscar
+
+  285                      background: category === cat.value ? 'linear-gradient(135deg, #C9965A, #E8B97A)' : 'rgba(255,255,255,0.05)',
+  286:                     color: category === cat.value ? '#1C1C1E' : 'rgba(247,242,234,0.6)',
+  287                      boxShadow: category === cat.value ? '0 4px 16px rgba(201,150,90,0.3)' : 'none',
+
+src\pages\WelcomePage.jsx:
+  23          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 320, margin: '0 auto 40px' }}>
+  24:           <Link to="/login" style={{ display: 'block', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', color: '#1C1C1E', textDecoration: 'none', padding: '16px 32px', borderRadius: 12, fontWeight: 700, fontSize: 15, fontFamily: 'Outfit, sans-serif' }}>
+  25              Iniciar sesión →
+
+src\pages\admin\AdminPage.jsx:
+  62    return (
+  63:     <div style={{ background: '#1C1C1E', minHeight: '100vh', paddingBottom: 80 }}>
+  64        <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 16px' }}>
+
+  79                background: tab === t ? 'linear-gradient(135deg, #C9965A, #E8B97A)' : 'rgba(255,255,255,0.05)',
+  80:               color: tab === t ? '#1C1C1E' : 'rgba(247,242,234,0.6)',
+  81              }}>{TAB_LABEL[t]}</button>
+
+src\pages\professional\ProAvailabilityPage.jsx:
+  152    return (
+  153:     <div style={{ background: '#1C1C1E', minHeight: '100vh', paddingBottom: 100 }}>
+  154        <style>{`
+
+  287            width: '100%', border: 'none', borderRadius: 12, padding: '16px',
+  288:           background: 'linear-gradient(135deg, #C9965A, #E8B97A)', color: '#1C1C1E',
+  289            fontWeight: 700, fontSize: 14, fontFamily: 'Outfit, sans-serif',
+
+src\pages\professional\ProDashboardPage.jsx:
+  72    return (
+  73:     <div style={{ background: '#1C1C1E', minHeight: '100vh', paddingBottom: 40 }}>
+  74        <style>{`
+
+  89        {/* Header */}
+  90:       <div style={{ background: 'linear-gradient(180deg, #0F0D0A 0%, #1C1C1E 100%)', borderBottom: '1px solid rgba(255,255,255,0.04)', padding: '32px 0 24px' }}>
+  91          <div className="container-app">
+
+src\pages\professional\ProProfilePage.jsx:
+   67            </button>
+   68:           <button onClick={() => onConfirm(croppedAreaPixels)} style={{ flex: 1, background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 12, padding: '12px', color: '#1C1C1E', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+   69              Aplicar recorte
+
+  216    return (
+  217:     <div style={{ background: '#1C1C1E', minHeight: '100vh', paddingBottom: 80 }}>
+  218    <style>{`
