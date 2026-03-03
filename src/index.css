@@ -2,8 +2,8 @@
 
 /* ───────────────── THEME ───────────────── */
 @theme {
-  --color-bg: #12100D;
-  --color-bg2: #1A1713;
+  --color-bg: #1C1C1E;
+  --color-bg2: #242426;
   --color-gold: #C9965A;
   --color-gold2: #E8B97A;
   --color-cream: #F7F2EA;
@@ -29,14 +29,13 @@ html {
 
 body {
   background:
-    radial-gradient(circle at top left, #1E1A14 0%, #12100D 50%, #0F0D0A 100%);
+    radial-gradient(circle at top left, #2A2A2E 0%, #1C1C1E 60%, #161618 100%);
   color: var(--color-cream);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   line-height: 1.6;
 }
 
-/* Mejor scroll en móvil */
 body {
   overscroll-behavior: none;
   overflow-x: hidden;
@@ -48,7 +47,7 @@ body {
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: #12100D; }
+::-webkit-scrollbar-track { background: #1C1C1E; }
 ::-webkit-scrollbar-thumb {
   background: var(--color-gold);
   border-radius: 10px;
@@ -90,7 +89,7 @@ p {
 .input:focus {
   border-color: var(--color-gold);
   box-shadow: 0 0 0 3px rgba(201,150,90,0.15);
-  background: rgba(255,255,255,0.09);
+  background: rgba(255,255,255,0.1);
 }
 
 /* ───────────────── BUTTONS ───────────────── */
@@ -163,8 +162,8 @@ p {
 /* ───────────────── CARDS ───────────────── */
 
 .card {
-  background: rgba(255,255,255,0.05);
-  border: 1px solid rgba(255,255,255,0.09);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: var(--radius-lg);
   padding: 22px;
   backdrop-filter: blur(10px);
@@ -172,13 +171,13 @@ p {
 }
 
 .card:hover {
-  border-color: rgba(255,255,255,0.16);
-  background: rgba(255,255,255,0.07);
+  border-color: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.09);
 }
 
 .card-gold {
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(201,150,90,0.22);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(201,150,90,0.25);
   border-radius: var(--radius-lg);
   transition: all 0.3s;
 }
@@ -186,7 +185,7 @@ p {
 .card-gold:hover {
   border-color: rgba(201,150,90,0.6);
   transform: translateY(-6px);
-  box-shadow: 0 30px 80px rgba(0,0,0,0.35);
+  box-shadow: 0 30px 80px rgba(0,0,0,0.3);
 }
 
 /* ───────────────── LAYOUT ───────────────── */
@@ -197,7 +196,6 @@ p {
   padding: 24px 18px;
 }
 
-/* En desktop */
 @media (min-width: 768px) {
   .container-app {
     max-width: 1200px;
@@ -246,7 +244,7 @@ p {
   background: linear-gradient(
     90deg,
     rgba(255,255,255,0.07) 25%,
-    rgba(255,255,255,0.15) 50%,
+    rgba(255,255,255,0.16) 50%,
     rgba(255,255,255,0.07) 75%
   );
   background-size: 200% 100%;
