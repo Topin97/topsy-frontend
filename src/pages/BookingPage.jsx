@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation } from '@tanstack/react-query'
-import api, { profApi, bookingsApi } from '../services/api'
+import { profApi, bookingsApi } from '../services/api'
 import {
   format, addDays, isSameDay, startOfMonth, endOfMonth,
   startOfWeek, endOfWeek, addMonths, subMonths,
