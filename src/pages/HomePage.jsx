@@ -108,6 +108,13 @@ export default function HomePage() {
           >
             Buscar
           </button>
+          {city && (
+  <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(201,150,90,0.1)', border: '1px solid rgba(201,150,90,0.3)', borderRadius: 8, padding: '6px 10px', flexShrink: 0 }}>
+    <span style={{ fontSize: 11 }}>📍</span>
+    <span style={{ fontSize: 12, color: '#C9965A', fontWeight: 600 }}>{city}</span>
+    <button onClick={() => setCity('')} style={{ background: 'none', border: 'none', color: 'rgba(201,150,90,0.5)', cursor: 'pointer', fontSize: 14, padding: 0, lineHeight: 1 }}>×</button>
+  </div>
+)}
         </div>
       </section>
 
