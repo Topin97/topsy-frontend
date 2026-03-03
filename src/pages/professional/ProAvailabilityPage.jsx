@@ -15,7 +15,7 @@ const DAYS = [
 
 const DEFAULT_SCHEDULE = DAYS.map(d => ({
   day_of_week:  d.key,
-  is_available: !['saturday', 'sunday'].includes(d.key),
+  is_available: false,
   start_time:   '09:00',
   end_time:     '18:00',
 }))
@@ -34,30 +34,29 @@ export default function ProAvailabilityPage() {
   const qc = useQueryClient()
   const [schedule, setSchedule] = useState(DEFAULT_SCHEDULE)
 
-  // Cargar datos guardados
   const { data: me, isLoading } = useQuery({
     queryKey: ['me'],
     queryFn: () => authApi.me().then(r => r.data.user),
   })
 
-useEffect(() => {
-  if (!me) return
-  const saved = me?.professional_profiles?.availability
-  if (saved && saved.length > 0) {
-    const merged = DAYS.map(d => {
-      const found = saved.find(s => s.day_of_week === d.key)
-      return found
-        ? {
-            day_of_week:  d.key,
-            is_available: found.is_available,
-            start_time:   found.start_time?.slice(0, 5) ?? '09:00',
-            end_time:     found.end_time?.slice(0, 5)   ?? '18:00',
-          }
-        : DEFAULT_SCHEDULE.find(s => s.day_of_week === d.key)
-    })
-    setSchedule(merged)
-  }
-}, [JSON.stringify(me?.professional_profiles?.availability)])
+  useEffect(() => {
+    if (!me) return
+    const saved = me?.professional_profiles?.availability
+    if (saved && saved.length > 0) {
+      const merged = DAYS.map(d => {
+        const found = saved.find(s => s.day_of_week === d.key)
+        return found
+          ? {
+              day_of_week:  d.key,
+              is_available: found.is_available,
+              start_time:   found.start_time?.slice(0, 5) ?? '09:00',
+              end_time:     found.end_time?.slice(0, 5)   ?? '18:00',
+            }
+          : DEFAULT_SCHEDULE.find(s => s.day_of_week === d.key)
+      })
+      setSchedule(merged)
+    }
+  }, [JSON.stringify(me?.professional_profiles?.availability)])
 
   const { mutate: save, isPending } = useMutation({
     mutationFn: () => profApi.setAvail({ availability: schedule }),
@@ -79,8 +78,6 @@ useEffect(() => {
   }
 
   const activeDays = schedule.filter(d => d.is_available)
-
-  // Servicios del profesional para calcular última cita
   const services = me?.professional_profiles?.services ?? []
   const minDuration = services.length > 0
     ? Math.min(...services.filter(s => s.is_active !== false).map(s => s.duration_minutes))
@@ -113,17 +110,27 @@ useEffect(() => {
           Configura los días y horarios en los que aceptas citas
         </p>
 
+        {/* Aviso primera vez */}
+        {activeDays.length === 0 && (
+          <div style={{ background: 'rgba(201,150,90,0.06)', border: '1px solid rgba(201,150,90,0.15)', borderRadius: 14, padding: '14px 16px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: '1.2rem' }}>👋</span>
+            <p style={{ fontSize: 13, color: 'rgba(247,242,234,0.5)', margin: 0 }}>
+              Activa los días en los que trabajas y configura tu horario de apertura y cierre.
+            </p>
+          </div>
+        )}
+
         {/* Aviso última cita */}
-        {minDuration && (
-          <div style={{ background: 'rgba(201,150,90,0.06)', border: '1px solid rgba(201,150,90,0.15)', borderRadius: 14, padding: '12px 16px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: '1.2rem' }}>ℹ️</span>
-            <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.5)', margin: 0 }}>
+        {minDuration && activeDays.length > 0 && (
+          <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '12px 16px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: '1.1rem' }}>ℹ️</span>
+            <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.4)', margin: 0 }}>
               Tu servicio más corto dura <strong style={{ color: '#C9965A' }}>{minDuration} min</strong>. La última cita posible será <strong style={{ color: '#C9965A' }}>{minDuration} min antes</strong> del cierre.
             </p>
           </div>
         )}
 
-        {/* Days */}
+        {/* Días */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
           {schedule.map(day => {
             const dayInfo = DAYS.find(d => d.key === day.day_of_week)
@@ -136,7 +143,6 @@ useEffect(() => {
                 borderRadius: 16, padding: '16px',
                 opacity: day.is_available ? 1 : 0.5,
               }}>
-                {/* Toggle */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: day.is_available ? 14 : 0 }}>
                   <span style={{ fontWeight: 600, fontSize: 15, color: day.is_available ? '#F7F2EA' : 'rgba(247,242,234,0.4)' }}>
                     {dayInfo?.label}
@@ -155,7 +161,6 @@ useEffect(() => {
                   </div>
                 </div>
 
-                {/* Horas */}
                 {day.is_available && (
                   <div>
                     <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
@@ -176,7 +181,6 @@ useEffect(() => {
                       </div>
                     </div>
 
-                    {/* Última cita posible */}
                     {lastSlot && (
                       <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
                         <span style={{ fontSize: 10, color: 'rgba(247,242,234,0.25)' }}>⏰ Última cita posible:</span>
@@ -201,7 +205,6 @@ useEffect(() => {
           </button>
         )}
 
-        {/* Resumen */}
         {activeDays.length > 0 && (
           <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '18px 20px', marginBottom: 24 }}>
             <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.6)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
