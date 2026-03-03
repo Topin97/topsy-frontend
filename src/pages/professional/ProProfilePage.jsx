@@ -55,7 +55,7 @@ function CropModal({ src, aspect, onConfirm, onCancel }) {
           onCropComplete={(_, pixels) => setCroppedAreaPixels(pixels)}
         />
       </div>
-      <div style={{ padding: '20px 24px', background: '#0F0D0A', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <div style={{ padding: '20px 24px', background: '#212123', display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontSize: 12, color: 'rgba(247,242,234,0.4)', minWidth: 50 }}>Zoom</span>
           <input type="range" min={1} max={3} step={0.01} value={zoom} onChange={e => setZoom(Number(e.target.value))}
@@ -214,7 +214,7 @@ export default function ProProfilePage() {
   )
 
   return (
-    <div style={{ background: '#0A0806', minHeight: '100vh', paddingBottom: 80 }}>
+    <div style={{ background: '#1C1C1E', minHeight: '100vh', paddingBottom: 80 }}>
   <style>{`
     @media (max-width: 480px) {
       .cat-grid { grid-template-columns: repeat(2, 1fr) !important; }

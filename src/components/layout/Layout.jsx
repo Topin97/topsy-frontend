@@ -70,7 +70,7 @@ export default function Layout() {
   ]
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0A0806' }}>
+    <div style={{ minHeight: '100vh', background: '#1C1C1E' }}>
       <style>{`
         @media (max-width: 768px) {
           .nav-links-desktop, .nav-right-desktop { display: none !important; }
@@ -139,7 +139,7 @@ export default function Layout() {
                 </button>
 
                 {dropdownOpen && (
-                  <div style={{ position: 'absolute', top: 'calc(100% + 10px)', right: 0, background: '#1C1812', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, minWidth: 200, boxShadow: '0 12px 40px rgba(0,0,0,0.6)', overflow: 'hidden', zIndex: 200 }}>
+                  <div style={{ position: 'absolute', top: 'calc(100% + 10px)', right: 0, background: '#2A2A2E', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, minWidth: 200, boxShadow: '0 12px 40px rgba(0,0,0,0.6)', overflow: 'hidden', zIndex: 200 }}>
                     <div style={{ padding: '16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
                       <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>{user?.full_name}</p>
                       <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.3)' }}>

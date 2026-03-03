@@ -60,7 +60,7 @@ export default function AdminPage() {
   const bookings = bookingsData?.data ?? []
 
   return (
-    <div style={{ background: '#0A0806', minHeight: '100vh', paddingBottom: 80 }}>
+    <div style={{ background: '#1C1C1E', minHeight: '100vh', paddingBottom: 80 }}>
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 16px' }}>
 
         <p style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.6)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>

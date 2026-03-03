@@ -70,7 +70,7 @@ export default function ProDashboardPage() {
   const maxCount = Math.max(...weekData.map(d => d.count), 1)
 
   return (
-    <div style={{ background: '#0A0806', minHeight: '100vh', paddingBottom: 40 }}>
+    <div style={{ background: '#1C1C1E', minHeight: '100vh', paddingBottom: 40 }}>
       <style>{`
         .nav-btn:hover { background: rgba(201,150,90,0.1) !important; border-color: rgba(201,150,90,0.3) !important; color: #C9965A !important; }
         .booking-card:hover { border-color: rgba(201,150,90,0.15) !important; }

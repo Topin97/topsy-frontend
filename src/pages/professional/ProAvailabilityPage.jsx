@@ -150,7 +150,7 @@ export default function ProAvailabilityPage() {
   )
 
   return (
-    <div style={{ background: '#0A0806', minHeight: '100vh', paddingBottom: 100 }}>
+    <div style={{ background: '#1C1C1E', minHeight: '100vh', paddingBottom: 100 }}>
       <style>{`
         input[type="time"] { color-scheme: dark; }
         input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(0.5); }

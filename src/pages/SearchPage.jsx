@@ -206,7 +206,7 @@ export default function SearchPage() {
   const profWithCoords = professionals.filter(p => p.latitude && p.longitude)
 
   return (
-    <div style={{ background: '#0A0806', minHeight: '100vh' }}>
+    <div style={{ background: '#1C1C1E', minHeight: '100vh' }}>
       <style>{`
         @media (max-width: 768px) {
           .search-layout { flex-direction: column !important; }
@@ -248,7 +248,7 @@ export default function SearchPage() {
                   style={{ width: '100%', background: 'transparent', border: 'none', outline: 'none', color: '#F7F2EA', fontSize: 14, fontFamily: 'Outfit, sans-serif', padding: '8px 12px' }}
                 />
                 {showSuggestions && citySuggestions.length > 0 && (
-                  <div className="city-suggestions" style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#1C1812', border: '1px solid rgba(201,150,90,0.2)', borderRadius: 12, marginTop: 4, zIndex: 100, maxHeight: 200, overflowY: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }}>
+                  <div className="city-suggestions" style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#2A2A2E', border: '1px solid rgba(201,150,90,0.2)', borderRadius: 12, marginTop: 4, zIndex: 100, maxHeight: 200, overflowY: 'auto', boxShadow: '0 8px 32px rgba(0,0,0,0.5)' }}>
                     {citySuggestions.map((s, i) => (
                       <button key={i} type="button" onClick={() => selectCity(s)} style={{ width: '100%', textAlign: 'left', background: 'transparent', border: 'none', padding: '10px 14px', cursor: 'pointer', borderBottom: i < citySuggestions.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none', fontFamily: 'Outfit, sans-serif' }}>
                         <p style={{ fontSize: 13, color: '#F7F2EA', marginBottom: 2 }}>📍 {s.name}</p>

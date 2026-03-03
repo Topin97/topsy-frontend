@@ -113,7 +113,7 @@ useEffect(() => {
 
   // ── Pantalla de éxito ──────────────────────────────────────
   if (booked) return (
-    <div style={{ background: '#0A0806', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+    <div style={{background: '#1C1C1E', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <style>{`
         @keyframes popIn { 0% { transform: scale(0.7); opacity: 0; } 70% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -158,7 +158,7 @@ useEffect(() => {
   )
 
   return (
-    <div style={{ background: '#0A0806', minHeight: '100vh', paddingBottom: 200 }}>
+    <div style={{ background: '#1C1C1E', minHeight: '100vh', paddingBottom: 200 }}>
       <style>{`
         .cal-day:hover:not(:disabled) { background: rgba(201,150,90,0.1) !important; }
         .slot-btn:hover { background: rgba(201,150,90,0.1) !important; border-color: rgba(201,150,90,0.4) !important; }

@@ -44,7 +44,7 @@ export default function ProfessionalPage() {
   const TABS = ['servicios', 'reseñas', 'detalles']
 
   return (
-    <div style={{ background: '#0A0806', minHeight: '100vh', paddingBottom: 80 }}>
+    <div style={{ background: '#1C1C1E', minHeight: '100vh', paddingBottom: 80 }}>
       <style>{`
         .tab-btn { transition: all 0.2s; border-bottom: 2px solid transparent; }
         .tab-btn.active { border-bottom-color: #C9965A; color: #C9965A !important; }

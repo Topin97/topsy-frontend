@@ -45,7 +45,7 @@ export default function HomePage() {
   }
 
   return (
-    <div style={{ background: '#0A0806', color: '#F7F2EA', fontFamily: 'Outfit, sans-serif', minHeight: '100vh' }}>
+    <div style={{ background: '#1C1C1E', color: '#F7F2EA', fontFamily: 'Outfit, sans-serif', minHeight: '100vh' }}>
       <style>{`
         @keyframes fadeUp { from { opacity:0; transform:translateY(20px) } to { opacity:1; transform:translateY(0) } }
         @keyframes marquee { from { transform:translateX(0) } to { transform:translateX(-50%) } }
@@ -101,7 +101,7 @@ export default function HomePage() {
                   style={{ flex: 1, background: 'transparent', border: 'none', color: '#F7F2EA', fontSize: 15, fontFamily: 'Outfit, sans-serif', padding: '4px 0' }}
                 />
                 {showSearch && (
-                  <div style={{ position: 'absolute', top: 'calc(100% + 12px)', left: 0, right: 0, background: '#1C1812', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '16px', zIndex: 100, boxShadow: '0 12px 40px rgba(0,0,0,0.7)', minWidth: 280 }}>
+                  <div style={{ position: 'absolute', top: 'calc(100% + 12px)', left: 0, right: 0, background: '#2A2A2E', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '16px', zIndex: 100, boxShadow: '0 12px 40px rgba(0,0,0,0.7)', minWidth: 280 }}>
                     <p style={{ fontSize: 10, color: 'rgba(247,242,234,0.3)', letterSpacing: '0.15em', textTransform: 'uppercase', marginBottom: 12 }}>Servicios populares</p>
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                       {['Corte caballero','Manicura semipermanente','Corte fade','Diseño de cejas','Uñas acrílicas','Depilación láser'].map(s => (
@@ -129,7 +129,7 @@ export default function HomePage() {
                   style={{ flex: 1, background: 'transparent', border: 'none', color: '#F7F2EA', fontSize: 15, fontFamily: 'Outfit, sans-serif', padding: '4px 0', minWidth: 0 }}
                 />
                 {showCity && (
-                  <div style={{ position: 'absolute', top: 'calc(100% + 12px)', left: 0, background: '#1C1812', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '8px', zIndex: 100, boxShadow: '0 12px 40px rgba(0,0,0,0.7)', minWidth: 220 }}>
+                  <div style={{ position: 'absolute', top: 'calc(100% + 12px)', left: 0, background: '#2A2A2E', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '8px', zIndex: 100, boxShadow: '0 12px 40px rgba(0,0,0,0.7)', minWidth: 220 }}>
                     <button onClick={() => { handleGeolocate(); setShowCity(false) }} style={{ width: '100%', textAlign: 'left', background: 'transparent', border: 'none', padding: '10px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 4 }}>
                       <span style={{ color: '#C9965A' }}>📍</span>
                       <span style={{ color: '#C9965A', fontWeight: 600, fontSize: 13 }}>Usar mi ubicación</span>

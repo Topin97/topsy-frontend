@@ -106,7 +106,7 @@ export default function ProfilePage() {
   const displayed = bookingTab === 'upcoming' ? upcoming : past
 
   return (
-    <div style={{ background: '#0A0806', minHeight: '100vh', paddingBottom: 80 }}>
+    <div style={{ background: '#1C1C1E', minHeight: '100vh', paddingBottom: 80 }}>
       <div className="container-app" style={{ padding: '32px 16px', maxWidth: 700 }}>
         <p style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.6)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ display: 'inline-block', width: 20, height: 1, background: '#C9965A' }} /> Cuenta
