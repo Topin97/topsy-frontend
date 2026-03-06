@@ -23,6 +23,8 @@ function buildCalendarDays(month) {
 const WEEK_DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
 const TODAY = new Date(); TODAY.setHours(0,0,0,0)
 
+const slotTime = (isoStr) => isoStr.slice(11, 16)
+
 
 // ── Modal lista de espera ──────────────────────────────────────
 function WaitlistModal({ date, profName, serviceName, professionalId, serviceId, onClose }) {
@@ -130,7 +132,7 @@ export default function BookingPage() {
   const [selectedDate, setSelectedDate]  = useState(null)
   const [selectedSlot, setSelectedSlot]  = useState(null)
   const [notes, setNotes]                = useState('')
-  const [daysData, setDaysData] = useState({}) // { 'yyyy-MM-dd': { total, available } } // { 'yyyy-MM-dd': true/false }
+  const [daysData, setDaysData] = useState({})
   const [booked, setBooked]              = useState(false)
   const [animSlot, setAnimSlot]          = useState(null)
   const [animDay, setAnimDay]            = useState(null)
@@ -161,35 +163,33 @@ export default function BookingPage() {
   const selectedDayInfo = selectedDateKey ? daysData[selectedDateKey] : null
   const isDayFull = selectedDayInfo != null && selectedDayInfo.available === 0 && selectedDayInfo.total > 0
 
-// Guardar slots del día seleccionado
-useEffect(() => {
-  if (!selectedDate || loadingSlots) return
-  const key = format(selectedDate, 'yyyy-MM-dd')
-  const total = slotsData?.length ?? 0
-  const available = freeSlots.length
-  setDaysData(prev => ({ ...prev, [key]: { total, available } }))
-}, [slotsData, loadingSlots])
+  useEffect(() => {
+    if (!selectedDate || loadingSlots) return
+    const key = format(selectedDate, 'yyyy-MM-dd')
+    const total = slotsData?.length ?? 0
+    const available = freeSlots.length
+    setDaysData(prev => ({ ...prev, [key]: { total, available } }))
+  }, [slotsData, loadingSlots])
 
-// Precargar slots de los próximos 14 días en segundo plano
-useEffect(() => {
-  if (!service || !professionalId || !serviceId) return
-  const days = Array.from({ length: 14 }, (_, i) => addDays(new Date(), i))
-  days.forEach(async (day) => {
-    const key = format(day, 'yyyy-MM-dd')
-    if (daysData[key] !== undefined) return
-    try {
-      const res = await bookingsApi.getSlots({
-        professional_id: professionalId,
-        service_id: serviceId,
-        date: key,
-      })
-      const slots = res.data.data ?? []
-      const total = slots.length
-      const available = slots.filter(s => s.available).length
-      setDaysData(prev => ({ ...prev, [key]: { total, available } }))
-    } catch {}
-  })
-}, [service, professionalId, serviceId])
+  useEffect(() => {
+    if (!service || !professionalId || !serviceId) return
+    const days = Array.from({ length: 14 }, (_, i) => addDays(new Date(), i))
+    days.forEach(async (day) => {
+      const key = format(day, 'yyyy-MM-dd')
+      if (daysData[key] !== undefined) return
+      try {
+        const res = await bookingsApi.getSlots({
+          professional_id: professionalId,
+          service_id: serviceId,
+          date: key,
+        })
+        const slots = res.data.data ?? []
+        const total = slots.length
+        const available = slots.filter(s => s.available).length
+        setDaysData(prev => ({ ...prev, [key]: { total, available } }))
+      } catch {}
+    })
+  }, [service, professionalId, serviceId])
 
   const handleSelectDate = (day) => {
     setSelectedDate(day)
@@ -240,7 +240,7 @@ useEffect(() => {
           </p>
           {selectedSlot && (
             <p style={{ color: '#C9965A', fontSize: 15, marginBottom: 32 }}>
-              📅 {format(new Date(selectedSlot.starts_at), "EEEE d 'de' MMMM", { locale: es })} · 🕐 {format(new Date(selectedSlot.starts_at), 'HH:mm')}
+              📅 {format(new Date(selectedSlot.starts_at), "EEEE d 'de' MMMM", { locale: es })} · 🕐 {slotTime(selectedSlot.starts_at)}
             </p>
           )}
           <div style={{ background: 'rgba(201,150,90,0.06)', border: '1px solid rgba(201,150,90,0.15)', borderRadius: 14, padding: '16px 20px', marginBottom: 28, textAlign: 'left' }}>
@@ -299,7 +299,6 @@ useEffect(() => {
 
       {/* ── Header con cover ── */}
       <div className="booking-header" style={{ background: 'rgba(10,8,6,0.97)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-        {/* Cover image */}
         {prof?.cover_image_url && (
           <div style={{ height: 90, overflow: 'hidden', position: 'relative' }}>
             <img src={prof.cover_image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4 }} />
@@ -394,34 +393,28 @@ useEffect(() => {
                       }}
                     >
                       {inMonth ? format(day, 'd') : ''}
-                      {/* Punto disponibilidad */}
-                  {inMonth && !disabled && dayInfo !== undefined && !isSelected && (
-                    <span style={{
-                      width: '60%', height: 3, borderRadius: 2, display: 'block', marginTop: 1,
-                      background: noSlots
-                        ? '#f87171'
-                        : fewSlots
-                          ? '#fb923c'
-                          : '#4ade80',
-                    }} />
-                  )}
+                      {inMonth && !disabled && dayInfo !== undefined && !isSelected && (
+                        <span style={{
+                          width: '60%', height: 3, borderRadius: 2, display: 'block', marginTop: 1,
+                          background: noSlots ? '#f87171' : fewSlots ? '#fb923c' : '#4ade80',
+                        }} />
+                      )}
                     </button>
                   )
                 })}
               </div>
 
-                          {/* Leyenda */}
-            <div style={{ display: 'flex', gap: 14, marginTop: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-              {[
-                { color: '#4ade80', label: 'Disponible' },
-                { color: '#fb923c', label: 'Pocas citas' },
-                { color: '#f87171', label: 'Completo' },
-              ].map(({ color, label }) => (
-                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: 'rgba(247,242,234,0.3)' }}>
-                  <span style={{ width: 14, height: 3, borderRadius: 2, background: color, display: 'inline-block' }} /> {label}
-                </div>
-              ))}
-            </div>
+              <div style={{ display: 'flex', gap: 14, marginTop: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+                {[
+                  { color: '#4ade80', label: 'Disponible' },
+                  { color: '#fb923c', label: 'Pocas citas' },
+                  { color: '#f87171', label: 'Completo' },
+                ].map(({ color, label }) => (
+                  <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: 'rgba(247,242,234,0.3)' }}>
+                    <span style={{ width: 14, height: 3, borderRadius: 2, background: color, display: 'inline-block' }} /> {label}
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Paso 2: Horas */}
@@ -471,7 +464,7 @@ useEffect(() => {
                           color: active ? '#0A0806' : 'rgba(247,242,234,0.65)',
                           boxShadow: active ? '0 4px 12px rgba(201,150,90,0.3)' : 'none',
                         }}>
-                          {format(new Date(slot.starts_at), 'HH:mm')}
+                          {slotTime(slot.starts_at)}
                         </button>
                       )
                     })}
@@ -508,7 +501,7 @@ useEffect(() => {
                   { label: 'Servicio',  value: service?.name },
                   { label: 'Duración', value: `${service?.duration_minutes} min` },
                   { label: 'Fecha',    value: selectedSlot ? format(new Date(selectedSlot.starts_at), "d MMM yyyy", { locale: es }) : '—' },
-                  { label: 'Hora',     value: selectedSlot ? `${format(new Date(selectedSlot.starts_at), 'HH:mm')} – ${format(new Date(selectedSlot.ends_at), 'HH:mm')}` : '—' },
+                  { label: 'Hora',     value: selectedSlot ? `${slotTime(selectedSlot.starts_at)} – ${slotTime(selectedSlot.ends_at)}` : '—' },
                 ].map(({ label, value }) => (
                   <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', fontSize: 13 }}>
                     <span style={{ color: 'rgba(247,242,234,0.4)' }}>{label}</span>
@@ -551,7 +544,7 @@ useEffect(() => {
             <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#F7F2EA' }}>{service?.name}</p>
             <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.4)', margin: 0 }}>
               {selectedSlot
-                ? `📅 ${format(new Date(selectedSlot.starts_at), "d MMM", { locale: es })} · 🕐 ${format(new Date(selectedSlot.starts_at), 'HH:mm')}`
+                ? `📅 ${format(new Date(selectedSlot.starts_at), "d MMM", { locale: es })} · 🕐 ${slotTime(selectedSlot.starts_at)}`
                 : 'Selecciona fecha y hora'
               }
             </p>
