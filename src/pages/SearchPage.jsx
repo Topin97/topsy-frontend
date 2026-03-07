@@ -21,9 +21,10 @@ const CATEGORIES = [
 ]
 
 const SORT_OPTIONS = [
-  { value: 'avg_rating',    label: 'Mejor valorados' },
-  { value: 'total_reviews', label: 'Más reseñas' },
-  { value: 'newest',        label: 'Más recientes' },
+  { value: 'distance',      label: '📍 Más cercanos' },
+  { value: 'avg_rating',    label: '⭐ Mejor valorados' },
+  { value: 'total_reviews', label: '💬 Más reseñas' },
+  { value: 'newest',        label: '🆕 Más recientes' },
 ]
 
 // ── Stars ─────────────────────────────────────────────────────────────────────
@@ -39,11 +40,15 @@ function Stars({ rating, size = 12 }) {
 }
 
 // ── Prof card ─────────────────────────────────────────────────────────────────
-function ProfCard({ prof }) {
+function ProfCard({ prof, userCoords }) {
   const minPrice = prof.services?.length
     ? Math.min(...prof.services.filter(s => s.is_active !== false).map(s => s.price))
     : null
   const topServices = prof.services?.filter(s => s.is_active !== false).slice(0, 3) ?? []
+
+  const distKm = userCoords && prof.latitude && prof.longitude
+    ? haversine(userCoords.lat, userCoords.lng, prof.latitude, prof.longitude)
+    : null
 
   return (
     <Link
@@ -108,6 +113,11 @@ function ProfCard({ prof }) {
         {/* City */}
         <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.35)', marginBottom: 10, fontFamily: 'Outfit, sans-serif' }}>
           📍 {prof.city}
+          {distKm !== null && (
+            <span style={{ marginLeft: 6, color: '#C9965A', fontWeight: 600 }}>
+              · {distKm < 1 ? `${Math.round(distKm * 1000)}m` : `${distKm.toFixed(1)}km`}
+            </span>
+          )}
         </p>
 
         {/* Top services chips */}
@@ -254,21 +264,50 @@ function FilterSidebar({ category, setCategory, sort, setSort, onlyVerified, set
   )
 }
 
+// ── Haversine distance (km) ───────────────────────────────────────────────────
+function haversine(lat1, lon1, lat2, lon2) {
+  const R = 6371
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLon = (lon2 - lon1) * Math.PI / 180
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLon/2)**2
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))
+}
+
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams()
-  const [search, setSearch]           = useState(searchParams.get('q') ?? '')
-  const [city, setCity]               = useState(searchParams.get('city') ?? '')
-  const [category, setCategory]       = useState(searchParams.get('category') ?? '')
-  const [sort, setSort]               = useState('avg_rating')
+  const [search, setSearch]             = useState(searchParams.get('q') ?? '')
+  const [city, setCity]                 = useState(searchParams.get('city') ?? '')
+  const [category, setCategory]         = useState(searchParams.get('category') ?? '')
+  const [sort, setSort]                 = useState('distance')
   const [onlyVerified, setOnlyVerified] = useState(false)
-  const [minRating, setMinRating]     = useState(0)
-  const [showFilters, setShowFilters] = useState(false)
+  const [minRating, setMinRating]       = useState(0)
+  const [showFilters, setShowFilters]   = useState(false)
+  const [userCoords, setUserCoords]     = useState(null)
+  const [geoStatus, setGeoStatus]       = useState('idle')
+
+  useEffect(() => {
+    if (!navigator.geolocation) { setGeoStatus('denied'); return }
+    setGeoStatus('loading')
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setUserCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude })
+        setGeoStatus('granted')
+      },
+      () => {
+        setGeoStatus('denied')
+        setSort('avg_rating')
+      },
+      { timeout: 8000 }
+    )
+  }, [])
 
   const { data, isLoading } = useQuery({
     queryKey: ['professionals', { search, city, category, sort, onlyVerified, minRating }],
     queryFn: () => profApi.getAll({
-      search, city, category, sort, limit: 24,
+      search, city, category,
+      sort: sort === 'distance' ? 'avg_rating' : sort,
+      limit: 48,
       ...(onlyVerified && { verified: true }),
       ...(minRating > 0 && { min_rating: minRating }),
     }).then((r) => r.data),
@@ -282,20 +321,27 @@ export default function SearchPage() {
 
   const activeFilterCount = [
     category !== '',
-    sort !== 'avg_rating',
+    sort !== 'distance' && sort !== 'avg_rating',
     onlyVerified,
     minRating > 0,
   ].filter(Boolean).length
 
   const clearFilters = () => {
     setCategory('')
-    setSort('avg_rating')
+    setSort(geoStatus === 'granted' ? 'distance' : 'avg_rating')
     setOnlyVerified(false)
     setMinRating(0)
   }
 
-  const results = data?.data ?? []
-  const total   = data?.meta?.total ?? results.length
+  const rawResults = data?.data ?? []
+  const results = sort === 'distance' && userCoords
+    ? [...rawResults].sort((a, b) => {
+        const dA = (a.latitude && a.longitude) ? haversine(userCoords.lat, userCoords.lng, a.latitude, a.longitude) : 9999
+        const dB = (b.latitude && b.longitude) ? haversine(userCoords.lat, userCoords.lng, b.latitude, b.longitude) : 9999
+        return dA - dB
+      })
+    : rawResults
+  const total = data?.meta?.total ?? rawResults.length
 
   return (
     <div style={{ minHeight: '100vh' }}>
@@ -417,6 +463,9 @@ export default function SearchPage() {
                     {' '}profesional{total !== 1 ? 'es' : ''} encontrado{total !== 1 ? 's' : ''}
                     {search && <span style={{ color: 'rgba(247,242,234,0.25)' }}> · "{search}"</span>}
                     {city && <span style={{ color: 'rgba(247,242,234,0.25)' }}> en {city}</span>}
+                    {geoStatus === 'loading' && <span style={{ color: 'rgba(201,150,90,0.5)', fontSize: 11 }}> · 📍 Obteniendo ubicación...</span>}
+                    {geoStatus === 'granted' && sort === 'distance' && <span style={{ color: '#C9965A', fontSize: 11 }}> · 📍 Ordenado por distancia</span>}
+                    {geoStatus === 'denied' && <span style={{ color: 'rgba(247,242,234,0.2)', fontSize: 11 }}> · 📍 Ubicación no disponible</span>}
                   </>
                 )}
               </p>
@@ -440,7 +489,7 @@ export default function SearchPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 16 }}>
               {isLoading
                 ? Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
-                : results.map((p) => <ProfCard key={p.id} prof={p} />)
+                : results.map((p) => <ProfCard key={p.id} prof={p} userCoords={userCoords} />)
               }
             </div>
 
