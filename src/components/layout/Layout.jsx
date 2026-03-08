@@ -12,10 +12,10 @@ import navProfile  from '../../assets/icons/nav-profile.png'
 export default function Layout() {
   const { user, token, logout, isProfessional } = useAuthStore()
   const navigate  = useNavigate()
-  const qc = useQueryClient()
+  const qc        = useQueryClient()
   const location  = useLocation()
-  const [scrolled, setScrolled] = useState(false)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [scrolled, setScrolled]           = useState(false)
+  const [dropdownOpen, setDropdownOpen]   = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const dropdownRef = useRef(null)
 
@@ -26,13 +26,16 @@ export default function Layout() {
   })
 
   const avatarUrl = me?.avatar_url
-  const isAdmin = user?.role === 'admin'
+  const isAdmin   = user?.role === 'admin'
 
-  const hideBottomNav = ['/login', '/register', '/welcome', '/forgot-password', '/reset-password'].includes(location.pathname)
+  const hideBottomNav = [
+    '/login', '/register', '/register/client', '/register/pro',
+    '/welcome', '/forgot-password', '/reset-password',
+  ].some(p => location.pathname === p || location.pathname.startsWith('/register/'))
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 20)
-    window.addEventListener('scroll', fn)
+    const fn = () => setScrolled(window.scrollY > 10)
+    window.addEventListener('scroll', fn, { passive: true })
     return () => window.removeEventListener('scroll', fn)
   }, [])
 
@@ -52,42 +55,104 @@ export default function Layout() {
     navigate('/')
   }
 
-  const isActive = (path) => location.pathname.startsWith(path)
+  const isActive = (path) => path === '/' ? location.pathname === '/' : location.pathname.startsWith(path)
 
-  const navLinks = [
-    { to: '/search', label: 'Explorar' },
-    ...(token && isProfessional() ? [
-      { to: '/pro/dashboard',    label: 'Dashboard' },
-      { to: '/pro/services',     label: 'Servicios' },
-      { to: '/pro/availability', label: 'Horarios' },
-    ] : []),
-    ...(token && !isProfessional() && !isAdmin ? [
-      { to: '/dashboard', label: 'Mis citas' },
-    ] : []),
-  ]
+  const profileLink   = isAdmin ? '/admin' : isProfessional() ? '/pro/profile' : '/profile'
+  const bookingsLink  = token ? (isProfessional() ? '/pro/dashboard' : '/dashboard') : '/login'
 
-  const profileLink = isAdmin ? '/admin' : isProfessional() ? '/pro/profile' : '/profile'
-  const bookingsLink = token ? (isProfessional() ? '/pro/dashboard' : '/dashboard') : '/login'
-
-  // ── Bottom nav varía según rol ─────────────────────────────────
   const clientBottomNav = [
-    { to: '/',          img: navHome,     label: 'TopSy' },
+    { to: '/',          img: navHome,     label: 'Inicio' },
     { to: '/search',    img: navExplore,  label: 'Explorar' },
     { to: bookingsLink, img: navBookings, label: 'Reservas' },
-    { to: token ? profileLink : '/login', img: navProfile, label: 'Perfil', avatar: avatarUrl },
+    { to: token ? profileLink : '/login', img: navProfile, label: 'Perfil', isProfile: true },
   ]
 
   const proBottomNav = [
     { to: '/pro/dashboard',    img: navHome,     label: 'Panel' },
     { to: '/pro/services',     img: navExplore,  label: 'Servicios' },
     { to: '/pro/availability', img: navBookings, label: 'Horarios' },
-    { to: '/pro/profile',      img: navProfile,  label: 'Perfil', avatar: avatarUrl },
+    { to: '/pro/profile',      img: navProfile,  label: 'Perfil', isProfile: true },
   ]
 
   const bottomNav = token && isProfessional() ? proBottomNav : clientBottomNav
 
+  const NavItem = ({ item }) => {
+    const { to, img, label, isProfile } = item
+    const active = isActive(to)
+    const isProfileActive = isProfile && (active || profileMenuOpen)
+
+    const inner = (
+      <>
+        {/* Active dot */}
+        <div style={{
+          width: 4, height: 4, borderRadius: '50%',
+          background: (isProfileActive || active) ? '#C9965A' : 'transparent',
+          marginBottom: 5, transition: 'all 0.25s',
+          boxShadow: (isProfileActive || active) ? '0 0 8px rgba(201,150,90,0.8)' : 'none',
+        }} />
+
+        {/* Icon / Avatar */}
+        {isProfile && avatarUrl ? (
+          <div style={{
+            width: 28, height: 28, borderRadius: '50%', overflow: 'hidden',
+            border: `2px solid ${isProfileActive ? '#C9965A' : 'rgba(255,255,255,0.15)'}`,
+            transition: 'border-color 0.25s', flexShrink: 0,
+          }}>
+            <img src={avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          </div>
+        ) : (
+          <div style={{
+            width: 28, height: 28, borderRadius: 10,
+            background: (isProfileActive || active) ? 'rgba(201,150,90,0.15)' : 'transparent',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            transition: 'all 0.25s',
+          }}>
+            <img src={img} alt={label} style={{
+              width: 20, height: 20, objectFit: 'contain',
+              opacity: (isProfileActive || active) ? 1 : 0.35,
+              filter: (isProfileActive || active)
+                ? 'brightness(1.6) drop-shadow(0 0 4px rgba(201,150,90,0.6))'
+                : 'brightness(0.6)',
+              transition: 'all 0.25s',
+            }} />
+          </div>
+        )}
+
+        {/* Label */}
+        <span style={{
+          fontSize: 10, marginTop: 3,
+          color: (isProfileActive || active) ? '#C9965A' : 'rgba(247,242,234,0.3)',
+          fontFamily: 'Outfit, sans-serif', letterSpacing: '0.03em',
+          fontWeight: (isProfileActive || active) ? 600 : 400,
+          transition: 'all 0.25s',
+        }}>{label}</span>
+      </>
+    )
+
+    const itemStyle = {
+      display: 'flex', flexDirection: 'column', alignItems: 'center',
+      flex: 1, padding: '4px 0', cursor: 'pointer',
+      WebkitTapHighlightColor: 'transparent',
+    }
+
+    if (isProfile && token) {
+      return (
+        <button onClick={() => setProfileMenuOpen(!profileMenuOpen)}
+          style={{ ...itemStyle, background: 'none', border: 'none' }}>
+          {inner}
+        </button>
+      )
+    }
+
+    return (
+      <Link to={to} style={{ ...itemStyle, textDecoration: 'none' }}>
+        {inner}
+      </Link>
+    )
+  }
+
   return (
-    <div style={{ minHeight: '100vh', background: '#1C1C1E' }}>
+    <div style={{ minHeight: '100vh', background: '#0A0806' }}>
       <style>{`
         @media (max-width: 768px) {
           .nav-links-desktop, .nav-right-desktop { display: none !important; }
@@ -96,208 +161,204 @@ export default function Layout() {
         @media (min-width: 769px) {
           .bottom-nav { display: none !important; }
         }
-        .nav-link:hover { color: #C9965A !important; }
-        .dropdown-item:hover { background: rgba(255,255,255,0.04) !important; }
+        .nav-link-item:hover { color: #C9965A !important; }
+        .dd-item:hover { background: rgba(255,255,255,0.05) !important; color: #F7F2EA !important; }
+        .dd-item { transition: background 0.15s; }
       `}</style>
 
-      {/* ── TOP NAV ─────────────────────────────────────────── */}
+      {/* ── TOP NAV ── */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        background: scrolled ? 'rgba(8,6,4,0.97)' : 'linear-gradient(180deg, rgba(8,6,4,0.85) 0%, transparent 100%)',
-        backdropFilter: scrolled ? 'blur(24px)' : 'none',
-        borderBottom: scrolled ? '1px solid rgba(201,150,90,0.1)' : 'none',
-        transition: 'all 0.3s',
+        height: scrolled ? 52 : 60,
+        background: scrolled ? 'rgba(8,6,4,0.96)' : 'rgba(8,6,4,0.7)',
+        backdropFilter: 'blur(20px)',
+        borderBottom: scrolled ? '1px solid rgba(201,150,90,0.1)' : '1px solid transparent',
+        transition: 'all 0.3s ease',
+        display: 'flex', alignItems: 'center',
       }}>
-        <div className="container-app" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: scrolled ? 56 : 66, transition: 'height 0.3s' }}>
+        <div style={{ width: '100%', maxWidth: 1200, margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
 
           {/* Logo */}
-          <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', gap: 1 }}>
-            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.7rem', fontWeight: 700, letterSpacing: '3px', color: '#F7F2EA' }}>TOP</span>
-            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.7rem', fontWeight: 400, fontStyle: 'italic', color: '#C9965A' }}>sy</span>
+          <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', gap: 0, flexShrink: 0 }}>
+            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', fontWeight: 700, letterSpacing: '3px', color: '#F7F2EA', lineHeight: 1 }}>TOP</span>
+            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', fontWeight: 400, fontStyle: 'italic', color: '#C9965A', lineHeight: 1 }}>sy</span>
           </Link>
 
-          {/* Desktop links */}
-          <div className="nav-links-desktop" style={{ display: 'flex', alignItems: 'center', gap: '2.5rem' }}>
-            {navLinks.map(({ to, label }) => (
-              <Link key={to} to={to} className="nav-link" style={{
-                textDecoration: 'none', fontSize: '12px', letterSpacing: '0.12em',
-                textTransform: 'uppercase', fontWeight: 500, transition: 'color 0.2s',
-                color: isActive(to) ? '#C9965A' : 'rgba(247,242,234,0.5)',
-                position: 'relative', paddingBottom: '4px',
-              }}>
-                {label}
-                {isActive(to) && <span style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent, #C9965A, transparent)' }} />}
-              </Link>
-            ))}
+          {/* Desktop nav links */}
+          <div className="nav-links-desktop" style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+            <Link to="/search" className="nav-link-item" style={{ textDecoration: 'none', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: isActive('/search') ? '#C9965A' : 'rgba(247,242,234,0.45)', transition: 'color 0.2s' }}>Explorar</Link>
+            {token && isProfessional() && <>
+              <Link to="/pro/dashboard"    className="nav-link-item" style={{ textDecoration: 'none', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: isActive('/pro/dashboard') ? '#C9965A' : 'rgba(247,242,234,0.45)', transition: 'color 0.2s' }}>Panel</Link>
+              <Link to="/pro/services"     className="nav-link-item" style={{ textDecoration: 'none', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: isActive('/pro/services') ? '#C9965A' : 'rgba(247,242,234,0.45)', transition: 'color 0.2s' }}>Servicios</Link>
+              <Link to="/pro/availability" className="nav-link-item" style={{ textDecoration: 'none', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: isActive('/pro/availability') ? '#C9965A' : 'rgba(247,242,234,0.45)', transition: 'color 0.2s' }}>Horarios</Link>
+            </>}
+            {token && !isProfessional() && !isAdmin && (
+              <Link to="/dashboard" className="nav-link-item" style={{ textDecoration: 'none', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: isActive('/dashboard') ? '#C9965A' : 'rgba(247,242,234,0.45)', transition: 'color 0.2s' }}>Mis citas</Link>
+            )}
             {isAdmin && (
-              <Link to="/admin" className="nav-link" style={{
-                textDecoration: 'none', fontSize: '11px', letterSpacing: '0.12em',
-                textTransform: 'uppercase', fontWeight: 600, transition: 'color 0.2s',
-                color: isActive('/admin') ? '#C9965A' : 'rgba(201,150,90,0.5)',
-                background: 'rgba(201,150,90,0.08)', border: '1px solid rgba(201,150,90,0.2)',
-                borderRadius: 100, padding: '4px 12px',
-              }}>⚙️ Admin</Link>
+              <Link to="/admin" style={{ textDecoration: 'none', fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700, color: '#C9965A', background: 'rgba(201,150,90,0.1)', border: '1px solid rgba(201,150,90,0.2)', borderRadius: 100, padding: '4px 12px' }}>⚙️ Admin</Link>
             )}
           </div>
 
           {/* Desktop auth */}
-          <div className="nav-right-desktop" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div className="nav-right-desktop" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {token ? (
               <div ref={dropdownRef} style={{ position: 'relative' }}>
-                <button onClick={() => setDropdownOpen(!dropdownOpen)} style={{ background: dropdownOpen ? 'rgba(255,255,255,0.05)' : 'transparent', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 10, padding: '4px 8px 4px 4px', borderRadius: 100, transition: 'background 0.2s' }}>
-                  <div style={{ width: 34, height: 34, borderRadius: '50%', overflow: 'hidden', border: '1.5px solid rgba(201,150,90,0.4)', flexShrink: 0, background: 'rgba(201,150,90,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <button onClick={() => setDropdownOpen(!dropdownOpen)} style={{
+                  background: dropdownOpen ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '5px 10px 5px 5px', borderRadius: 100, transition: 'all 0.2s',
+                }}>
+                  <div style={{ width: 28, height: 28, borderRadius: '50%', overflow: 'hidden', border: '1.5px solid rgba(201,150,90,0.4)', background: 'rgba(201,150,90,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     {avatarUrl
                       ? <img src={avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', color: '#C9965A', fontWeight: 700 }}>{user?.full_name?.[0]?.toUpperCase()}</span>
+                      : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '0.9rem', color: '#C9965A', fontWeight: 700 }}>{user?.full_name?.[0]?.toUpperCase()}</span>
                     }
                   </div>
-                  <span style={{ fontSize: 13, color: 'rgba(247,242,234,0.7)', maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.full_name?.split(' ')[0]}</span>
-                  <span style={{ fontSize: 10, color: 'rgba(247,242,234,0.3)', transition: 'transform 0.2s', transform: dropdownOpen ? 'rotate(180deg)' : 'none' }}>▼</span>
+                  <span style={{ fontSize: 12, color: 'rgba(247,242,234,0.65)', maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'Outfit, sans-serif' }}>{user?.full_name?.split(' ')[0]}</span>
+                  <span style={{ fontSize: 8, color: 'rgba(247,242,234,0.25)', transition: 'transform 0.2s', transform: dropdownOpen ? 'rotate(180deg)' : 'none' }}>▼</span>
                 </button>
 
                 {dropdownOpen && (
-                  <div style={{ position: 'absolute', top: 'calc(100% + 10px)', right: 0, background: '#2A2A2E', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, minWidth: 200, boxShadow: '0 12px 40px rgba(0,0,0,0.6)', overflow: 'hidden', zIndex: 200 }}>
-                    <div style={{ padding: '16px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                      <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 2 }}>{user?.full_name}</p>
-                      <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.3)' }}>
-                        {isAdmin ? '⚙️ Administrador' : isProfessional() ? '✂️ Profesional' : '👤 Cliente'}
-                      </p>
+                  <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, background: '#1A1A1C', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, minWidth: 210, boxShadow: '0 16px 48px rgba(0,0,0,0.7)', overflow: 'hidden', zIndex: 200 }}>
+                    <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{ width: 32, height: 32, borderRadius: '50%', overflow: 'hidden', border: '1.5px solid rgba(201,150,90,0.3)', background: 'rgba(201,150,90,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        {avatarUrl ? <img src={avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '0.9rem', color: '#C9965A', fontWeight: 700 }}>{user?.full_name?.[0]?.toUpperCase()}</span>}
+                      </div>
+                      <div>
+                        <p style={{ fontSize: 13, fontWeight: 600, color: '#F7F2EA', margin: 0, fontFamily: 'Outfit, sans-serif' }}>{user?.full_name}</p>
+                        <p style={{ fontSize: 10, color: 'rgba(247,242,234,0.3)', margin: '2px 0 0', fontFamily: 'Outfit, sans-serif' }}>
+                          {isAdmin ? '⚙️ Admin' : isProfessional() ? '✂️ Profesional' : '👤 Cliente'}
+                        </p>
+                      </div>
                     </div>
-                    <div style={{ padding: '8px' }}>
-                      {isAdmin && (
-                        <Link to="/admin" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: '#C9965A', fontSize: 13, transition: 'background 0.15s' }}>⚙️ Panel admin</Link>
-                      )}
-                      {isProfessional() && (
-                        <>
-                          <Link to="/pro/dashboard"    className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>📊 Dashboard</Link>
-                          <Link to="/pro/services"     className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>✂️ Servicios</Link>
-                          <Link to="/pro/availability" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>🕐 Horarios</Link>
-                          <Link to="/pro/profile"      className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>✏️ Mi perfil</Link>
-                        </>
-                      )}
-                      {!isProfessional() && !isAdmin && (
-                        <>
-                          <Link to="/dashboard" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>📅 Mis citas</Link>
-                          <Link to="/profile"   className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>👤 Mi perfil</Link>
-                        </>
-                      )}
-                      <Link to="/search" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>🔍 Explorar</Link>
+                    <div style={{ padding: 6 }}>
+                      {isAdmin && <Link to="/admin" className="dd-item" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, textDecoration: 'none', color: '#C9965A', fontSize: 13, fontFamily: 'Outfit, sans-serif' }}>⚙️ Panel admin</Link>}
+                      {isProfessional() && <>
+                        <Link to="/pro/dashboard"    className="dd-item" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, textDecoration: 'none', color: 'rgba(247,242,234,0.65)', fontSize: 13, fontFamily: 'Outfit, sans-serif' }}>📊 Dashboard</Link>
+                        <Link to="/pro/services"     className="dd-item" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, textDecoration: 'none', color: 'rgba(247,242,234,0.65)', fontSize: 13, fontFamily: 'Outfit, sans-serif' }}>✂️ Servicios</Link>
+                        <Link to="/pro/availability" className="dd-item" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, textDecoration: 'none', color: 'rgba(247,242,234,0.65)', fontSize: 13, fontFamily: 'Outfit, sans-serif' }}>🕐 Horarios</Link>
+                        <Link to="/pro/profile"      className="dd-item" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, textDecoration: 'none', color: 'rgba(247,242,234,0.65)', fontSize: 13, fontFamily: 'Outfit, sans-serif' }}>✏️ Mi perfil</Link>
+                      </>}
+                      {!isProfessional() && !isAdmin && <>
+                        <Link to="/dashboard" className="dd-item" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, textDecoration: 'none', color: 'rgba(247,242,234,0.65)', fontSize: 13, fontFamily: 'Outfit, sans-serif' }}>📅 Mis citas</Link>
+                        <Link to="/profile"   className="dd-item" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, textDecoration: 'none', color: 'rgba(247,242,234,0.65)', fontSize: 13, fontFamily: 'Outfit, sans-serif' }}>👤 Mi perfil</Link>
+                      </>}
+                      <Link to="/search" className="dd-item" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, textDecoration: 'none', color: 'rgba(247,242,234,0.65)', fontSize: 13, fontFamily: 'Outfit, sans-serif' }}>🔍 Explorar</Link>
                     </div>
-                    <div style={{ padding: '8px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                      <button onClick={handleLogout} className="dropdown-item" style={{ width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, background: 'transparent', border: 'none', color: 'rgba(248,113,113,0.7)', fontSize: 13, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'background 0.15s' }}>🚪 Cerrar sesión</button>
+                    <div style={{ padding: 6, borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                      <button onClick={handleLogout} className="dd-item" style={{ width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 10, background: 'transparent', border: 'none', color: 'rgba(248,113,113,0.7)', fontSize: 13, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>🚪 Cerrar sesión</button>
                     </div>
                   </div>
                 )}
               </div>
             ) : (
-              <>
-                <Link to="/login" style={{ textDecoration: 'none', fontSize: '12px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.5)', fontWeight: 500 }}>Entrar</Link>
-                <Link to="/register" style={{ textDecoration: 'none', fontSize: '11px', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700, color: '#0A0806', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', padding: '9px 20px', borderRadius: 8, boxShadow: '0 4px 20px rgba(201,150,90,0.2)' }}>
-                  Registrarse
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Link to="/login" style={{ textDecoration: 'none', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.4)', fontWeight: 500, fontFamily: 'Outfit, sans-serif' }}>Entrar</Link>
+                <Link to="/register" style={{ textDecoration: 'none', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700, color: '#0A0806', background: 'linear-gradient(135deg,#C9965A,#E8B97A)', padding: '8px 18px', borderRadius: 100, fontFamily: 'Outfit, sans-serif' }}>
+                  Registro
                 </Link>
-              </>
+              </div>
             )}
           </div>
+
+          {/* Mobile top-right: show login btn if not logged in */}
+          {!token && (
+            <div style={{ display: 'none' }} className="mobile-auth-btn">
+              <Link to="/login" style={{ textDecoration: 'none', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700, color: '#0A0806', background: 'linear-gradient(135deg,#C9965A,#E8B97A)', padding: '7px 16px', borderRadius: 100, fontFamily: 'Outfit, sans-serif' }}>
+                Entrar
+              </Link>
+            </div>
+          )}
         </div>
       </nav>
 
-      {/* ── BOTTOM NAV MÓVIL ────────────────────────────────── */}
+      {/* ── BOTTOM NAV ── */}
       {!hideBottomNav && (
         <>
-          {/* Profile mini menu */}
+          {/* Profile sheet */}
           {profileMenuOpen && (
-            <div
-              onClick={() => setProfileMenuOpen(false)}
-              style={{ position: 'fixed', inset: 0, zIndex: 88, background: 'rgba(0,0,0,0.5)' }}
-            >
-              <div
-                onClick={e => e.stopPropagation()}
-                style={{
-                  position: 'absolute', bottom: 75, left: '50%', transform: 'translateX(-50%)',
-                  background: '#1C1C1E', border: '1px solid rgba(201,150,90,0.2)',
-                  borderRadius: 18, overflow: 'hidden', minWidth: 220,
-                  boxShadow: '0 -8px 40px rgba(0,0,0,0.6)',
-                }}
-              >
-                {/* User info */}
-                <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div style={{ width: 38, height: 38, borderRadius: '50%', overflow: 'hidden', border: '1.5px solid rgba(201,150,90,0.4)', background: 'rgba(201,150,90,0.1)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div onClick={() => setProfileMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 88, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
+              <div onClick={e => e.stopPropagation()} style={{
+                position: 'absolute', bottom: 80, left: 12, right: 12,
+                background: '#131210', border: '1px solid rgba(201,150,90,0.2)',
+                borderRadius: 24, overflow: 'hidden',
+                boxShadow: '0 -4px 60px rgba(0,0,0,0.8)',
+              }}>
+                {/* User row */}
+                <div style={{ padding: '18px 20px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: '50%', overflow: 'hidden', border: '2px solid rgba(201,150,90,0.35)', background: 'rgba(201,150,90,0.1)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     {avatarUrl
                       ? <img src={avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', color: '#C9965A', fontWeight: 700 }}>{user?.full_name?.[0]?.toUpperCase()}</span>
+                      : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.2rem', color: '#C9965A', fontWeight: 700 }}>{user?.full_name?.[0]?.toUpperCase()}</span>
                     }
                   </div>
                   <div>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: '#F7F2EA', marginBottom: 2 }}>{user?.full_name}</p>
-                    <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.3)' }}>
-                      {isAdmin ? '⚙️ Admin' : isProfessional() ? '✂️ Profesional' : '👤 Cliente'}
+                    <p style={{ fontSize: 15, fontWeight: 600, color: '#F7F2EA', margin: 0, fontFamily: 'Outfit, sans-serif' }}>{user?.full_name}</p>
+                    <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.3)', margin: '3px 0 0', fontFamily: 'Outfit, sans-serif' }}>
+                      {isAdmin ? '⚙️ Administrador' : isProfessional() ? '✂️ Profesional' : '👤 Cliente'}
                     </p>
                   </div>
                 </div>
-                {/* Links */}
-                <div style={{ padding: 8 }}>
-                  <Link to={profileLink} onClick={() => setProfileMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 10, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>
-                    👤 Mi perfil
-                  </Link>
-                  {isProfessional() && (
-                    <Link to="/pro/dashboard" onClick={() => setProfileMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 10, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>
-                      📊 Panel
+
+                {/* Menu items */}
+                <div style={{ padding: '10px 10px 4px' }}>
+                  {[
+                    { to: profileLink, icon: '👤', label: 'Mi perfil' },
+                    ...(isProfessional() ? [{ to: '/pro/dashboard', icon: '📊', label: 'Panel' }] : []),
+                    ...(isAdmin ? [{ to: '/admin', icon: '⚙️', label: 'Admin', gold: true }] : []),
+                    { to: '/search', icon: '🔍', label: 'Explorar' },
+                  ].map(({ to, icon, label, gold }) => (
+                    <Link key={to} to={to} onClick={() => setProfileMenuOpen(false)} style={{
+                      display: 'flex', alignItems: 'center', gap: 14,
+                      padding: '13px 14px', borderRadius: 14,
+                      textDecoration: 'none',
+                      color: gold ? '#C9965A' : 'rgba(247,242,234,0.7)',
+                      fontSize: 15, fontFamily: 'Outfit, sans-serif',
+                      marginBottom: 2,
+                    }}>
+                      <span style={{ width: 20, textAlign: 'center' }}>{icon}</span>
+                      {label}
                     </Link>
-                  )}
-                  {isAdmin && (
-                    <Link to="/admin" onClick={() => setProfileMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 10, textDecoration: 'none', color: '#C9965A', fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>
-                      ⚙️ Admin
-                    </Link>
-                  )}
+                  ))}
                 </div>
+
                 {/* Logout */}
-                <div style={{ padding: '8px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-                  <button
-                    onClick={() => { setProfileMenuOpen(false); handleLogout() }}
-                    style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 10, background: 'transparent', border: 'none', color: 'rgba(248,113,113,0.8)', fontSize: 14, fontFamily: 'Outfit, sans-serif', cursor: 'pointer', textAlign: 'left' }}
-                  >
-                    🚪 Cerrar sesión
+                <div style={{ padding: '4px 10px 14px', borderTop: '1px solid rgba(255,255,255,0.05)', marginTop: 4 }}>
+                  <button onClick={() => { setProfileMenuOpen(false); handleLogout() }} style={{
+                    width: '100%', display: 'flex', alignItems: 'center', gap: 14,
+                    padding: '13px 14px', borderRadius: 14,
+                    background: 'rgba(248,113,113,0.06)', border: '1px solid rgba(248,113,113,0.1)',
+                    color: 'rgba(248,113,113,0.8)', fontSize: 15, fontFamily: 'Outfit, sans-serif',
+                    cursor: 'pointer', textAlign: 'left', marginTop: 8,
+                  }}>
+                    <span style={{ width: 20, textAlign: 'center' }}>🚪</span>
+                    Cerrar sesión
                   </button>
                 </div>
               </div>
             </div>
           )}
 
-          <div className="bottom-nav" style={{ display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0, background: 'rgba(8,6,4,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '8px 0 18px', zIndex: 80, justifyContent: 'space-around', alignItems: 'center' }}>
-            {bottomNav.map((item) => {
-              const { to, img, label, avatar } = item
-              const isProfile = label === 'Perfil'
-              const active = to === '/' ? location.pathname === '/' : location.pathname.startsWith(to)
-              if (isProfile && token) {
-                return (
-                  <button key={to} onClick={() => setProfileMenuOpen(!profileMenuOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, padding: '4px 0', position: 'relative' }}>
-                    {(active || profileMenuOpen) && (
-                      <span style={{ position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)', width: 20, height: 2, background: '#C9965A', borderRadius: 2 }} />
-                    )}
-                    {avatar ? (
-                      <div style={{ width: 26, height: 26, borderRadius: '50%', overflow: 'hidden', border: `1.5px solid ${active || profileMenuOpen ? '#C9965A' : 'rgba(255,255,255,0.2)'}` }}>
-                        <img src={avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      </div>
-                    ) : (
-                      <img src={img} alt={label} style={{ width: 26, height: 26, objectFit: 'contain', opacity: active || profileMenuOpen ? 1 : 0.3, filter: active || profileMenuOpen ? 'brightness(1.4) drop-shadow(0 0 6px rgba(201,150,90,0.7))' : 'brightness(0.7)', transition: 'all 0.2s ease' }} />
-                    )}
-                    <span style={{ fontSize: 10, color: active || profileMenuOpen ? '#ffffff' : 'rgba(247,242,234,0.35)', fontFamily: 'Outfit, sans-serif', letterSpacing: '0.04em', fontWeight: active || profileMenuOpen ? 600 : 400, transition: 'all 0.2s' }}>{label}</span>
-                  </button>
-                )
-              }
-              return (
-                <Link key={to} to={to} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, padding: '4px 0', position: 'relative' }}>
-                  {active && <span style={{ position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)', width: 20, height: 2, background: '#C9965A', borderRadius: 2 }} />}
-                  <img src={img} alt={label} style={{ width: 26, height: 26, objectFit: 'contain', opacity: active ? 1 : 0.3, filter: active ? 'brightness(1.4) drop-shadow(0 0 6px rgba(201,150,90,0.7))' : 'brightness(0.7)', transition: 'all 0.2s ease' }} />
-                  <span style={{ fontSize: 10, color: active ? '#ffffff' : 'rgba(247,242,234,0.35)', fontFamily: 'Outfit, sans-serif', letterSpacing: '0.04em', fontWeight: active ? 600 : 400, transition: 'all 0.2s' }}>{label}</span>
-                </Link>
-              )
-            })}
+          {/* Bottom bar */}
+          <div className="bottom-nav" style={{
+            display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0,
+            background: 'rgba(10,8,6,0.97)', backdropFilter: 'blur(24px)',
+            borderTop: '1px solid rgba(255,255,255,0.05)',
+            paddingBottom: 'env(safe-area-inset-bottom)',
+            zIndex: 80, justifyContent: 'space-around', alignItems: 'flex-start',
+            paddingTop: 8,
+          }}>
+            {bottomNav.map(item => <NavItem key={item.to} item={item} />)}
           </div>
         </>
       )}
 
-      <main style={{ paddingTop: '68px', paddingBottom: hideBottomNav ? 0 : 70 }}>
+      <main style={{
+        paddingTop: '60px',
+        paddingBottom: hideBottomNav ? 0 : 'calc(62px + env(safe-area-inset-bottom))',
+      }}>
         <Outlet />
       </main>
     </div>
