@@ -66,12 +66,23 @@ export default function Layout() {
   const profileLink = isAdmin ? '/admin' : isProfessional() ? '/pro/profile' : '/profile'
   const bookingsLink = token ? (isProfessional() ? '/pro/dashboard' : '/dashboard') : '/login'
 
-const bottomNav = [
-  { to: '/',          img: navHome,     label: 'TopSy' },
-  { to: '/search',    img: navExplore,  label: 'Explorar' },
-  { to: bookingsLink, img: navBookings, label: 'Reservas' },
-  { to: token ? profileLink : '/login', img: navProfile, label: 'Perfil', avatar: avatarUrl },
-]
+  // ── Bottom nav varía según rol ─────────────────────────────────
+  const clientBottomNav = [
+    { to: '/',          img: navHome,     label: 'TopSy' },
+    { to: '/search',    img: navExplore,  label: 'Explorar' },
+    { to: bookingsLink, img: navBookings, label: 'Reservas' },
+    { to: token ? profileLink : '/login', img: navProfile, label: 'Perfil', avatar: avatarUrl },
+  ]
+
+  const proBottomNav = [
+    { to: '/pro/dashboard',    img: navHome,     label: 'Panel' },
+    { to: '/pro/services',     img: navExplore,  label: 'Servicios' },
+    { to: '/pro/availability', img: navBookings, label: 'Horarios' },
+    { to: '/pro/profile',      img: navProfile,  label: 'Perfil', avatar: avatarUrl },
+  ]
+
+  const bottomNav = token && isProfessional() ? proBottomNav : clientBottomNav
+
   return (
     <div style={{ minHeight: '100vh', background: '#1C1C1E' }}>
       <style>{`
@@ -155,14 +166,16 @@ const bottomNav = [
                       )}
                       {isProfessional() && (
                         <>
-                          <Link to="/pro/dashboard" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>📊 Dashboard</Link>
-                          <Link to="/pro/profile" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>✏️ Mi perfil</Link>
+                          <Link to="/pro/dashboard"    className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>📊 Dashboard</Link>
+                          <Link to="/pro/services"     className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>✂️ Servicios</Link>
+                          <Link to="/pro/availability" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>🕐 Horarios</Link>
+                          <Link to="/pro/profile"      className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>✏️ Mi perfil</Link>
                         </>
                       )}
                       {!isProfessional() && !isAdmin && (
                         <>
                           <Link to="/dashboard" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>📅 Mis citas</Link>
-                          <Link to="/profile" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>👤 Mi perfil</Link>
+                          <Link to="/profile"   className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>👤 Mi perfil</Link>
                         </>
                       )}
                       <Link to="/search" className="dropdown-item" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 13, transition: 'background 0.15s' }}>🔍 Explorar</Link>
@@ -185,49 +198,49 @@ const bottomNav = [
         </div>
       </nav>
 
-{/* ── BOTTOM NAV MÓVIL ────────────────────────────────── */}
-{!hideBottomNav && (
-  <div className="bottom-nav" style={{ display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0, background: 'rgba(8,6,4,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '8px 0 18px', zIndex: 80, justifyContent: 'space-around', alignItems: 'center' }}>
-    {bottomNav.map((item) => {
-      const { to, img, label, avatar } = item
-      const active = to === '/' ? location.pathname === '/' : location.pathname.startsWith(to)
-      return (
-        <Link key={to} to={to} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, padding: '4px 0', position: 'relative' }}>
-          {active && (
-            <span style={{ position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)', width: 20, height: 2, background: '#C9965A', borderRadius: 2 }} />
-          )}
-          {avatar ? (
-            <div style={{ width: 26, height: 26, borderRadius: '50%', overflow: 'hidden', border: `1.5px solid ${active ? '#C9965A' : 'rgba(255,255,255,0.2)'}` }}>
-              <img src={avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-            </div>
-          ) : (
-            <img
-              src={img}
-              alt={label}
-              style={{
-                width: 26, height: 26,
-                objectFit: 'contain',
-                opacity: active ? 1 : 0.3,
-                filter: active
-                  ? 'brightness(1.4) drop-shadow(0 0 6px rgba(201,150,90,0.7))'
-                  : 'brightness(0.7)',
-                transition: 'all 0.2s ease',
-              }}
-            />
-          )}
-          <span style={{
-            fontSize: 10,
-            color: active ? '#ffffff' : 'rgba(247,242,234,0.35)',
-            fontFamily: 'Outfit, sans-serif',
-            letterSpacing: '0.04em',
-            fontWeight: active ? 600 : 400,
-            transition: 'all 0.2s',
-          }}>{label}</span>
-        </Link>
-      )
-    })}
-  </div>
-)}
+      {/* ── BOTTOM NAV MÓVIL ────────────────────────────────── */}
+      {!hideBottomNav && (
+        <div className="bottom-nav" style={{ display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0, background: 'rgba(8,6,4,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '8px 0 18px', zIndex: 80, justifyContent: 'space-around', alignItems: 'center' }}>
+          {bottomNav.map((item) => {
+            const { to, img, label, avatar } = item
+            const active = to === '/' ? location.pathname === '/' : location.pathname.startsWith(to)
+            return (
+              <Link key={to} to={to} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, padding: '4px 0', position: 'relative' }}>
+                {active && (
+                  <span style={{ position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)', width: 20, height: 2, background: '#C9965A', borderRadius: 2 }} />
+                )}
+                {avatar ? (
+                  <div style={{ width: 26, height: 26, borderRadius: '50%', overflow: 'hidden', border: `1.5px solid ${active ? '#C9965A' : 'rgba(255,255,255,0.2)'}` }}>
+                    <img src={avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  </div>
+                ) : (
+                  <img
+                    src={img}
+                    alt={label}
+                    style={{
+                      width: 26, height: 26,
+                      objectFit: 'contain',
+                      opacity: active ? 1 : 0.3,
+                      filter: active
+                        ? 'brightness(1.4) drop-shadow(0 0 6px rgba(201,150,90,0.7))'
+                        : 'brightness(0.7)',
+                      transition: 'all 0.2s ease',
+                    }}
+                  />
+                )}
+                <span style={{
+                  fontSize: 10,
+                  color: active ? '#ffffff' : 'rgba(247,242,234,0.35)',
+                  fontFamily: 'Outfit, sans-serif',
+                  letterSpacing: '0.04em',
+                  fontWeight: active ? 600 : 400,
+                  transition: 'all 0.2s',
+                }}>{label}</span>
+              </Link>
+            )
+          })}
+        </div>
+      )}
 
       <main style={{ paddingTop: '68px', paddingBottom: hideBottomNav ? 0 : 70 }}>
         <Outlet />
