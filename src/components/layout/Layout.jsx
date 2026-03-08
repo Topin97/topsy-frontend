@@ -1,6 +1,6 @@
 import { Outlet, Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '../../store/authStore'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { authApi } from '../../services/api'
 import toast from 'react-hot-toast'
 import { useState, useEffect, useRef } from 'react'
@@ -12,9 +12,11 @@ import navProfile  from '../../assets/icons/nav-profile.png'
 export default function Layout() {
   const { user, token, logout, isProfessional } = useAuthStore()
   const navigate  = useNavigate()
+  const qc = useQueryClient()
   const location  = useLocation()
   const [scrolled, setScrolled] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const dropdownRef = useRef(null)
 
   const { data: me } = useQuery({
@@ -34,7 +36,7 @@ export default function Layout() {
     return () => window.removeEventListener('scroll', fn)
   }, [])
 
-  useEffect(() => { setDropdownOpen(false) }, [location.pathname])
+  useEffect(() => { setDropdownOpen(false); setProfileMenuOpen(false) }, [location.pathname])
 
   useEffect(() => {
     const fn = (e) => { if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setDropdownOpen(false) }
@@ -45,6 +47,7 @@ export default function Layout() {
   const handleLogout = async () => {
     try { await authApi.logout() } catch {}
     logout()
+    qc.clear()
     toast.success('Sesión cerrada')
     navigate('/')
   }
@@ -200,46 +203,98 @@ export default function Layout() {
 
       {/* ── BOTTOM NAV MÓVIL ────────────────────────────────── */}
       {!hideBottomNav && (
-        <div className="bottom-nav" style={{ display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0, background: 'rgba(8,6,4,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '8px 0 18px', zIndex: 80, justifyContent: 'space-around', alignItems: 'center' }}>
-          {bottomNav.map((item) => {
-            const { to, img, label, avatar } = item
-            const active = to === '/' ? location.pathname === '/' : location.pathname.startsWith(to)
-            return (
-              <Link key={to} to={to} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, padding: '4px 0', position: 'relative' }}>
-                {active && (
-                  <span style={{ position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)', width: 20, height: 2, background: '#C9965A', borderRadius: 2 }} />
-                )}
-                {avatar ? (
-                  <div style={{ width: 26, height: 26, borderRadius: '50%', overflow: 'hidden', border: `1.5px solid ${active ? '#C9965A' : 'rgba(255,255,255,0.2)'}` }}>
-                    <img src={avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <>
+          {/* Profile mini menu */}
+          {profileMenuOpen && (
+            <div
+              onClick={() => setProfileMenuOpen(false)}
+              style={{ position: 'fixed', inset: 0, zIndex: 88, background: 'rgba(0,0,0,0.5)' }}
+            >
+              <div
+                onClick={e => e.stopPropagation()}
+                style={{
+                  position: 'absolute', bottom: 75, left: '50%', transform: 'translateX(-50%)',
+                  background: '#1C1C1E', border: '1px solid rgba(201,150,90,0.2)',
+                  borderRadius: 18, overflow: 'hidden', minWidth: 220,
+                  boxShadow: '0 -8px 40px rgba(0,0,0,0.6)',
+                }}
+              >
+                {/* User info */}
+                <div style={{ padding: '16px 20px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ width: 38, height: 38, borderRadius: '50%', overflow: 'hidden', border: '1.5px solid rgba(201,150,90,0.4)', background: 'rgba(201,150,90,0.1)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {avatarUrl
+                      ? <img src={avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', color: '#C9965A', fontWeight: 700 }}>{user?.full_name?.[0]?.toUpperCase()}</span>
+                    }
                   </div>
-                ) : (
-                  <img
-                    src={img}
-                    alt={label}
-                    style={{
-                      width: 26, height: 26,
-                      objectFit: 'contain',
-                      opacity: active ? 1 : 0.3,
-                      filter: active
-                        ? 'brightness(1.4) drop-shadow(0 0 6px rgba(201,150,90,0.7))'
-                        : 'brightness(0.7)',
-                      transition: 'all 0.2s ease',
-                    }}
-                  />
-                )}
-                <span style={{
-                  fontSize: 10,
-                  color: active ? '#ffffff' : 'rgba(247,242,234,0.35)',
-                  fontFamily: 'Outfit, sans-serif',
-                  letterSpacing: '0.04em',
-                  fontWeight: active ? 600 : 400,
-                  transition: 'all 0.2s',
-                }}>{label}</span>
-              </Link>
-            )
-          })}
-        </div>
+                  <div>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: '#F7F2EA', marginBottom: 2 }}>{user?.full_name}</p>
+                    <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.3)' }}>
+                      {isAdmin ? '⚙️ Admin' : isProfessional() ? '✂️ Profesional' : '👤 Cliente'}
+                    </p>
+                  </div>
+                </div>
+                {/* Links */}
+                <div style={{ padding: 8 }}>
+                  <Link to={profileLink} onClick={() => setProfileMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 10, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>
+                    👤 Mi perfil
+                  </Link>
+                  {isProfessional() && (
+                    <Link to="/pro/dashboard" onClick={() => setProfileMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 10, textDecoration: 'none', color: 'rgba(247,242,234,0.7)', fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>
+                      📊 Panel
+                    </Link>
+                  )}
+                  {isAdmin && (
+                    <Link to="/admin" onClick={() => setProfileMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 10, textDecoration: 'none', color: '#C9965A', fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>
+                      ⚙️ Admin
+                    </Link>
+                  )}
+                </div>
+                {/* Logout */}
+                <div style={{ padding: '8px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                  <button
+                    onClick={() => { setProfileMenuOpen(false); handleLogout() }}
+                    style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 10, background: 'transparent', border: 'none', color: 'rgba(248,113,113,0.8)', fontSize: 14, fontFamily: 'Outfit, sans-serif', cursor: 'pointer', textAlign: 'left' }}
+                  >
+                    🚪 Cerrar sesión
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="bottom-nav" style={{ display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0, background: 'rgba(8,6,4,0.97)', backdropFilter: 'blur(20px)', borderTop: '1px solid rgba(255,255,255,0.06)', padding: '8px 0 18px', zIndex: 80, justifyContent: 'space-around', alignItems: 'center' }}>
+            {bottomNav.map((item) => {
+              const { to, img, label, avatar } = item
+              const isProfile = label === 'Perfil'
+              const active = to === '/' ? location.pathname === '/' : location.pathname.startsWith(to)
+              if (isProfile && token) {
+                return (
+                  <button key={to} onClick={() => setProfileMenuOpen(!profileMenuOpen)} style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, padding: '4px 0', position: 'relative' }}>
+                    {(active || profileMenuOpen) && (
+                      <span style={{ position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)', width: 20, height: 2, background: '#C9965A', borderRadius: 2 }} />
+                    )}
+                    {avatar ? (
+                      <div style={{ width: 26, height: 26, borderRadius: '50%', overflow: 'hidden', border: `1.5px solid ${active || profileMenuOpen ? '#C9965A' : 'rgba(255,255,255,0.2)'}` }}>
+                        <img src={avatar} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      </div>
+                    ) : (
+                      <img src={img} alt={label} style={{ width: 26, height: 26, objectFit: 'contain', opacity: active || profileMenuOpen ? 1 : 0.3, filter: active || profileMenuOpen ? 'brightness(1.4) drop-shadow(0 0 6px rgba(201,150,90,0.7))' : 'brightness(0.7)', transition: 'all 0.2s ease' }} />
+                    )}
+                    <span style={{ fontSize: 10, color: active || profileMenuOpen ? '#ffffff' : 'rgba(247,242,234,0.35)', fontFamily: 'Outfit, sans-serif', letterSpacing: '0.04em', fontWeight: active || profileMenuOpen ? 600 : 400, transition: 'all 0.2s' }}>{label}</span>
+                  </button>
+                )
+              }
+              return (
+                <Link key={to} to={to} style={{ textDecoration: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, padding: '4px 0', position: 'relative' }}>
+                  {active && <span style={{ position: 'absolute', top: -8, left: '50%', transform: 'translateX(-50%)', width: 20, height: 2, background: '#C9965A', borderRadius: 2 }} />}
+                  <img src={img} alt={label} style={{ width: 26, height: 26, objectFit: 'contain', opacity: active ? 1 : 0.3, filter: active ? 'brightness(1.4) drop-shadow(0 0 6px rgba(201,150,90,0.7))' : 'brightness(0.7)', transition: 'all 0.2s ease' }} />
+                  <span style={{ fontSize: 10, color: active ? '#ffffff' : 'rgba(247,242,234,0.35)', fontFamily: 'Outfit, sans-serif', letterSpacing: '0.04em', fontWeight: active ? 600 : 400, transition: 'all 0.2s' }}>{label}</span>
+                </Link>
+              )
+            })}
+          </div>
+        </>
       )}
 
       <main style={{ paddingTop: '68px', paddingBottom: hideBottomNav ? 0 : 70 }}>
