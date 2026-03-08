@@ -7,6 +7,8 @@ import Layout              from './components/layout/Layout'
 import HomePage            from './pages/HomePage'
 import LoginPage           from './pages/LoginPage'
 import RegisterPage        from './pages/RegisterPage'
+import RegisterClientPage  from './pages/RegisterClientPage'
+import RegisterProPage     from './pages/RegisterProPage'
 import SearchPage          from './pages/SearchPage'
 import ProfessionalPage    from './pages/ProfessionalPage'
 import BookingPage         from './pages/BookingPage'
@@ -79,6 +81,8 @@ export default function App() {
             <Route path="professional/:id" element={<ProfessionalPage />} />
             <Route path="login"    element={<PublicRoute><LoginPage /></PublicRoute>} />
             <Route path="register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+            <Route path="register/client" element={<PublicRoute><RegisterClientPage /></PublicRoute>} />
+            <Route path="register/pro" element={<PublicRoute><RegisterProPage /></PublicRoute>} />
             <Route path="forgot-password" element={<ForgotPasswordPage />} />
             <Route path="reset-password" element={<ResetPasswordPage />} />
             <Route path="welcome" element={<WelcomePage />} />
