@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'react-hot-toast'
 import { useAuthStore } from './store/authStore'
+import { useQuery } from '@tanstack/react-query'
+import { authApi, profApi } from './services/api'
 
 import Layout              from './components/layout/Layout'
 import HomePage            from './pages/HomePage'
@@ -40,13 +42,29 @@ const PrivateRoute = ({ children }) => {
 
 const PublicRoute = ({ children }) => {
   const token = useAuthStore((s) => s.token)
-  return !token ? children : <Navigate to="/dashboard" replace />
+  return !token ? children : <Navigate to="/" replace />
 }
 
+// Redirige al onboarding si el profesional aún no tiene perfil
 const ProRoute = ({ children }) => {
   const { token, isProfessional } = useAuthStore()
   if (!token) return <Navigate to="/login" replace />
   if (!isProfessional()) return <Navigate to="/dashboard" replace />
+  return <ProRouteInner>{children}</ProRouteInner>
+}
+
+const ProRouteInner = ({ children }) => {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['myProfile'],
+    queryFn: () => profApi.getMyProfile(),
+    retry: false,
+  })
+
+  if (isLoading) return null
+
+  // 404 or no data → no profile yet → send to onboarding
+  if (isError || !data?.data?.data) return <Navigate to="/pro/onboarding" replace />
+
   return children
 }
 
@@ -79,13 +97,13 @@ export default function App() {
             <Route index element={<HomePage />} />
             <Route path="search" element={<SearchPage />} />
             <Route path="professional/:id" element={<ProfessionalPage />} />
-            <Route path="login"    element={<PublicRoute><LoginPage /></PublicRoute>} />
-            <Route path="register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+            <Route path="login"           element={<PublicRoute><LoginPage /></PublicRoute>} />
+            <Route path="register"        element={<PublicRoute><RegisterPage /></PublicRoute>} />
             <Route path="register/client" element={<PublicRoute><RegisterClientPage /></PublicRoute>} />
-            <Route path="register/pro" element={<PublicRoute><RegisterProPage /></PublicRoute>} />
+            <Route path="register/pro"    element={<PublicRoute><RegisterProPage /></PublicRoute>} />
             <Route path="forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="reset-password" element={<ResetPasswordPage />} />
-            <Route path="welcome" element={<WelcomePage />} />
+            <Route path="reset-password"  element={<ResetPasswordPage />} />
+            <Route path="welcome"         element={<WelcomePage />} />
 
             {/* Cliente */}
             <Route path="booking/:professionalId/:serviceId" element={
@@ -103,7 +121,7 @@ export default function App() {
               <PrivateRoute><ProOnboardingPage /></PrivateRoute>
             } />
 
-            {/* Panel profesional */}
+            {/* Panel profesional — redirige a onboarding si no tiene perfil */}
             <Route path="pro/dashboard"    element={<ProRoute><ProDashboardPage /></ProRoute>} />
             <Route path="pro/services"     element={<ProRoute><ProServicesPage /></ProRoute>} />
             <Route path="pro/availability" element={<ProRoute><ProAvailabilityPage /></ProRoute>} />
