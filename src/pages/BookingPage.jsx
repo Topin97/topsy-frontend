@@ -58,7 +58,7 @@ function WaitlistModal({ date, profName, serviceName, professionalId, serviceId,
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 2000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
       onClick={e => { if (e.target === e.currentTarget) onClose() }}>
-      <div style={{ background: '#242426', borderRadius: '20px 20px 0 0', padding: '28px 24px 40px', width: '100%', maxWidth: 480, border: '1px solid rgba(255,255,255,0.08)', borderBottom: 'none' }}>
+      <div style={{ background: '#1F1A14', borderRadius: '20px 20px 0 0', padding: '28px 24px 40px', width: '100%', maxWidth: 480, border: '1px solid rgba(255,255,255,0.08)', borderBottom: 'none' }}>
         {done ? (
           <div style={{ textAlign: 'center', paddingTop: 8 }}>
             <div style={{ fontSize: '3rem', marginBottom: 16 }}>🔔</div>
@@ -71,7 +71,7 @@ function WaitlistModal({ date, profName, serviceName, professionalId, serviceId,
             <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.25)', marginBottom: 28 }}>
               Turno: {timePreference === 'morning' ? '☀️ Mañana' : timePreference === 'afternoon' ? '🌙 Tarde' : '☀️🌙 Cualquier turno'}
             </p>
-            <button onClick={onClose} style={{ width: '100%', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 12, padding: '14px', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: '#0A0806', cursor: 'pointer' }}>
+            <button onClick={onClose} style={{ width: '100%', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 12, padding: '14px', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: '#16120E', cursor: 'pointer' }}>
               Entendido
             </button>
           </div>
@@ -111,7 +111,7 @@ function WaitlistModal({ date, profName, serviceName, professionalId, serviceId,
               ))}
             </div>
             <button onClick={handleJoin} disabled={loading}
-              style={{ width: '100%', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 12, padding: '15px', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: '#0A0806', cursor: 'pointer', letterSpacing: '0.05em' }}>
+              style={{ width: '100%', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 12, padding: '15px', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: '#16120E', cursor: 'pointer', letterSpacing: '0.05em' }}>
               {loading ? '⏳ Apuntando...' : '🔔 Avisarme si hay hueco'}
             </button>
             <button onClick={onClose} style={{ width: '100%', background: 'none', border: 'none', padding: '12px', fontSize: 13, color: 'rgba(247,242,234,0.3)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', marginTop: 4 }}>
@@ -217,7 +217,7 @@ export default function BookingPage() {
 
   // ── Pantalla de éxito ──────────────────────────────────────
   if (booked) return (
-    <div style={{background: '#1C1C1E', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+    <div style={{background: '#16120E', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <style>{`
         @keyframes popIn { 0% { transform: scale(0.7); opacity: 0; } 70% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -249,7 +249,7 @@ export default function BookingPage() {
             <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.3)', marginTop: 8 }}>Puedes cancelar hasta 24h antes</p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <button onClick={() => navigate('/dashboard')} style={{ width: '100%', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 12, padding: '15px', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: '#0A0806', cursor: 'pointer', letterSpacing: '0.05em' }}>
+            <button onClick={() => navigate('/dashboard')} style={{ width: '100%', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 12, padding: '15px', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: '#16120E', cursor: 'pointer', letterSpacing: '0.05em' }}>
               Ver mis citas
             </button>
             <button onClick={() => navigate('/')} style={{ width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '15px', fontSize: 14, fontFamily: 'Outfit, sans-serif', color: 'rgba(247,242,234,0.6)', cursor: 'pointer' }}>
@@ -262,7 +262,7 @@ export default function BookingPage() {
   )
 
   return (
-    <div style={{ background: '#1C1C1E', minHeight: '100vh', paddingBottom: 200 }}>
+    <div style={{ background: '#16120E', minHeight: '100vh', paddingBottom: 200 }}>
       <style>{`
         .cal-day:hover:not(:disabled) { background: rgba(201,150,90,0.1) !important; }
         .slot-btn:hover { background: rgba(201,150,90,0.1) !important; border-color: rgba(201,150,90,0.4) !important; }
@@ -298,11 +298,11 @@ export default function BookingPage() {
       )}
 
       {/* ── Header con cover ── */}
-      <div className="booking-header" style={{ background: 'rgba(10,8,6,0.97)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <div className="booking-header" style={{ background: 'rgba(20,16,10,0.97)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
         {prof?.cover_image_url && (
           <div style={{ height: 90, overflow: 'hidden', position: 'relative' }}>
             <img src={prof.cover_image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4 }} />
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 0%, rgba(10,8,6,0.8) 100%)' }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 0%, rgba(20,16,10,0.8) 100%)' }} />
           </div>
         )}
         <div style={{ maxWidth: 820, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px' }}>
@@ -386,7 +386,7 @@ export default function BookingPage() {
                         cursor: disabled ? 'default' : 'pointer', transition: 'all 0.15s',
                         fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: isSelected ? 700 : 400,
                         background: isSelected ? 'linear-gradient(135deg, #C9965A, #E8B97A)' : 'transparent',
-                        color: isSelected ? '#0A0806' : disabled ? 'rgba(247,242,234,0.1)' : todayMark ? '#C9965A' : 'rgba(247,242,234,0.75)',
+                        color: isSelected ? '#16120E' : disabled ? 'rgba(247,242,234,0.1)' : todayMark ? '#C9965A' : 'rgba(247,242,234,0.75)',
                         boxShadow: isSelected ? '0 4px 14px rgba(201,150,90,0.35)' : 'none',
                         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1,
                         opacity: noSlots && !isSelected ? 0.45 : 1,
@@ -461,7 +461,7 @@ export default function BookingPage() {
                           border: `1px solid ${active ? 'transparent' : 'rgba(255,255,255,0.07)'}`,
                           transition: 'all 0.15s',
                           background: active ? 'linear-gradient(135deg, #C9965A, #E8B97A)' : 'rgba(255,255,255,0.02)',
-                          color: active ? '#0A0806' : 'rgba(247,242,234,0.65)',
+                          color: active ? '#16120E' : 'rgba(247,242,234,0.65)',
                           boxShadow: active ? '0 4px 12px rgba(201,150,90,0.3)' : 'none',
                         }}>
                           {slotTime(slot.starts_at)}
@@ -519,7 +519,7 @@ export default function BookingPage() {
                   fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif',
                   cursor: selectedSlot ? 'pointer' : 'not-allowed', letterSpacing: '0.05em', transition: 'all 0.2s',
                   background: selectedSlot ? 'linear-gradient(135deg, #C9965A, #E8B97A)' : 'rgba(255,255,255,0.06)',
-                  color: selectedSlot ? '#0A0806' : 'rgba(247,242,234,0.3)',
+                  color: selectedSlot ? '#16120E' : 'rgba(247,242,234,0.3)',
                   boxShadow: selectedSlot ? '0 8px 24px rgba(201,150,90,0.3)' : 'none',
                 }}>
                   {isPending ? 'Confirmando...' : selectedSlot ? 'Confirmar cita ✓' : 'Selecciona horario'}
@@ -534,7 +534,7 @@ export default function BookingPage() {
       {/* Barra inferior móvil */}
       <div className="booking-summary-mobile" style={{
         position: 'fixed', bottom: 0, left: 0, right: 0,
-        background: 'rgba(10,8,6,0.99)', backdropFilter: 'blur(24px)',
+        background: 'rgba(20,16,10,0.99)', backdropFilter: 'blur(24px)',
         borderTop: '1px solid rgba(201,150,90,0.15)',
         padding: '12px 16px', paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
         zIndex: 999, flexDirection: 'column', gap: 10,
@@ -568,7 +568,7 @@ export default function BookingPage() {
               fontSize: 15, fontWeight: 700, fontFamily: 'Outfit, sans-serif',
               cursor: selectedSlot ? 'pointer' : 'not-allowed', letterSpacing: '0.05em', transition: 'all 0.2s',
               background: selectedSlot ? 'linear-gradient(135deg, #C9965A, #E8B97A)' : 'rgba(255,255,255,0.08)',
-              color: selectedSlot ? '#0A0806' : 'rgba(247,242,234,0.3)',
+              color: selectedSlot ? '#16120E' : 'rgba(247,242,234,0.3)',
               boxShadow: selectedSlot ? '0 8px 24px rgba(201,150,90,0.3)' : 'none',
             }}>
             {isPending ? '⏳ Confirmando...' : selectedSlot ? '✓ Confirmar cita' : 'Selecciona un horario'}

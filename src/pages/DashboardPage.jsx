@@ -7,41 +7,29 @@ import { es } from 'date-fns/locale'
 import toast from 'react-hot-toast'
 import { Link } from 'react-router-dom'
 
-const STATUS_LABELS = {
-  pending:   { label: 'Pendiente',  color: 'text-yellow-400 bg-yellow-400/10' },
-  confirmed: { label: 'Confirmada', color: 'text-green-400 bg-green-400/10' },
-  completed: { label: 'Completada', color: 'text-blue-400 bg-blue-400/10' },
-  cancelled: { label: 'Cancelada',  color: 'text-red-400 bg-red-400/10' },
-  no_show:   { label: 'No asistió', color: 'text-gray-400 bg-gray-400/10' },
+const STATUS = {
+  pending:   { label: 'Pendiente',  bg: 'rgba(251,191,36,0.12)',  color: '#fbbf24' },
+  confirmed: { label: 'Confirmada', bg: 'rgba(74,222,128,0.12)',  color: '#4ade80' },
+  completed: { label: 'Completada', bg: 'rgba(96,165,250,0.12)',  color: '#60a5fa' },
+  cancelled: { label: 'Cancelada',  bg: 'rgba(248,113,113,0.12)', color: '#f87171' },
+  no_show:   { label: 'No asistió', bg: 'rgba(156,163,175,0.12)', color: '#9ca3af' },
 }
 
-function KpiCard({ label, value, delta }) {
-  return (
-    <div className="card p-6">
-      <p className="text-xs uppercase tracking-widest text-cream/40 mb-2">{label}</p>
-      <p className="font-display text-4xl font-light text-gold">{value}</p>
-      {delta && <p className="text-green-400 text-xs mt-1">{delta}</p>}
-    </div>
-  )
-}
+const TABS = ['Próximas', 'Pasadas', 'Canceladas']
 
 function StarInput({ value, onChange }) {
   const [hover, setHover] = useState(0)
   return (
     <div style={{ display: 'flex', gap: 4 }}>
-      {[1,2,3,4,5].map((star) => (
-        <button
-          key={star}
-          type="button"
+      {[1,2,3,4,5].map(star => (
+        <button key={star} type="button"
           onClick={() => onChange(star)}
           onMouseEnter={() => setHover(star)}
           onMouseLeave={() => setHover(0)}
-          style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            fontSize: 34, padding: 0, lineHeight: 1,
-            color: star <= (hover || value) ? '#C9965A' : 'rgba(247,242,234,0.12)',
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 36, padding: 0, lineHeight: 1,
+            color: star <= (hover || value) ? '#C9965A' : 'rgba(247,242,234,0.1)',
             transition: 'color 0.12s, transform 0.1s',
-            transform: star <= (hover || value) ? 'scale(1.18)' : 'scale(1)',
+            transform: star <= (hover || value) ? 'scale(1.15)' : 'scale(1)',
           }}
         >★</button>
       ))}
@@ -52,84 +40,43 @@ function StarInput({ value, onChange }) {
 function ReviewModal({ booking, onClose, onSubmit, isLoading }) {
   const [rating, setRating] = useState(0)
   const [comment, setComment] = useState('')
-  const proName = booking.professional_profiles?.business_name ?? '—'
   const LABELS = ['', '😕 Malo', '😐 Regular', '😊 Bien', '😄 Muy bien', '🤩 Excelente']
 
   return (
-    <div
-      onClick={onClose}
-      style={{
-        position:'fixed', inset:0, zIndex:200,
-        background:'rgba(0,0,0,0.8)', backdropFilter:'blur(4px)',
-        display:'flex', alignItems:'center', justifyContent:'center', padding:24,
-      }}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        style={{
-          background:'#1C1C1E', border:'1px solid rgba(201,150,90,0.2)',
-          borderRadius:20, padding:32, width:'100%', maxWidth:420,
-        }}
-      >
-        <p style={{ fontSize:11, letterSpacing:'0.15em', textTransform:'uppercase', color:'rgba(201,150,90,0.6)', marginBottom:8 }}>
-          Valorar visita
-        </p>
-        <h3 style={{ fontFamily:'Cormorant Garamond, serif', fontSize:'1.6rem', fontWeight:400, color:'#F7F2EA', margin:'0 0 4px' }}>
-          {proName}
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: '#1F1A14', border: '1px solid rgba(201,150,90,0.2)', borderRadius: '24px 24px 0 0', padding: '28px 24px 40px', width: '100%', maxWidth: 440 }}>
+        <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', margin: '0 auto 24px' }} />
+        <p style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.5)', marginBottom: 4 }}>Valorar visita</p>
+        <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', fontWeight: 400, color: '#F7F2EA', margin: '0 0 4px' }}>
+          {booking.professional_profiles?.business_name}
         </h3>
-        <p style={{ fontSize:13, color:'rgba(247,242,234,0.35)', marginBottom:24 }}>
+        <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.35)', marginBottom: 24 }}>
           {booking.services?.name} · {format(new Date(booking.starts_at), "d MMM yyyy", { locale: es })}
         </p>
 
-        <div style={{ marginBottom:20 }}>
+        <div style={{ marginBottom: 20 }}>
           <StarInput value={rating} onChange={setRating} />
-          {rating > 0 && (
-            <p style={{ fontSize:12, color:'#C9965A', marginTop:8 }}>{LABELS[rating]}</p>
-          )}
+          {rating > 0 && <p style={{ fontSize: 13, color: '#C9965A', marginTop: 8 }}>{LABELS[rating]}</p>}
         </div>
 
         <textarea
           value={comment}
-          onChange={(e) => setComment(e.target.value)}
+          onChange={e => setComment(e.target.value)}
           placeholder="Cuéntanos tu experiencia... (opcional)"
-          maxLength={400}
-          rows={3}
-          style={{
-            width:'100%', boxSizing:'border-box',
-            background:'rgba(255,255,255,0.04)', border:'1px solid rgba(255,255,255,0.08)',
-            borderRadius:12, padding:'12px 14px', color:'#F7F2EA',
-            fontSize:14, fontFamily:'Outfit, sans-serif', resize:'vertical',
-            outline:'none', marginBottom:20,
-          }}
+          maxLength={400} rows={3}
+          style={{ width: '100%', boxSizing: 'border-box', background: 'rgba(255,240,210,0.04)', border: '1px solid rgba(255,240,210,0.1)', borderRadius: 12, padding: '12px 14px', color: '#F7F2EA', fontSize: 14, fontFamily: 'Outfit, sans-serif', resize: 'none', outline: 'none', marginBottom: 20 }}
         />
 
-        <div style={{ display:'flex', gap:10 }}>
-          <button
-            onClick={onClose}
-            style={{
-              flex:1, background:'transparent', border:'1px solid rgba(247,242,234,0.1)',
-              borderRadius:10, padding:'12px 0', color:'rgba(247,242,234,0.4)',
-              fontSize:14, fontFamily:'Outfit, sans-serif', cursor:'pointer',
-            }}
-          >
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button onClick={onClose} style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,240,210,0.1)', borderRadius: 12, padding: '13px 0', color: 'rgba(247,242,234,0.4)', fontSize: 14, fontFamily: 'Outfit, sans-serif', cursor: 'pointer' }}>
             Cancelar
           </button>
           <button
-            onClick={() => {
-              if (rating === 0) { toast.error('Selecciona una puntuación'); return }
-              onSubmit({ rating, comment })
-            }}
+            onClick={() => { if (!rating) { toast.error('Selecciona una puntuación'); return }; onSubmit({ rating, comment }) }}
             disabled={isLoading}
-            style={{
-              flex:2,
-              background: rating > 0 ? 'linear-gradient(135deg,#C9965A,#E8B97A)' : 'rgba(201,150,90,0.15)',
-              border:'none', borderRadius:10, padding:'12px 0',
-              color: rating > 0 ? '#0A0806' : 'rgba(201,150,90,0.3)',
-              fontSize:14, fontWeight:700, fontFamily:'Outfit, sans-serif',
-              cursor: rating > 0 ? 'pointer' : 'not-allowed', transition:'all 0.2s',
-            }}
+            style={{ flex: 2, background: rating > 0 ? 'linear-gradient(135deg,#C9965A,#E8B97A)' : 'rgba(201,150,90,0.1)', border: 'none', borderRadius: 12, padding: '13px 0', color: rating > 0 ? '#16120E' : 'rgba(201,150,90,0.3)', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', cursor: rating > 0 ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}
           >
-            {isLoading ? 'Enviando...' : 'Enviar valoración ★'}
+            {isLoading ? 'Enviando...' : '★ Enviar valoración'}
           </button>
         </div>
       </div>
@@ -137,58 +84,80 @@ function ReviewModal({ booking, onClose, onSubmit, isLoading }) {
   )
 }
 
-function BookingRow({ booking, onCancel, onReview }) {
-  const st = STATUS_LABELS[booking.status] ?? STATUS_LABELS.pending
+function BookingCard({ booking, onCancel, onReview }) {
+  const st = STATUS[booking.status] ?? STATUS.pending
   const isPast = new Date(booking.starts_at) < new Date()
   const canCancel = ['pending', 'confirmed'].includes(booking.status) && !isPast
   const canReview = booking.status === 'completed' && !(booking.reviews?.length > 0)
   const hasReview = booking.reviews?.length > 0
-  const proName = booking.professional_profiles?.business_name ?? booking.profiles?.full_name ?? '—'
+  const proName = booking.professional_profiles?.business_name ?? '—'
+  const coverUrl = booking.professional_profiles?.cover_image_url
 
   return (
-    <div className="card p-5 flex flex-col sm:flex-row sm:items-center gap-4">
-      <div className="flex-1">
-        <div className="flex items-center gap-2 mb-1 flex-wrap">
-          <h3 className="font-semibold">{booking.services?.name}</h3>
-          <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${st.color}`}>{st.label}</span>
+    <div style={{ background: 'rgba(255,240,210,0.03)', border: '1px solid rgba(255,240,210,0.08)', borderRadius: 16, overflow: 'hidden', display: 'flex' }}>
+      {/* Color strip */}
+      <div style={{ width: 4, flexShrink: 0, background: st.color, opacity: 0.6 }} />
+
+      {/* Cover thumb */}
+      <div style={{ width: 80, flexShrink: 0, background: 'rgba(201,150,90,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, position: 'relative', overflow: 'hidden' }}>
+        {coverUrl
+          ? <img src={coverUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
+          : '✂️'
+        }
+      </div>
+
+      {/* Body */}
+      <div style={{ flex: 1, padding: '12px 14px', minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 3 }}>
+          <div style={{ minWidth: 0 }}>
+            <p style={{ fontWeight: 600, fontSize: 14, color: '#F7F2EA', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {booking.services?.name}
+            </p>
+            <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.4)', margin: '2px 0' }}>{proName}</p>
+          </div>
+          <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 100, background: st.bg, color: st.color, whiteSpace: 'nowrap', flexShrink: 0, fontFamily: 'Outfit, sans-serif' }}>
+            {st.label}
+          </span>
+        </div>
+
+        <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.35)', margin: '0 0 8px' }}>
+          📅 {format(new Date(booking.starts_at), "EEEE d MMM · HH:mm", { locale: es })}
+          <span style={{ marginLeft: 6, color: 'rgba(247,242,234,0.25)' }}>· {booking.services?.duration_minutes} min</span>
+        </p>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.2rem', color: '#C9965A', fontStyle: 'italic' }}>{booking.total_price}€</span>
+
           {hasReview && (
-            <span style={{ fontSize:11, color:'#C9965A', background:'rgba(201,150,90,0.1)', padding:'2px 8px', borderRadius:100, whiteSpace:'nowrap' }}>
+            <span style={{ fontSize: 11, color: '#C9965A', background: 'rgba(201,150,90,0.1)', padding: '2px 8px', borderRadius: 100 }}>
               {'★'.repeat(booking.reviews[0].rating)} Valorada
             </span>
           )}
+          {canReview && (
+            <button onClick={() => onReview(booking)} style={{ fontSize: 12, background: 'rgba(201,150,90,0.08)', border: '1px solid rgba(201,150,90,0.22)', borderRadius: 8, padding: '4px 12px', color: '#C9965A', cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+              ★ Valorar
+            </button>
+          )}
+          {canCancel && (
+            <button onClick={() => onCancel(booking.id)} style={{ fontSize: 12, background: 'transparent', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 8, padding: '4px 12px', color: 'rgba(248,113,113,0.6)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+              Cancelar
+            </button>
+          )}
         </div>
-        <p className="text-cream/50 text-sm">{proName}</p>
-        <p className="text-cream/40 text-xs mt-1">
-          📅 {format(new Date(booking.starts_at), "EEEE d MMM · HH:mm", { locale: es })}
-          {' '}· ⏱ {booking.services?.duration_minutes} min
-        </p>
       </div>
-      <div className="flex items-center gap-3 flex-wrap justify-end">
-        <span className="font-display text-xl text-gold italic">{booking.total_price}€</span>
-        {canReview && (
-          <button
-            onClick={() => onReview(booking)}
-            style={{
-              fontSize:12, background:'rgba(201,150,90,0.08)',
-              border:'1px solid rgba(201,150,90,0.25)', borderRadius:8,
-              padding:'6px 14px', color:'#C9965A', cursor:'pointer',
-              fontFamily:'Outfit, sans-serif', transition:'all 0.2s',
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.background='rgba(201,150,90,0.18)'; e.currentTarget.style.borderColor='rgba(201,150,90,0.55)' }}
-            onMouseLeave={(e) => { e.currentTarget.style.background='rgba(201,150,90,0.08)'; e.currentTarget.style.borderColor='rgba(201,150,90,0.25)' }}
-          >
-            ★ Valorar
-          </button>
-        )}
-        {canCancel && (
-          <button
-            onClick={() => onCancel(booking.id)}
-            className="text-xs text-red-400/70 hover:text-red-400 transition-colors border border-red-400/20 hover:border-red-400/50 px-3 py-1.5 rounded-lg"
-          >
-            Cancelar
-          </button>
-        )}
+    </div>
+  )
+}
+
+function KpiCard({ icon, label, value, sub }) {
+  return (
+    <div style={{ background: 'rgba(255,240,210,0.03)', border: '1px solid rgba(255,240,210,0.08)', borderRadius: 16, padding: '16px 18px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+        <span style={{ fontSize: 18 }}>{icon}</span>
+        <span style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.35)', fontFamily: 'Outfit, sans-serif' }}>{label}</span>
       </div>
+      <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2rem', fontWeight: 300, color: '#C9965A', margin: 0, lineHeight: 1 }}>{value}</p>
+      {sub && <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.3)', margin: '4px 0 0' }}>{sub}</p>}
     </div>
   )
 }
@@ -197,33 +166,34 @@ export default function DashboardPage() {
   const { user, isProfessional } = useAuthStore()
   const qc = useQueryClient()
   const [reviewBooking, setReviewBooking] = useState(null)
+  const [activeTab, setActiveTab] = useState(0)
 
   const { data: myBookings, isLoading } = useQuery({
     queryKey: ['my-bookings'],
-    queryFn: () => bookingsApi.getMine().then((r) => r.data.data),
+    queryFn: () => bookingsApi.getMine().then(r => r.data.data),
     enabled: !isProfessional(),
   })
 
   const { data: proBookings } = useQuery({
     queryKey: ['pro-bookings'],
-    queryFn: () => bookingsApi.getProfessional().then((r) => r.data.data),
+    queryFn: () => bookingsApi.getProfessional().then(r => r.data.data),
     enabled: isProfessional(),
   })
 
   const { data: stats } = useQuery({
     queryKey: ['pro-stats'],
-    queryFn: () => profApi.getStats().then((r) => r.data.data),
+    queryFn: () => profApi.getStats().then(r => r.data.data),
     enabled: isProfessional(),
   })
 
   const { mutate: cancel } = useMutation({
-    mutationFn: (id) => bookingsApi.cancel(id),
+    mutationFn: id => bookingsApi.cancel(id),
     onSuccess: () => {
       toast.success('Reserva cancelada')
       qc.invalidateQueries({ queryKey: ['my-bookings'] })
       qc.invalidateQueries({ queryKey: ['pro-bookings'] })
     },
-    onError: (err) => toast.error(err.response?.data?.error ?? 'Error al cancelar'),
+    onError: err => toast.error(err.response?.data?.error ?? 'Error al cancelar'),
   })
 
   const { mutate: submitReview, isPending: reviewLoading } = useMutation({
@@ -233,10 +203,19 @@ export default function DashboardPage() {
       setReviewBooking(null)
       qc.invalidateQueries({ queryKey: ['my-bookings'] })
     },
-    onError: (err) => toast.error(err.response?.data?.error ?? 'Error al enviar valoración'),
+    onError: err => toast.error(err.response?.data?.error ?? 'Error'),
   })
 
-  const bookings = isProfessional() ? (proBookings ?? []) : (myBookings ?? [])
+  const allBookings = isProfessional() ? (proBookings ?? []) : (myBookings ?? [])
+  const now = new Date()
+
+  const tabs = {
+    0: allBookings.filter(b => ['pending','confirmed'].includes(b.status) && new Date(b.starts_at) >= now),
+    1: allBookings.filter(b => b.status === 'completed' || (new Date(b.starts_at) < now && !['cancelled','no_show'].includes(b.status))),
+    2: allBookings.filter(b => ['cancelled','no_show'].includes(b.status)),
+  }
+
+  const displayBookings = tabs[activeTab] ?? []
 
   return (
     <>
@@ -249,55 +228,81 @@ export default function DashboardPage() {
         />
       )}
 
-      <div className="container-app py-10">
-        <div className="flex items-center justify-between mb-10">
+      <div style={{ maxWidth: 700, margin: '0 auto', padding: '20px 16px 100px' }}>
+
+        {/* Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
           <div>
-            <p className="section-tag mb-2">Panel de control</p>
-            <h1 className="font-display text-4xl font-light">
-              Hola, <em className="text-gold italic">{user?.full_name?.split(' ')[0]}</em>
+            <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.35)', margin: '0 0 4px', fontFamily: 'Outfit, sans-serif' }}>
+              {isProfessional() ? 'Panel profesional' : 'Mis reservas'}
+            </p>
+            <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.8rem', fontWeight: 300, margin: 0, color: '#F7F2EA' }}>
+              Hola, <em style={{ color: '#C9965A' }}>{user?.full_name?.split(' ')[0]}</em>
             </h1>
           </div>
           {!isProfessional() && (
-            <Link to="/search" className="btn-primary">+ Nueva cita</Link>
+            <Link to="/search" style={{ textDecoration: 'none', background: 'linear-gradient(135deg,#C9965A,#E8B97A)', borderRadius: 12, padding: '10px 18px', color: '#16120E', fontWeight: 700, fontSize: 13, fontFamily: 'Outfit, sans-serif', whiteSpace: 'nowrap' }}>
+              + Nueva cita
+            </Link>
           )}
         </div>
 
+        {/* KPIs pro */}
         {isProfessional() && stats && (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
-            <KpiCard label="Ingresos este mes" value={`${stats.revenue_this_month}€`} delta="↑ vs. mes anterior" />
-            <KpiCard label="Citas totales"     value={stats.total_bookings} />
-            <KpiCard label="Próximas citas"    value={stats.upcoming_bookings} />
-            <KpiCard label="Valoración media"  value={stats.avg_rating || '—'} delta={`${stats.total_reviews} reseñas`} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 10, marginBottom: 24 }}>
+            <KpiCard icon="💶" label="Este mes" value={`${stats.revenue_this_month}€`} />
+            <KpiCard icon="📅" label="Próximas" value={stats.upcoming_bookings} />
+            <KpiCard icon="✅" label="Total citas" value={stats.total_bookings} />
+            <KpiCard icon="⭐" label="Valoración" value={stats.avg_rating || '—'} sub={`${stats.total_reviews} reseñas`} />
           </div>
         )}
 
-        <div>
-          <h2 className="section-tag mb-6">
-            {isProfessional() ? 'Citas recibidas' : 'Mis reservas'}
-          </h2>
-
-          {isLoading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-24 skeleton rounded-2xl" />
-              ))}
-            </div>
-          ) : bookings.length === 0 ? (
-            <div className="card py-20 text-center text-cream/30">
-              <p className="text-5xl mb-4">📅</p>
-              <p className="font-display text-2xl italic">Sin citas</p>
-              {!isProfessional() && (
-                <Link to="/search" className="btn-primary inline-block mt-6">Buscar profesionales</Link>
+        {/* Tabs */}
+        <div style={{ display: 'flex', gap: 0, marginBottom: 16, background: 'rgba(255,240,210,0.04)', borderRadius: 12, padding: 4 }}>
+          {TABS.map((tab, i) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(i)}
+              style={{
+                flex: 1, padding: '9px 0', borderRadius: 9, border: 'none', cursor: 'pointer',
+                fontFamily: 'Outfit, sans-serif', fontSize: 13, transition: 'all 0.2s',
+                background: activeTab === i ? 'rgba(201,150,90,0.15)' : 'transparent',
+                color: activeTab === i ? '#C9965A' : 'rgba(247,242,234,0.4)',
+                fontWeight: activeTab === i ? 600 : 400,
+              }}
+            >
+              {tab}
+              {tabs[i]?.length > 0 && (
+                <span style={{ marginLeft: 5, fontSize: 10, background: activeTab === i ? '#C9965A' : 'rgba(255,255,255,0.1)', color: activeTab === i ? '#16120E' : 'rgba(247,242,234,0.4)', borderRadius: 100, padding: '1px 6px' }}>
+                  {tabs[i].length}
+                </span>
               )}
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {bookings.map((b) => (
-                <BookingRow key={b.id} booking={b} onCancel={cancel} onReview={setReviewBooking} />
-              ))}
-            </div>
-          )}
+            </button>
+          ))}
         </div>
+
+        {/* Lista */}
+        {isLoading ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 100, borderRadius: 16 }} />)}
+          </div>
+        ) : displayBookings.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '48px 0', color: 'rgba(247,242,234,0.25)' }}>
+            <p style={{ fontSize: 40, marginBottom: 12 }}>📅</p>
+            <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', fontStyle: 'italic', marginBottom: 6 }}>Sin citas</p>
+            {activeTab === 0 && !isProfessional() && (
+              <Link to="/search" style={{ display: 'inline-block', marginTop: 12, textDecoration: 'none', background: 'linear-gradient(135deg,#C9965A,#E8B97A)', borderRadius: 12, padding: '12px 24px', color: '#16120E', fontWeight: 700, fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>
+                Buscar profesionales
+              </Link>
+            )}
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {displayBookings.map(b => (
+              <BookingCard key={b.id} booking={b} onCancel={cancel} onReview={setReviewBooking} />
+            ))}
+          </div>
+        )}
       </div>
     </>
   )
