@@ -58,33 +58,33 @@ function WaitlistModal({ date, profName, serviceName, professionalId, serviceId,
   return (
     <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(8px)', zIndex: 2000, display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}
       onClick={e => { if (e.target === e.currentTarget) onClose() }}>
-      <div style={{ background: '#1F1A14', borderRadius: '20px 20px 0 0', padding: '28px 24px 40px', width: '100%', maxWidth: 480, border: '1px solid rgba(255,255,255,0.08)', borderBottom: 'none' }}>
+      <div style={{ background: '#FFFFFF', borderRadius: '20px 20px 0 0', padding: '28px 24px 40px', width: '100%', maxWidth: 480, border: '1px solid rgba(0,0,0,0.04)', borderBottom: 'none' }}>
         {done ? (
           <div style={{ textAlign: 'center', paddingTop: 8 }}>
             <div style={{ fontSize: '3rem', marginBottom: 16 }}>🔔</div>
-            <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.6rem', fontWeight: 300, marginBottom: 8, color: '#F7F2EA' }}>
-              ¡Apuntado a la<br /><em style={{ color: '#C9965A' }}>lista de espera!</em>
+            <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.6rem', fontWeight: 300, marginBottom: 8, color: '#1A1612' }}>
+              ¡Apuntado a la<br /><em style={{ color: '#B8833A' }}>lista de espera!</em>
             </h3>
-            <p style={{ fontSize: 13, color: 'rgba(247,242,234,0.4)', marginBottom: 8, lineHeight: 1.6 }}>
-              Te avisaremos por email si se libera un hueco el <strong style={{ color: '#F7F2EA' }}>{format(date, "d 'de' MMMM", { locale: es })}</strong> en {profName}.
+            <p style={{ fontSize: 13, color: 'rgba(26,22,18,0.5)', marginBottom: 8, lineHeight: 1.6 }}>
+              Te avisaremos por email si se libera un hueco el <strong style={{ color: '#1A1612' }}>{format(date, "d 'de' MMMM", { locale: es })}</strong> en {profName}.
             </p>
-            <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.25)', marginBottom: 28 }}>
+            <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.2)', marginBottom: 28 }}>
               Turno: {timePreference === 'morning' ? '☀️ Mañana' : timePreference === 'afternoon' ? '🌙 Tarde' : '☀️🌙 Cualquier turno'}
             </p>
-            <button onClick={onClose} style={{ width: '100%', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 12, padding: '14px', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: '#16120E', cursor: 'pointer' }}>
+            <button onClick={onClose} style={{ width: '100%', background: 'linear-gradient(135deg, #B8833A, #D4A055)', border: 'none', borderRadius: 12, padding: '14px', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: '#F7F5F2', cursor: 'pointer' }}>
               Entendido
             </button>
           </div>
         ) : (
           <>
-            <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', margin: '0 auto 24px' }} />
-            <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', fontWeight: 300, marginBottom: 6, color: '#F7F2EA' }}>
-              Lista de <em style={{ color: '#C9965A' }}>espera</em>
+            <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(0,0,0,0.06)', margin: '0 auto 24px' }} />
+            <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', fontWeight: 300, marginBottom: 6, color: '#1A1612' }}>
+              Lista de <em style={{ color: '#B8833A' }}>espera</em>
             </h3>
-            <p style={{ fontSize: 13, color: 'rgba(247,242,234,0.4)', marginBottom: 24, lineHeight: 1.6 }}>
-              Te avisaremos si alguien cancela el <strong style={{ color: '#F7F2EA' }}>{format(date, "d 'de' MMMM", { locale: es })}</strong> en {profName} para <strong style={{ color: '#F7F2EA' }}>{serviceName}</strong>.
+            <p style={{ fontSize: 13, color: 'rgba(26,22,18,0.5)', marginBottom: 24, lineHeight: 1.6 }}>
+              Te avisaremos si alguien cancela el <strong style={{ color: '#1A1612' }}>{format(date, "d 'de' MMMM", { locale: es })}</strong> en {profName} para <strong style={{ color: '#1A1612' }}>{serviceName}</strong>.
             </p>
-            <p style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.3)', marginBottom: 12 }}>¿Qué turno prefieres?</p>
+            <p style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.45)', marginBottom: 12 }}>¿Qué turno prefieres?</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
               {[
                 { value: 'morning',   icon: '☀️', label: 'Mañana',          desc: 'Primer turno del día' },
@@ -95,26 +95,26 @@ function WaitlistModal({ date, profName, serviceName, professionalId, serviceId,
                   style={{
                     display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px',
                     borderRadius: 12, cursor: 'pointer', textAlign: 'left',
-                    border: `1.5px solid ${timePreference === opt.value ? 'rgba(201,150,90,0.5)' : 'rgba(255,255,255,0.07)'}`,
-                    background: timePreference === opt.value ? 'rgba(201,150,90,0.08)' : 'rgba(255,255,255,0.02)',
+                    border: `1.5px solid ${timePreference === opt.value ? 'rgba(184,131,58,0.5)' : 'rgba(0,0,0,0.1)'}`,
+                    background: timePreference === opt.value ? 'rgba(184,131,58,0.07)' : '#F7F5F2',
                     transition: 'all 0.15s', fontFamily: 'Outfit, sans-serif',
                   }}>
                   <span style={{ fontSize: '1.4rem', flexShrink: 0 }}>{opt.icon}</span>
                   <div>
-                    <p style={{ fontSize: 14, fontWeight: 600, color: timePreference === opt.value ? '#C9965A' : '#F7F2EA', margin: 0, marginBottom: 2 }}>{opt.label}</p>
-                    <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.3)', margin: 0 }}>{opt.desc}</p>
+                    <p style={{ fontSize: 14, fontWeight: 600, color: timePreference === opt.value ? '#B8833A' : '#1A1612', margin: 0, marginBottom: 2 }}>{opt.label}</p>
+                    <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.4)', margin: 0 }}>{opt.desc}</p>
                   </div>
                   {timePreference === opt.value && (
-                    <span style={{ marginLeft: 'auto', color: '#C9965A', fontSize: 16, flexShrink: 0 }}>✓</span>
+                    <span style={{ marginLeft: 'auto', color: '#B8833A', fontSize: 16, flexShrink: 0 }}>✓</span>
                   )}
                 </button>
               ))}
             </div>
             <button onClick={handleJoin} disabled={loading}
-              style={{ width: '100%', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 12, padding: '15px', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: '#16120E', cursor: 'pointer', letterSpacing: '0.05em' }}>
+              style={{ width: '100%', background: 'linear-gradient(135deg, #B8833A, #D4A055)', border: 'none', borderRadius: 12, padding: '15px', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: '#F7F5F2', cursor: 'pointer', letterSpacing: '0.05em' }}>
               {loading ? '⏳ Apuntando...' : '🔔 Avisarme si hay hueco'}
             </button>
-            <button onClick={onClose} style={{ width: '100%', background: 'none', border: 'none', padding: '12px', fontSize: 13, color: 'rgba(247,242,234,0.3)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', marginTop: 4 }}>
+            <button onClick={onClose} style={{ width: '100%', background: 'none', border: 'none', padding: '12px', fontSize: 13, color: 'rgba(26,22,18,0.4)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', marginTop: 4 }}>
               Cancelar
             </button>
           </>
@@ -217,7 +217,7 @@ export default function BookingPage() {
 
   // ── Pantalla de éxito ──────────────────────────────────────
   if (booked) return (
-    <div style={{background: '#16120E', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+    <div style={{background: '#F7F5F2', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <style>{`
         @keyframes popIn { 0% { transform: scale(0.7); opacity: 0; } 70% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -225,34 +225,34 @@ export default function BookingPage() {
         .success-content { animation: fadeUp 0.5s 0.2s ease forwards; opacity: 0; }
       `}</style>
       <div style={{ textAlign: 'center', maxWidth: 400 }}>
-        <div className="success-icon" style={{ width: 96, height: 96, borderRadius: '50%', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', boxShadow: '0 0 60px rgba(201,150,90,0.4)' }}>
+        <div className="success-icon" style={{ width: 96, height: 96, borderRadius: '50%', background: 'linear-gradient(135deg, #B8833A, #D4A055)', margin: '0 auto 24px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', boxShadow: '0 0 60px rgba(201,150,90,0.4)' }}>
           ✓
         </div>
         <div className="success-content">
           <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.2rem', fontWeight: 300, marginBottom: 8 }}>
-            ¡Cita <em style={{ color: '#C9965A' }}>confirmada!</em>
+            ¡Cita <em style={{ color: '#B8833A' }}>confirmada!</em>
           </h1>
-          <p style={{ color: 'rgba(247,242,234,0.5)', fontSize: 14, marginBottom: 6 }}>
+          <p style={{ color: 'rgba(26,22,18,0.5)', fontSize: 14, marginBottom: 6 }}>
             {service?.name} · {service?.duration_minutes} min
           </p>
-          <p style={{ color: 'rgba(247,242,234,0.7)', fontSize: 15, marginBottom: 4, fontWeight: 600 }}>
+          <p style={{ color: 'rgba(26,22,18,0.75)', fontSize: 15, marginBottom: 4, fontWeight: 600 }}>
             {prof?.business_name}
           </p>
           {selectedSlot && (
-            <p style={{ color: '#C9965A', fontSize: 15, marginBottom: 32 }}>
+            <p style={{ color: '#B8833A', fontSize: 15, marginBottom: 32 }}>
               📅 {format(new Date(selectedSlot.starts_at), "EEEE d 'de' MMMM", { locale: es })} · 🕐 {slotTime(selectedSlot.starts_at)}
             </p>
           )}
-          <div style={{ background: 'rgba(201,150,90,0.06)', border: '1px solid rgba(201,150,90,0.15)', borderRadius: 14, padding: '16px 20px', marginBottom: 28, textAlign: 'left' }}>
-            <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.4)', marginBottom: 4 }}>📍 {prof?.city}</p>
-            <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.4)' }}>💶 {service?.price}€ · Pago en el local</p>
-            <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.3)', marginTop: 8 }}>Puedes cancelar hasta 24h antes</p>
+          <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(184,131,58,0.15)', borderRadius: 14, padding: '16px 20px', marginBottom: 28, textAlign: 'left' }}>
+            <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.5)', marginBottom: 4 }}>📍 {prof?.city}</p>
+            <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.5)' }}>💶 {service?.price}€ · Pago en el local</p>
+            <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.35)', marginTop: 8 }}>Puedes cancelar hasta 24h antes</p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <button onClick={() => navigate('/dashboard')} style={{ width: '100%', background: 'linear-gradient(135deg, #C9965A, #E8B97A)', border: 'none', borderRadius: 12, padding: '15px', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: '#16120E', cursor: 'pointer', letterSpacing: '0.05em' }}>
+            <button onClick={() => navigate('/dashboard')} style={{ width: '100%', background: 'linear-gradient(135deg, #B8833A, #D4A055)', border: 'none', borderRadius: 12, padding: '15px', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', color: '#F7F5F2', cursor: 'pointer', letterSpacing: '0.05em' }}>
               Ver mis citas
             </button>
-            <button onClick={() => navigate('/')} style={{ width: '100%', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, padding: '15px', fontSize: 14, fontFamily: 'Outfit, sans-serif', color: 'rgba(247,242,234,0.6)', cursor: 'pointer' }}>
+            <button onClick={() => navigate('/')} style={{ width: '100%', background: '#F7F5F2', border: '1.5px solid rgba(0,0,0,0.1)', borderRadius: 12, padding: '15px', fontSize: 14, fontFamily: 'Outfit, sans-serif', color: 'rgba(26,22,18,0.6)', cursor: 'pointer' }}>
               Volver al inicio
             </button>
           </div>
@@ -262,7 +262,7 @@ export default function BookingPage() {
   )
 
   return (
-    <div style={{ background: '#16120E', minHeight: '100vh', paddingBottom: 200 }}>
+    <div style={{ background: '#F7F5F2', minHeight: '100vh', paddingBottom: 200 }}>
       <style>{`
         .cal-day:hover:not(:disabled) { background: rgba(201,150,90,0.1) !important; }
         .slot-btn:hover { background: rgba(201,150,90,0.1) !important; border-color: rgba(201,150,90,0.4) !important; }
@@ -283,8 +283,8 @@ export default function BookingPage() {
         }
         .booking-header { position: sticky; top: 0; z-index: 10; }
         @media (min-width: 769px) { .booking-header { top: 68px; } }
-        .month-nav-btn { width: 34px; height: 34px; border-radius: 8px; cursor: pointer; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(247,242,234,0.6); font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
-        .month-nav-btn:hover:not(:disabled) { background: rgba(201,150,90,0.1); border-color: rgba(201,150,90,0.3); color: #C9965A; }
+        .month-nav-btn { width: 34px; height: 34px; border-radius: 8px; cursor: pointer; background: #F7F5F2; border: 1.5px solid rgba(0,0,0,0.1); color: rgba(26,22,18,0.5); font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+        .month-nav-btn:hover:not(:disabled) { background: rgba(201,150,90,0.1); border-color: rgba(201,150,90,0.3); color: #B8833A; }
         .month-nav-btn:disabled { opacity: 0.2; cursor: default; }
         .waitlist-btn:hover { background: rgba(248,113,113,0.15) !important; border-color: rgba(248,113,113,0.4) !important; }
       `}</style>
@@ -298,15 +298,15 @@ export default function BookingPage() {
       )}
 
       {/* ── Header con cover ── */}
-      <div className="booking-header" style={{ background: 'rgba(20,16,10,0.97)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+      <div className="booking-header" style={{ background: '#FFFFFF', borderBottom: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
         {prof?.cover_image_url && (
           <div style={{ height: 90, overflow: 'hidden', position: 'relative' }}>
             <img src={prof.cover_image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4 }} />
-            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 0%, rgba(20,16,10,0.8) 100%)' }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 0%, rgba(247,245,242,0.85) 100%)' }} />
           </div>
         )}
         <div style={{ maxWidth: 820, margin: '0 auto', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 16px' }}>
-          <button onClick={() => navigate(-1)} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '8px 12px', color: 'rgba(247,242,234,0.5)', fontSize: 13, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', flexShrink: 0 }}>←</button>
+          <button onClick={() => navigate(-1)} style={{ background: '#F7F5F2', border: '1.5px solid rgba(0,0,0,0.1)', borderRadius: 10, padding: '8px 12px', color: 'rgba(26,22,18,0.6)', fontSize: 13, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', flexShrink: 0 }}>←</button>
           <div style={{ width: 40, height: 40, borderRadius: '50%', overflow: 'hidden', border: '2px solid rgba(201,150,90,0.4)', background: 'rgba(201,150,90,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: prof?.cover_image_url ? -20 : 0, boxShadow: '0 4px 12px rgba(0,0,0,0.4)' }}>
             {prof?.profiles?.avatar_url
               ? <img src={prof.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -314,12 +314,12 @@ export default function BookingPage() {
             }
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.05rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#F7F2EA', margin: 0 }}>{prof?.business_name}</p>
-            <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.35)', margin: 0 }}>📍 {prof?.city}</p>
+            <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.05rem', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1A1612', margin: 0 }}>{prof?.business_name}</p>
+            <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.3)', margin: 0 }}>📍 {prof?.city}</p>
           </div>
           <div style={{ textAlign: 'right', flexShrink: 0 }}>
-            <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.3rem', color: '#C9965A', fontStyle: 'italic', lineHeight: 1, margin: 0 }}>{service?.price}€</p>
-            <p style={{ fontSize: 10, color: 'rgba(247,242,234,0.3)', margin: 0 }}>{service?.duration_minutes} min</p>
+            <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.3rem', color: '#B8833A', fontStyle: 'italic', lineHeight: 1, margin: 0 }}>{service?.price}€</p>
+            <p style={{ fontSize: 10, color: 'rgba(26,22,18,0.4)', margin: 0 }}>{service?.duration_minutes} min</p>
           </div>
         </div>
       </div>
@@ -329,23 +329,23 @@ export default function BookingPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
             {/* Servicio */}
-            <div style={{ background: 'linear-gradient(135deg, rgba(201,150,90,0.08), rgba(201,150,90,0.03))', border: '1px solid rgba(201,150,90,0.2)', borderRadius: 14, padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+            <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(184,131,58,0.2)', borderRadius: 14, padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
               <div>
-                <p style={{ fontWeight: 600, fontSize: 14, marginBottom: 2, color: '#F7F2EA' }}>{service?.name}</p>
-                <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.4)', margin: 0 }}>⏱ {service?.duration_minutes} min</p>
+                <p style={{ fontWeight: 600, fontSize: 14, marginBottom: 2, color: '#1A1612' }}>{service?.name}</p>
+                <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.45)', margin: 0 }}>⏱ {service?.duration_minutes} min</p>
               </div>
-              <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.8rem', color: '#C9965A', fontStyle: 'italic', lineHeight: 1, flexShrink: 0, margin: 0 }}>{service?.price}€</p>
+              <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.8rem', color: '#B8833A', fontStyle: 'italic', lineHeight: 1, flexShrink: 0, margin: 0 }}>{service?.price}€</p>
             </div>
 
             {/* Paso 1: Calendario */}
-            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '16px 14px' }}>
-              <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.35)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(201,150,90,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#C9965A', fontWeight: 700 }}>1</span>
+            <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 16, padding: '16px 14px' }}>
+              <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.3)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(184,131,58,0.12)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#B8833A', fontWeight: 700 }}>1</span>
                 Selecciona el día
               </p>
 
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.15rem', fontWeight: 600, color: '#F7F2EA', margin: 0, textTransform: 'capitalize' }}>
+                <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.15rem', fontWeight: 600, color: '#1A1612', margin: 0, textTransform: 'capitalize' }}>
                   {format(currentMonth, 'MMMM yyyy', { locale: es })}
                 </p>
                 <div style={{ display: 'flex', gap: 6 }}>
@@ -356,7 +356,7 @@ export default function BookingPage() {
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7,1fr)', marginBottom: 4 }}>
                 {WEEK_DAYS.map(d => (
-                  <div key={d} style={{ textAlign: 'center', fontSize: 10, color: 'rgba(247,242,234,0.22)', letterSpacing: '0.04em', paddingBottom: 6 }}>{d}</div>
+                  <div key={d} style={{ textAlign: 'center', fontSize: 10, color: 'rgba(26,22,18,0.2)', letterSpacing: '0.04em', paddingBottom: 6 }}>{d}</div>
                 ))}
               </div>
 
@@ -385,9 +385,9 @@ export default function BookingPage() {
                         border: todayMark && !isSelected ? '1px solid rgba(201,150,90,0.5)' : '1px solid transparent',
                         cursor: disabled ? 'default' : 'pointer', transition: 'all 0.15s',
                         fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: isSelected ? 700 : 400,
-                        background: isSelected ? 'linear-gradient(135deg, #C9965A, #E8B97A)' : 'transparent',
-                        color: isSelected ? '#16120E' : disabled ? 'rgba(247,242,234,0.1)' : todayMark ? '#C9965A' : 'rgba(247,242,234,0.75)',
-                        boxShadow: isSelected ? '0 4px 14px rgba(201,150,90,0.35)' : 'none',
+                        background: isSelected ? 'linear-gradient(135deg, #B8833A, #D4A055)' : 'transparent',
+                        color: isSelected ? '#FFFFFF' : disabled ? 'rgba(26,22,18,0.15)' : todayMark ? '#B8833A' : 'rgba(26,22,18,0.7)',
+                        boxShadow: isSelected ? '0 4px 14px rgba(184,131,58,0.28)' : 'none',
                         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1,
                         opacity: noSlots && !isSelected ? 0.45 : 1,
                       }}
@@ -410,7 +410,7 @@ export default function BookingPage() {
                   { color: '#fb923c', label: 'Pocas citas' },
                   { color: '#f87171', label: 'Completo' },
                 ].map(({ color, label }) => (
-                  <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: 'rgba(247,242,234,0.3)' }}>
+                  <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 10, color: 'rgba(26,22,18,0.45)' }}>
                     <span style={{ width: 14, height: 3, borderRadius: 2, background: color, display: 'inline-block' }} /> {label}
                   </div>
                 ))}
@@ -419,9 +419,9 @@ export default function BookingPage() {
 
             {/* Paso 2: Horas */}
             {selectedDate && (
-              <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '16px 14px' }}>
-                <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.35)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(201,150,90,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#C9965A', fontWeight: 700 }}>2</span>
+              <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 16, padding: '16px 14px' }}>
+                <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.3)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(184,131,58,0.12)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#B8833A', fontWeight: 700 }}>2</span>
                   Hora — {format(selectedDate, "EEEE d MMM", { locale: es })}
                 </p>
 
@@ -432,8 +432,8 @@ export default function BookingPage() {
                 ) : freeSlots.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: '16px 0 8px' }}>
                     <p style={{ fontSize: '2rem', marginBottom: 8 }}>😔</p>
-                    <p style={{ fontSize: 14, color: 'rgba(247,242,234,0.5)', marginBottom: 4, fontWeight: 500 }}>Día completo</p>
-                    <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.25)', marginBottom: 20 }}>
+                    <p style={{ fontSize: 14, color: 'rgba(26,22,18,0.6)', marginBottom: 4, fontWeight: 500 }}>Día completo</p>
+                    <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.2)', marginBottom: 20 }}>
                       {isDayFull ? 'Todas las citas están ocupadas' : 'El profesional no trabaja este día'}
                     </p>
                     {isDayFull && (
@@ -458,10 +458,10 @@ export default function BookingPage() {
                         <button key={slot.starts_at} className={`slot-btn${isAnim ? ' slot-anim' : ''}`} onClick={() => handleSelectSlot(slot)} style={{
                           padding: '11px 4px', borderRadius: 8, cursor: 'pointer',
                           fontSize: 13, fontWeight: 600, fontFamily: 'Outfit, sans-serif',
-                          border: `1px solid ${active ? 'transparent' : 'rgba(255,255,255,0.07)'}`,
+                          border: `1px solid ${active ? 'transparent' : 'rgba(0,0,0,0.1)'}`,
                           transition: 'all 0.15s',
-                          background: active ? 'linear-gradient(135deg, #C9965A, #E8B97A)' : 'rgba(255,255,255,0.02)',
-                          color: active ? '#16120E' : 'rgba(247,242,234,0.65)',
+                          background: active ? 'linear-gradient(135deg, #B8833A, #D4A055)' : '#F7F5F2',
+                          color: active ? '#FFFFFF' : 'rgba(26,22,18,0.65)',
                           boxShadow: active ? '0 4px 12px rgba(201,150,90,0.3)' : 'none',
                         }}>
                           {slotTime(slot.starts_at)}
@@ -474,27 +474,27 @@ export default function BookingPage() {
             )}
 
             {/* Paso 3: Notas */}
-            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 16, padding: '16px 14px' }}>
-              <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.35)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(201,150,90,0.2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#C9965A', fontWeight: 700 }}>3</span>
-                Notas <span style={{ color: 'rgba(247,242,234,0.2)', fontSize: 10, textTransform: 'none', letterSpacing: 0 }}>(opcional)</span>
+            <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 16, padding: '16px 14px' }}>
+              <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.3)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(184,131,58,0.12)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#B8833A', fontWeight: 700 }}>3</span>
+                Notas <span style={{ color: 'rgba(26,22,18,0.3)', fontSize: 10, textTransform: 'none', letterSpacing: 0 }}>(opcional)</span>
               </p>
-              <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Ej: prefiero tinte sin amoniaco..." style={{ width: '100%', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 10, padding: '10px 12px', color: '#F7F2EA', fontSize: 13, fontFamily: 'Outfit, sans-serif', resize: 'none', height: 76, boxSizing: 'border-box' }} />
+              <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Ej: prefiero tinte sin amoniaco..." style={{ width: '100%', background: '#F7F5F2', border: '1.5px solid rgba(0,0,0,0.1)', borderRadius: 10, padding: '10px 12px', color: '#1A1612', fontSize: 13, fontFamily: 'Outfit, sans-serif', resize: 'none', height: 76, boxSizing: 'border-box' }} />
             </div>
           </div>
 
           {/* Resumen Desktop */}
           <div className="booking-summary-desktop" style={{ position: 'sticky', top: 100 }}>
-            <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, overflow: 'hidden' }}>
+            <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 20, overflow: 'hidden' }}>
               {prof?.cover_image_url && (
                 <div style={{ height: 80, overflow: 'hidden', position: 'relative' }}>
                   <img src={prof.cover_image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0.5 }} />
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent, rgba(10,8,6,0.7))' }} />
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent, rgba(247,245,242,0.9))' }} />
                 </div>
               )}
-              <div style={{ background: 'linear-gradient(135deg, rgba(201,150,90,0.08), transparent)', padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.35)', marginBottom: 6 }}>Resumen</p>
-                <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.3rem', fontWeight: 600, margin: 0, color: '#F7F2EA' }}>{prof?.business_name}</p>
+              <div style={{ background: 'linear-gradient(135deg, rgba(184,131,58,0.07), transparent)', padding: '20px 24px', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
+                <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.3)', marginBottom: 6 }}>Resumen</p>
+                <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.3rem', fontWeight: 600, margin: 0, color: '#1A1612' }}>{prof?.business_name}</p>
               </div>
               <div style={{ padding: '20px 24px' }}>
                 {[
@@ -503,14 +503,14 @@ export default function BookingPage() {
                   { label: 'Fecha',    value: selectedSlot ? format(new Date(selectedSlot.starts_at), "d MMM yyyy", { locale: es }) : '—' },
                   { label: 'Hora',     value: selectedSlot ? `${slotTime(selectedSlot.starts_at)} – ${slotTime(selectedSlot.ends_at)}` : '—' },
                 ].map(({ label, value }) => (
-                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid rgba(255,255,255,0.04)', fontSize: 13 }}>
-                    <span style={{ color: 'rgba(247,242,234,0.4)' }}>{label}</span>
-                    <span style={{ color: '#F7F2EA', fontWeight: 500 }}>{value}</span>
+                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid rgba(0,0,0,0.06)', fontSize: 13 }}>
+                    <span style={{ color: 'rgba(26,22,18,0.45)' }}>{label}</span>
+                    <span style={{ color: '#1A1612', fontWeight: 500 }}>{value}</span>
                   </div>
                 ))}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 0 0' }}>
-                  <span style={{ fontWeight: 600, fontSize: 15, color: '#F7F2EA' }}>Total</span>
-                  <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2rem', color: '#C9965A', fontStyle: 'italic', lineHeight: 1 }}>{service?.price}€</span>
+                  <span style={{ fontWeight: 600, fontSize: 15, color: '#1A1612' }}>Total</span>
+                  <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2rem', color: '#B8833A', fontStyle: 'italic', lineHeight: 1 }}>{service?.price}€</span>
                 </div>
               </div>
               <div style={{ padding: '0 24px 24px' }}>
@@ -518,13 +518,13 @@ export default function BookingPage() {
                   width: '100%', border: 'none', borderRadius: 12, padding: '15px',
                   fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif',
                   cursor: selectedSlot ? 'pointer' : 'not-allowed', letterSpacing: '0.05em', transition: 'all 0.2s',
-                  background: selectedSlot ? 'linear-gradient(135deg, #C9965A, #E8B97A)' : 'rgba(255,255,255,0.06)',
-                  color: selectedSlot ? '#16120E' : 'rgba(247,242,234,0.3)',
+                  background: selectedSlot ? 'linear-gradient(135deg, #B8833A, #D4A055)' : '#F0EDE8',
+                  color: selectedSlot ? '#FFFFFF' : 'rgba(26,22,18,0.3)',
                   boxShadow: selectedSlot ? '0 8px 24px rgba(201,150,90,0.3)' : 'none',
                 }}>
                   {isPending ? 'Confirmando...' : selectedSlot ? 'Confirmar cita ✓' : 'Selecciona horario'}
                 </button>
-                <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.2)', textAlign: 'center', marginTop: 10 }}>Puedes cancelar hasta 24h antes</p>
+                <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.3)', textAlign: 'center', marginTop: 10 }}>Puedes cancelar hasta 24h antes</p>
               </div>
             </div>
           </div>
@@ -534,22 +534,23 @@ export default function BookingPage() {
       {/* Barra inferior móvil */}
       <div className="booking-summary-mobile" style={{
         position: 'fixed', bottom: 0, left: 0, right: 0,
-        background: 'rgba(20,16,10,0.99)', backdropFilter: 'blur(24px)',
-        borderTop: '1px solid rgba(201,150,90,0.15)',
+        background: '#FFFFFF',
+        borderTop: '1px solid rgba(0,0,0,0.08)',
+        boxShadow: '0 -4px 16px rgba(0,0,0,0.06)',
         padding: '12px 16px', paddingBottom: 'calc(12px + env(safe-area-inset-bottom))',
         zIndex: 999, flexDirection: 'column', gap: 10,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#F7F2EA' }}>{service?.name}</p>
-            <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.4)', margin: 0 }}>
+            <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1A1612' }}>{service?.name}</p>
+            <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.45)', margin: 0 }}>
               {selectedSlot
                 ? `📅 ${format(new Date(selectedSlot.starts_at), "d MMM", { locale: es })} · 🕐 ${slotTime(selectedSlot.starts_at)}`
                 : 'Selecciona fecha y hora'
               }
             </p>
           </div>
-          <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', color: '#C9965A', fontStyle: 'italic', lineHeight: 1, flexShrink: 0, margin: 0 }}>{service?.price}€</p>
+          <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', color: '#B8833A', fontStyle: 'italic', lineHeight: 1, flexShrink: 0, margin: 0 }}>{service?.price}€</p>
         </div>
         {isDayFull && selectedDate && !selectedSlot ? (
           <button className="waitlist-btn" onClick={() => setShowWaitlist(true)}
@@ -567,14 +568,14 @@ export default function BookingPage() {
               width: '100%', border: 'none', borderRadius: 12, padding: '16px',
               fontSize: 15, fontWeight: 700, fontFamily: 'Outfit, sans-serif',
               cursor: selectedSlot ? 'pointer' : 'not-allowed', letterSpacing: '0.05em', transition: 'all 0.2s',
-              background: selectedSlot ? 'linear-gradient(135deg, #C9965A, #E8B97A)' : 'rgba(255,255,255,0.08)',
-              color: selectedSlot ? '#16120E' : 'rgba(247,242,234,0.3)',
+              background: selectedSlot ? 'linear-gradient(135deg, #B8833A, #D4A055)' : '#F0EDE8',
+              color: selectedSlot ? '#FFFFFF' : 'rgba(26,22,18,0.3)',
               boxShadow: selectedSlot ? '0 8px 24px rgba(201,150,90,0.3)' : 'none',
             }}>
             {isPending ? '⏳ Confirmando...' : selectedSlot ? '✓ Confirmar cita' : 'Selecciona un horario'}
           </button>
         )}
-        <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.2)', textAlign: 'center', margin: 0 }}>Puedes cancelar hasta 24h antes</p>
+        <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.3)', textAlign: 'center', margin: 0 }}>Puedes cancelar hasta 24h antes</p>
       </div>
     </div>
   )
