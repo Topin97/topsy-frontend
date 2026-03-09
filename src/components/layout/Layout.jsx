@@ -152,7 +152,7 @@ export default function Layout() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0A0806' }}>
+    <div style={{ minHeight: '100vh', background: '#16120E' }}>
       <style>{`
         @media (max-width: 768px) {
           .nav-links-desktop, .nav-right-desktop { display: none !important; }
@@ -170,7 +170,7 @@ export default function Layout() {
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
         height: scrolled ? 52 : 60,
-        background: scrolled ? 'rgba(8,6,4,0.96)' : 'rgba(8,6,4,0.7)',
+        background: scrolled ? 'rgba(20,16,10,0.96)' : 'rgba(20,16,10,0.75)',
         backdropFilter: 'blur(20px)',
         borderBottom: scrolled ? '1px solid rgba(201,150,90,0.1)' : '1px solid transparent',
         transition: 'all 0.3s ease',
@@ -221,7 +221,7 @@ export default function Layout() {
                 </button>
 
                 {dropdownOpen && (
-                  <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, background: '#1A1A1C', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, minWidth: 210, boxShadow: '0 16px 48px rgba(0,0,0,0.7)', overflow: 'hidden', zIndex: 200 }}>
+                  <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, background: '#1F1A14', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, minWidth: 210, boxShadow: '0 16px 48px rgba(0,0,0,0.7)', overflow: 'hidden', zIndex: 200 }}>
                     <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
                       <div style={{ width: 32, height: 32, borderRadius: '50%', overflow: 'hidden', border: '1.5px solid rgba(201,150,90,0.3)', background: 'rgba(201,150,90,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         {avatarUrl ? <img src={avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '0.9rem', color: '#C9965A', fontWeight: 700 }}>{user?.full_name?.[0]?.toUpperCase()}</span>}
@@ -256,7 +256,7 @@ export default function Layout() {
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Link to="/login" style={{ textDecoration: 'none', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.4)', fontWeight: 500, fontFamily: 'Outfit, sans-serif' }}>Entrar</Link>
-                <Link to="/register" style={{ textDecoration: 'none', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700, color: '#0A0806', background: 'linear-gradient(135deg,#C9965A,#E8B97A)', padding: '8px 18px', borderRadius: 100, fontFamily: 'Outfit, sans-serif' }}>
+                <Link to="/register" style={{ textDecoration: 'none', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700, color: '#16120E', background: 'linear-gradient(135deg,#C9965A,#E8B97A)', padding: '8px 18px', borderRadius: 100, fontFamily: 'Outfit, sans-serif' }}>
                   Registro
                 </Link>
               </div>
@@ -266,7 +266,7 @@ export default function Layout() {
           {/* Mobile top-right: show login btn if not logged in */}
           {!token && (
             <div style={{ display: 'none' }} className="mobile-auth-btn">
-              <Link to="/login" style={{ textDecoration: 'none', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700, color: '#0A0806', background: 'linear-gradient(135deg,#C9965A,#E8B97A)', padding: '7px 16px', borderRadius: 100, fontFamily: 'Outfit, sans-serif' }}>
+              <Link to="/login" style={{ textDecoration: 'none', fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', fontWeight: 700, color: '#16120E', background: 'linear-gradient(135deg,#C9965A,#E8B97A)', padding: '7px 16px', borderRadius: 100, fontFamily: 'Outfit, sans-serif' }}>
                 Entrar
               </Link>
             </div>
@@ -282,7 +282,7 @@ export default function Layout() {
             <div onClick={() => setProfileMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 88, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}>
               <div onClick={e => e.stopPropagation()} style={{
                 position: 'absolute', bottom: 80, left: 12, right: 12,
-                background: '#131210', border: '1px solid rgba(201,150,90,0.2)',
+                background: '#1C1710', border: '1px solid rgba(201,150,90,0.2)',
                 borderRadius: 24, overflow: 'hidden',
                 boxShadow: '0 -4px 60px rgba(0,0,0,0.8)',
               }}>
@@ -344,7 +344,7 @@ export default function Layout() {
           {/* Bottom bar */}
           <div className="bottom-nav" style={{
             display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0,
-            background: 'rgba(10,8,6,0.97)', backdropFilter: 'blur(24px)',
+            background: 'rgba(20,16,10,0.97)', backdropFilter: 'blur(24px)',
             borderTop: '1px solid rgba(255,255,255,0.05)',
             paddingBottom: 'env(safe-area-inset-bottom)',
             zIndex: 80, justifyContent: 'space-around', alignItems: 'flex-start',
