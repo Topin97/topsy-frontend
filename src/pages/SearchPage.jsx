@@ -113,7 +113,7 @@ function ProfCard({ prof, userCoords }) {
         {topServices.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
             {topServices.map(s => (
-              <span key={s.id} style={{ fontSize: 10, background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.04)', borderRadius: 100, padding: '2px 8px', color: 'rgba(247,242,234,0.4)', whiteSpace: 'nowrap' }}>
+              <span key={s.id} style={{ fontSize: 10, background: '#F7F5F2', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 100, padding: '2px 8px', color: 'rgba(247,242,234,0.4)', whiteSpace: 'nowrap' }}>
                 {s.name}
               </span>
             ))}
@@ -126,7 +126,7 @@ function ProfCard({ prof, userCoords }) {
 
 function SkeletonCard() {
   return (
-    <div style={{ display: 'flex', gap: 0, background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.04)', borderRadius: 16, overflow: 'hidden', height: 110 }}>
+    <div style={{ display: 'flex', gap: 0, background: '#F7F5F2', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 16, overflow: 'hidden', height: 110 }}>
       <div className="skeleton" style={{ width: 110, flexShrink: 0 }} />
       <div style={{ flex: 1, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
         <div className="skeleton" style={{ height: 16, width: '60%', borderRadius: 6 }} />
@@ -276,7 +276,7 @@ export default function SearchPage() {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14, gap: 10, flexWrap: 'wrap' }}>
           {/* Count + rating filter */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-            <span style={{ fontSize: 13, color: 'rgba(247,242,234,0.4)', fontFamily: 'Outfit, sans-serif' }}>
+            <span style={{ fontSize: 13, color: 'rgba(26,22,18,0.5)', fontFamily: 'Outfit, sans-serif' }}>
               {isLoading ? 'Buscando...' : <><span style={{ color: '#B8833A', fontWeight: 600 }}>{total}</span> profesionales</>}
             </span>
             {/* Rating pills */}
@@ -288,8 +288,8 @@ export default function SearchPage() {
                 style={{
                   fontSize: 11, padding: '3px 10px', borderRadius: 100, cursor: 'pointer',
                   background: minRating === r ? 'rgba(184,131,58,0.1)' : 'transparent',
-                  border: `1px solid ${minRating === r ? 'rgba(201,150,90,0.4)' : 'rgba(0,0,0,0.04)'}`,
-                  color: minRating === r ? '#B8833A' : 'rgba(247,242,234,0.3)',
+                  border: `1px solid ${minRating === r ? 'rgba(184,131,58,0.4)' : 'rgba(0,0,0,0.12)'}`,
+                  color: minRating === r ? '#B8833A' : 'rgba(26,22,18,0.45)',
                   fontFamily: 'Outfit, sans-serif', transition: 'all 0.15s',
                 }}
               >
@@ -304,9 +304,9 @@ export default function SearchPage() {
               onClick={() => setShowSort(!showSort)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 6,
-                background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.04)',
+                background: '#F7F5F2', border: '1px solid rgba(0,0,0,0.12)',
                 borderRadius: 10, padding: '6px 12px', cursor: 'pointer',
-                color: 'rgba(247,242,234,0.5)', fontSize: 12, fontFamily: 'Outfit, sans-serif',
+                color: 'rgba(26,22,18,0.6)', fontSize: 12, fontFamily: 'Outfit, sans-serif',
               }}
             >
               {SORT_OPTIONS.find(o => o.value === sort)?.label}
@@ -316,7 +316,7 @@ export default function SearchPage() {
               <div
                 style={{
                   position: 'absolute', top: 'calc(100% + 6px)', right: 0,
-                  background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.04)',
+                  background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)',
                   borderRadius: 12, overflow: 'hidden', zIndex: 50, minWidth: 160,
                   boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
                 }}
@@ -330,7 +330,7 @@ export default function SearchPage() {
                     style={{
                       width: '100%', textAlign: 'left', padding: '10px 14px',
                       background: sort === opt.value ? 'rgba(201,150,90,0.1)' : 'transparent',
-                      border: 'none', color: sort === opt.value ? '#B8833A' : 'rgba(247,242,234,0.6)',
+                      border: 'none', color: sort === opt.value ? '#B8833A' : 'rgba(26,22,18,0.7)',
                       fontSize: 13, fontFamily: 'Outfit, sans-serif', cursor: 'pointer',
                       transition: 'background 0.15s',
                     }}
