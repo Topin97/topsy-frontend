@@ -1,4 +1,5 @@
-import { useParams, Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { profApi } from '../services/api'
 import { useAuthStore } from '../store/authStore'
@@ -10,11 +11,11 @@ const DAY_MAP = {
   thursday:'Jue', friday:'Vie', saturday:'Sáb', sunday:'Dom',
 }
 
-function StarDisplay({ rating, max = 5 }) {
+function Stars({ rating }) {
   return (
-    <span style={{ letterSpacing: 1 }}>
-      {Array.from({ length: max }).map((_, i) => (
-        <span key={i} style={{ color: i < rating ? '#C9965A' : 'rgba(201,150,90,0.18)', fontSize: 13 }}>★</span>
+    <span>
+      {[1,2,3,4,5].map(i => (
+        <span key={i} style={{ color: i <= Math.round(rating ?? 0) ? '#C9965A' : 'rgba(201,150,90,0.18)', fontSize: 13 }}>★</span>
       ))}
     </span>
   )
@@ -24,160 +25,264 @@ export default function ProfessionalPage() {
   const { id } = useParams()
   const { token } = useAuthStore()
   const navigate = useNavigate()
+  const [activeTab, setActiveTab] = useState('services')
 
   const { data: prof, isLoading } = useQuery({
     queryKey: ['professional', id],
-    queryFn: () => profApi.getOne(id).then((r) => r.data.data),
+    queryFn: () => profApi.getOne(id).then(r => r.data.data),
   })
 
   if (isLoading) return (
-    <div className="container-app py-16 space-y-6">
-      <div className="h-64 skeleton rounded-2xl" />
-      <div className="h-8 skeleton rounded w-1/2" />
-      <div className="h-4 skeleton rounded w-1/3" />
+    <div style={{ maxWidth: 700, margin: '0 auto', padding: '20px 16px' }}>
+      <div className="skeleton" style={{ height: 220, borderRadius: 0, marginBottom: 0 }} />
+      <div style={{ padding: '16px' }}>
+        <div className="skeleton" style={{ height: 22, width: '55%', borderRadius: 8, marginBottom: 10 }} />
+        <div className="skeleton" style={{ height: 14, width: '35%', borderRadius: 6 }} />
+      </div>
     </div>
   )
 
   if (!prof) return (
-    <div className="container-app py-32 text-center text-cream/30">
-      <p className="font-display text-3xl italic">Profesional no encontrado</p>
+    <div style={{ textAlign: 'center', padding: '80px 16px', color: 'rgba(247,242,234,0.25)' }}>
+      <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.8rem', fontStyle: 'italic' }}>Profesional no encontrado</p>
     </div>
   )
 
+  const activeServices = prof.services?.filter(s => s.is_active) ?? []
+  const availability = prof.availability?.filter(a => a.is_available) ?? []
+
   return (
-    <div className="container-app py-10 max-w-5xl">
+    <div style={{ maxWidth: 700, margin: '0 auto', fontFamily: 'Outfit, sans-serif' }}>
+      <style>{`
+        .tab-btn:hover { color: #F7F2EA !important; }
+        .service-row:hover { background: rgba(201,150,90,0.06) !important; border-color: rgba(201,150,90,0.25) !important; }
+        .book-btn:hover { opacity: 0.9; transform: scale(0.98); }
+      `}</style>
 
-      {/* Header card */}
-      <div className="card overflow-hidden mb-8">
-        <div className="h-56 bg-linear-to-br from-gold/15 to-bg2 flex items-center justify-center text-8xl border-b border-gold/10 overflow-hidden">
-          {prof.cover_image_url
-            ? <img src={prof.cover_image_url} alt="" style={{ width:'100%', height:'100%', objectFit:'cover' }} />
-            : '✂️'}
-        </div>
-        <div className="p-8 flex flex-col md:flex-row md:items-start gap-6">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <h1 className="font-display text-4xl font-semibold">{prof.business_name}</h1>
-              {prof.is_verified && (
-                <span className="text-xs bg-gold/20 text-gold px-3 py-1 rounded-full">✓ Verificado</span>
-              )}
-            </div>
-            <div className="flex items-center gap-3 text-cream/50 text-sm mb-4 flex-wrap">
-              <StarDisplay rating={Math.round(prof.avg_rating ?? 0)} />
-              <span className="text-gold font-medium">{prof.avg_rating ? Number(prof.avg_rating).toFixed(1) : '—'}</span>
-              <span className="text-cream/30">({prof.total_reviews} reseñas)</span>
-              <span className="text-cream/20">·</span>
-              <span>📍 {prof.city}</span>
-            </div>
-            <p className="text-cream/60 leading-relaxed">{prof.description}</p>
+      {/* ── Cover + back ── */}
+      <div style={{ position: 'relative', height: 220, overflow: 'hidden', background: 'linear-gradient(135deg, rgba(201,150,90,0.12), rgba(20,14,8,1))' }}>
+        {prof.cover_image_url
+          ? <img src={prof.cover_image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 56 }}>✂️</div>
+        }
+        {/* Gradient overlay bottom */}
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 100, background: 'linear-gradient(to bottom, transparent, rgba(20,16,10,1))' }} />
+
+        {/* Back btn */}
+        <button
+          onClick={() => navigate(-1)}
+          style={{ position: 'absolute', top: 12, left: 12, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(8px)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '7px 12px', color: '#F7F2EA', fontSize: 13, cursor: 'pointer' }}
+        >← Volver</button>
+
+        {/* Verified badge */}
+        {prof.is_verified && (
+          <div style={{ position: 'absolute', top: 12, right: 12, background: 'rgba(201,150,90,0.9)', borderRadius: 100, padding: '4px 12px', fontSize: 11, color: '#16120E', fontWeight: 700 }}>
+            ✓ Verificado
           </div>
-
-          {prof.availability?.length > 0 && (
-            <div className="card p-4 min-w-50">
-              <p className="section-tag mb-3 text-xs">Horario</p>
-              {prof.availability
-                .filter((a) => a.is_available)
-                .map((a) => (
-                  <div key={a.day_of_week} className="flex justify-between text-xs text-cream/60 py-1 border-b border-white/5 last:border-0">
-                    <span className="font-medium">{DAY_MAP[a.day_of_week]}</span>
-                    <span>{a.start_time.slice(0,5)} – {a.end_time.slice(0,5)}</span>
-                  </div>
-                ))}
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      {/* ── Info principal ── */}
+      <div style={{ padding: '16px 16px 0', marginTop: -2 }}>
+        <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.8rem', fontWeight: 600, color: '#F7F2EA', margin: '0 0 6px', lineHeight: 1.1 }}>
+          {prof.business_name}
+        </h1>
 
-        {/* Services */}
-        <div className="lg:col-span-2">
-          <h2 className="section-tag mb-6">Servicios</h2>
-          <div className="space-y-3">
-            {prof.services?.filter((s) => s.is_active).map((service) => (
-              <div key={service.id} className="card-gold p-5 flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold mb-1">{service.name}</h3>
-                  {service.description && (
-                    <p className="text-cream/40 text-sm">{service.description}</p>
-                  )}
-                  <p className="text-cream/40 text-xs mt-1">⏱ {service.duration_minutes} min</p>
-                </div>
-                <div className="flex items-center gap-4 shrink-0 ml-4">
-                  <span className="font-display text-2xl text-gold italic">{service.price}€</span>
-                  <button
-                    onClick={() => {
-                      if (!token) { navigate('/login'); return }
-                      navigate(`/booking/${prof.id}/${service.id}`)
-                    }}
-                    className="btn-outline text-xs py-2 px-4"
-                  >
-                    Reservar
-                  </button>
-                </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 8 }}>
+          <Stars rating={prof.avg_rating} />
+          <span style={{ fontSize: 14, color: '#C9965A', fontWeight: 700 }}>
+            {prof.avg_rating ? Number(prof.avg_rating).toFixed(1) : '—'}
+          </span>
+          <span style={{ fontSize: 13, color: 'rgba(247,242,234,0.3)' }}>({prof.total_reviews} reseñas)</span>
+        </div>
+
+        <p style={{ fontSize: 13, color: 'rgba(247,242,234,0.4)', margin: '0 0 10px' }}>📍 {prof.city}</p>
+
+        {prof.description && (
+          <p style={{ fontSize: 14, color: 'rgba(247,242,234,0.55)', lineHeight: 1.65, margin: '0 0 16px' }}>
+            {prof.description}
+          </p>
+        )}
+
+        {/* Horario resumen inline */}
+        {availability.length > 0 && (
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
+            {availability.map(a => (
+              <div key={a.day_of_week} style={{ fontSize: 11, background: 'rgba(255,240,210,0.05)', border: '1px solid rgba(255,240,210,0.1)', borderRadius: 8, padding: '4px 10px', color: 'rgba(247,242,234,0.5)' }}>
+                <span style={{ fontWeight: 600, color: 'rgba(247,242,234,0.7)' }}>{DAY_MAP[a.day_of_week]}</span>
+                {' '}{a.start_time.slice(0,5)}–{a.end_time.slice(0,5)}
               </div>
             ))}
           </div>
-        </div>
+        )}
+      </div>
 
-        {/* Reviews */}
-        <div>
-          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom: 24 }}>
-            <h2 className="section-tag">Reseñas</h2>
-            {prof.total_reviews > 0 && (
-              <span style={{ fontSize:12, color:'rgba(247,242,234,0.3)' }}>{prof.total_reviews} en total</span>
-            )}
-          </div>
+      {/* ── Tabs ── */}
+      <div style={{ display: 'flex', borderBottom: '1px solid rgba(255,240,210,0.08)', padding: '0 16px', position: 'sticky', top: 52, background: 'rgba(20,16,10,0.97)', backdropFilter: 'blur(16px)', zIndex: 20 }}>
+        {[
+          { key: 'services', label: `Servicios (${activeServices.length})` },
+          { key: 'reviews',  label: `Reseñas (${prof.total_reviews ?? 0})` },
+        ].map(tab => (
+          <button
+            key={tab.key}
+            className="tab-btn"
+            onClick={() => setActiveTab(tab.key)}
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer', padding: '14px 0',
+              marginRight: 28, fontSize: 14, fontFamily: 'Outfit, sans-serif',
+              color: activeTab === tab.key ? '#C9965A' : 'rgba(247,242,234,0.35)',
+              fontWeight: activeTab === tab.key ? 600 : 400,
+              borderBottom: `2px solid ${activeTab === tab.key ? '#C9965A' : 'transparent'}`,
+              marginBottom: -1, transition: 'all 0.2s',
+            }}
+          >{tab.label}</button>
+        ))}
+      </div>
 
-          {!prof.reviews?.length ? (
-            <div className="card p-6 text-center">
-              <p style={{ fontSize: 28, marginBottom: 8 }}>⭐</p>
-              <p className="text-cream/30 text-sm italic">Sin reseñas aún</p>
-              <p className="text-cream/20 text-xs mt-1">Sé el primero en valorar</p>
+      {/* ── Servicios ── */}
+      {activeTab === 'services' && (
+        <div style={{ padding: '12px 16px 80px' }}>
+          {activeServices.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '48px 0', color: 'rgba(247,242,234,0.25)' }}>
+              <p style={{ fontSize: 36, marginBottom: 8 }}>✂️</p>
+              <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.3rem', fontStyle: 'italic' }}>Sin servicios publicados</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {prof.reviews.slice(0, 6).map((r) => {
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+              {activeServices.map((service, i) => (
+                <div
+                  key={service.id}
+                  className="service-row"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 14,
+                    padding: '16px 14px',
+                    background: 'rgba(255,240,210,0.02)',
+                    border: '1px solid rgba(255,240,210,0.07)',
+                    borderRadius: 14,
+                    transition: 'all 0.2s',
+                    marginBottom: 8,
+                  }}
+                >
+                  {/* Número */}
+                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(201,150,90,0.1)', border: '1px solid rgba(201,150,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#C9965A', fontWeight: 700, flexShrink: 0 }}>
+                    {i + 1}
+                  </div>
+
+                  {/* Info */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: 15, fontWeight: 600, color: '#F7F2EA', margin: '0 0 3px' }}>{service.name}</p>
+                    {service.description && (
+                      <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.35)', margin: '0 0 3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {service.description}
+                      </p>
+                    )}
+                    <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.3)', margin: 0 }}>⏱ {service.duration_minutes} min</p>
+                  </div>
+
+                  {/* Precio + botón */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+                    <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', color: '#C9965A', fontStyle: 'italic', lineHeight: 1 }}>
+                      {service.price}€
+                    </span>
+                    <button
+                      className="book-btn"
+                      onClick={() => {
+                        if (!token) { navigate('/login'); return }
+                        navigate(`/booking/${prof.id}/${service.id}`)
+                      }}
+                      style={{
+                        background: 'linear-gradient(135deg, #C9965A, #E8B97A)',
+                        border: 'none', borderRadius: 10, padding: '9px 16px',
+                        color: '#16120E', fontWeight: 700, fontSize: 13,
+                        cursor: 'pointer', fontFamily: 'Outfit, sans-serif',
+                        transition: 'all 0.18s', whiteSpace: 'nowrap',
+                      }}
+                    >
+                      Reservar
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── Reseñas ── */}
+      {activeTab === 'reviews' && (
+        <div style={{ padding: '12px 16px 80px' }}>
+          {/* Rating summary */}
+          {prof.total_reviews > 0 && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 20, padding: '16px 0 20px', borderBottom: '1px solid rgba(255,240,210,0.08)', marginBottom: 16 }}>
+              <div style={{ textAlign: 'center' }}>
+                <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '3rem', color: '#C9965A', fontWeight: 300, margin: 0, lineHeight: 1 }}>
+                  {Number(prof.avg_rating).toFixed(1)}
+                </p>
+                <Stars rating={prof.avg_rating} />
+                <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.3)', margin: '4px 0 0' }}>{prof.total_reviews} reseñas</p>
+              </div>
+              <div style={{ flex: 1 }}>
+                {[5,4,3,2,1].map(star => {
+                  const count = prof.reviews?.filter(r => r.rating === star).length ?? 0
+                  const pct = prof.total_reviews ? (count / prof.total_reviews) * 100 : 0
+                  return (
+                    <div key={star} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                      <span style={{ fontSize: 11, color: 'rgba(247,242,234,0.35)', width: 12, textAlign: 'right' }}>{star}</span>
+                      <span style={{ fontSize: 10, color: '#C9965A' }}>★</span>
+                      <div style={{ flex: 1, height: 4, borderRadius: 2, background: 'rgba(255,240,210,0.08)', overflow: 'hidden' }}>
+                        <div style={{ width: `${pct}%`, height: '100%', background: 'linear-gradient(90deg, #C9965A, #E8B97A)', borderRadius: 2, transition: 'width 0.5s' }} />
+                      </div>
+                      <span style={{ fontSize: 10, color: 'rgba(247,242,234,0.25)', width: 16 }}>{count}</span>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Lista reseñas */}
+          {!prof.reviews?.length ? (
+            <div style={{ textAlign: 'center', padding: '48px 0', color: 'rgba(247,242,234,0.25)' }}>
+              <p style={{ fontSize: 36, marginBottom: 8 }}>⭐</p>
+              <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.3rem', fontStyle: 'italic', marginBottom: 4 }}>Sin reseñas aún</p>
+              <p style={{ fontSize: 12 }}>Sé el primero en valorar</p>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              {prof.reviews.slice(0, 10).map(r => {
                 const initials = r.profiles?.full_name
                   ? r.profiles.full_name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase()
                   : '?'
                 return (
-                  <div key={r.id} className="card p-4">
-                    <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:8 }}>
+                  <div key={r.id} style={{ padding: '14px 0', borderBottom: '1px solid rgba(255,240,210,0.06)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                       {r.profiles?.avatar_url ? (
-                        <img
-                          src={r.profiles.avatar_url}
-                          alt=""
-                          style={{ width:34, height:34, borderRadius:'50%', objectFit:'cover', flexShrink:0 }}
-                        />
+                        <img src={r.profiles.avatar_url} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
                       ) : (
-                        <div style={{
-                          width:34, height:34, borderRadius:'50%',
-                          background:'linear-gradient(135deg,rgba(201,150,90,0.2),rgba(232,185,122,0.1))',
-                          border:'1px solid rgba(201,150,90,0.2)',
-                          display:'flex', alignItems:'center', justifyContent:'center',
-                          fontSize:12, fontWeight:700, color:'#C9965A', flexShrink:0,
-                        }}>
+                        <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(201,150,90,0.12)', border: '1px solid rgba(201,150,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#C9965A', flexShrink: 0 }}>
                           {initials}
                         </div>
                       )}
-                      <div style={{ flex:1, minWidth:0 }}>
-                        <p style={{ fontSize:13, fontWeight:600, color:'#F7F2EA', marginBottom:2 }}>
-                          {r.profiles?.full_name ?? 'Usuario'}
-                        </p>
-                        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
-                          <StarDisplay rating={r.rating} />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <p style={{ fontSize: 14, fontWeight: 600, color: '#F7F2EA', margin: 0 }}>
+                            {r.profiles?.full_name ?? 'Usuario'}
+                          </p>
                           {r.created_at && (
-                            <span style={{ fontSize:11, color:'rgba(247,242,234,0.25)' }}>
+                            <span style={{ fontSize: 11, color: 'rgba(247,242,234,0.25)' }}>
                               {format(new Date(r.created_at), "d MMM yyyy", { locale: es })}
                             </span>
                           )}
                         </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+                          <Stars rating={r.rating} />
+                          <span style={{ fontSize: 12, color: '#C9965A', fontWeight: 600 }}>{r.rating}.0</span>
+                        </div>
                       </div>
                     </div>
                     {r.comment && (
-                      <p style={{ fontSize:13, color:'rgba(247,242,234,0.5)', lineHeight:1.5, margin:0 }}>
-                        "{r.comment}"
+                      <p style={{ fontSize: 13, color: 'rgba(247,242,234,0.5)', lineHeight: 1.6, margin: 0, paddingLeft: 46 }}>
+                        {r.comment}
                       </p>
                     )}
                   </div>
@@ -186,8 +291,7 @@ export default function ProfessionalPage() {
             </div>
           )}
         </div>
-
-      </div>
+      )}
     </div>
   )
 }
