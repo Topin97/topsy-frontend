@@ -58,24 +58,26 @@ function ProfCard({ prof, userCoords }) {
   return (
     <Link
       to={`/professional/${prof.id}`}
-      style={{ display: 'flex', textDecoration: 'none', gap: 0,
-        background: 'rgba(0,0,0,0.04)',
-        border: '1px solid rgba(0,0,0,0.04)',
+      style={{
+        display: 'flex', textDecoration: 'none', gap: 0,
+        background: '#FFFFFF',
+        border: '1.5px solid rgba(0,0,0,0.08)',
         borderRadius: 16, overflow: 'hidden',
-        transition: 'border-color 0.2s, background 0.2s',
+        transition: 'all 0.22s',
+        boxShadow: '0 1px 4px rgba(0,0,0,0.05)',
       }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,150,90,0.3)'; e.currentTarget.style.background = 'rgba(184,131,58,0.07)' }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.04)'; e.currentTarget.style.background = 'rgba(0,0,0,0.04)' }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(184,131,58,0.35)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(184,131,58,0.1)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.08)'; e.currentTarget.style.boxShadow = '0 1px 4px rgba(0,0,0,0.05)'; e.currentTarget.style.transform = 'none' }}
     >
       {/* Foto cuadrada */}
       <div style={{ width: 110, minHeight: 110, flexShrink: 0, position: 'relative', overflow: 'hidden',
-        background: 'linear-gradient(135deg, rgba(201,150,90,0.1), rgba(20,14,8,0.9))' }}>
+        background: 'linear-gradient(135deg, rgba(184,131,58,0.08), #F0EDE8)' }}>
         {prof.cover_image_url
           ? <img src={prof.cover_image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
           : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, position: 'absolute', inset: 0 }}>✂️</div>
         }
         {prof.is_verified && (
-          <div style={{ position: 'absolute', bottom: 6, left: 6, background: 'rgba(184,131,58,0.92)', borderRadius: 100, padding: '2px 7px', fontSize: 9, color: '#F7F5F2', fontWeight: 700 }}>✓ Ver</div>
+          <div style={{ position: 'absolute', bottom: 6, left: 6, background: '#B8833A', borderRadius: 100, padding: '2px 7px', fontSize: 9, color: '#FFFFFF', fontWeight: 700 }}>✓ Ver</div>
         )}
       </div>
 
@@ -83,18 +85,18 @@ function ProfCard({ prof, userCoords }) {
       <div style={{ flex: 1, padding: '12px 14px', minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 3 }}>
-            <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.05rem', fontWeight: 600, color: '#1A1612', margin: 0, lineHeight: 1.2 }}>
+            <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', fontWeight: 700, color: '#1A1612', margin: 0, lineHeight: 1.2 }}>
               {prof.business_name}
             </h3>
             {minPrice != null && (
-              <span style={{ fontSize: 13, color: '#B8833A', fontFamily: 'Cormorant Garamond, serif', fontStyle: 'italic', whiteSpace: 'nowrap', flexShrink: 0 }}>desde {minPrice}€</span>
+              <span style={{ fontSize: 13, color: '#B8833A', fontFamily: 'Cormorant Garamond, serif', fontStyle: 'italic', whiteSpace: 'nowrap', flexShrink: 0, fontWeight: 600 }}>desde {minPrice}€</span>
             )}
           </div>
 
-          <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.3)', margin: '0 0 6px' }}>
+          <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.45)', margin: '0 0 6px' }}>
             📍 {prof.city}
             {distKm !== null && (
-              <span style={{ marginLeft: 6, color: 'rgba(201,150,90,0.7)', fontWeight: 600 }}>
+              <span style={{ marginLeft: 6, color: '#B8833A', fontWeight: 600 }}>
                 · {distKm < 1 ? `${Math.round(distKm*1000)}m` : `${distKm.toFixed(1)}km`}
               </span>
             )}
@@ -105,7 +107,7 @@ function ProfCard({ prof, userCoords }) {
             <span style={{ fontSize: 12, color: '#B8833A', fontWeight: 600 }}>
               {prof.avg_rating ? Number(prof.avg_rating).toFixed(1) : '—'}
             </span>
-            <span style={{ fontSize: 11, color: 'rgba(26,22,18,0.2)' }}>({prof.total_reviews})</span>
+            <span style={{ fontSize: 11, color: 'rgba(26,22,18,0.35)' }}>({prof.total_reviews})</span>
           </div>
         </div>
 
@@ -113,7 +115,7 @@ function ProfCard({ prof, userCoords }) {
         {topServices.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
             {topServices.map(s => (
-              <span key={s.id} style={{ fontSize: 10, background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.12)', borderRadius: 100, padding: '2px 8px', color: 'rgba(247,242,234,0.4)', whiteSpace: 'nowrap' }}>
+              <span key={s.id} style={{ fontSize: 10, background: '#F7F5F2', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 100, padding: '2px 9px', color: 'rgba(26,22,18,0.55)', whiteSpace: 'nowrap' }}>
                 {s.name}
               </span>
             ))}

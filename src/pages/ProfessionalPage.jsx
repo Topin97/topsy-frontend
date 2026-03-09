@@ -15,7 +15,7 @@ function Stars({ rating }) {
   return (
     <span>
       {[1,2,3,4,5].map(i => (
-        <span key={i} style={{ color: i <= Math.round(rating ?? 0) ? '#B8833A' : 'rgba(184,131,58,0.1)', fontSize: 13 }}>★</span>
+        <span key={i} style={{ color: i <= Math.round(rating ?? 0) ? '#B8833A' : 'rgba(26,22,18,0.12)', fontSize: 13 }}>★</span>
       ))}
     </span>
   )
@@ -55,18 +55,18 @@ export default function ProfessionalPage() {
     <div style={{ maxWidth: 700, margin: '0 auto', fontFamily: 'Outfit, sans-serif' }}>
       <style>{`
         .tab-btn:hover { color: #1A1612 !important; }
-        .service-row:hover { background: rgba(184,131,58,0.07) !important; border-color: rgba(184,131,58,0.18) !important; }
+        .service-row:hover { background: rgba(184,131,58,0.06) !important; border-color: rgba(184,131,58,0.3) !important; }
         .book-btn:hover { opacity: 0.9; transform: scale(0.98); }
       `}</style>
 
       {/* ── Cover + back ── */}
-      <div style={{ position: 'relative', height: 220, overflow: 'hidden', background: 'linear-gradient(135deg, rgba(184,131,58,0.1), rgba(20,14,8,1))' }}>
+      <div style={{ position: 'relative', height: 220, overflow: 'hidden', background: 'linear-gradient(135deg, rgba(184,131,58,0.08), #EFEDE9)' }}>
         {prof.cover_image_url
           ? <img src={prof.cover_image_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 56 }}>✂️</div>
         }
         {/* Gradient overlay bottom */}
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 100, background: 'linear-gradient(to bottom, transparent, rgba(20,16,10,1))' }} />
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 100, background: 'linear-gradient(to bottom, transparent, rgba(247,245,242,0.95))' }} />
 
         {/* Back btn */}
         <button
@@ -93,10 +93,10 @@ export default function ProfessionalPage() {
           <span style={{ fontSize: 14, color: '#B8833A', fontWeight: 700 }}>
             {prof.avg_rating ? Number(prof.avg_rating).toFixed(1) : '—'}
           </span>
-          <span style={{ fontSize: 13, color: 'rgba(247,242,234,0.3)' }}>({prof.total_reviews} reseñas)</span>
+          <span style={{ fontSize: 13, color: 'rgba(26,22,18,0.4)' }}>({prof.total_reviews} reseñas)</span>
         </div>
 
-        <p style={{ fontSize: 13, color: 'rgba(247,242,234,0.4)', margin: '0 0 10px' }}>📍 {prof.city}</p>
+        <p style={{ fontSize: 13, color: 'rgba(26,22,18,0.5)', margin: '0 0 10px' }}>📍 {prof.city}</p>
 
         {prof.description && (
           <p style={{ fontSize: 14, color: 'rgba(26,22,18,0.5)', lineHeight: 1.65, margin: '0 0 16px' }}>
@@ -108,8 +108,8 @@ export default function ProfessionalPage() {
         {availability.length > 0 && (
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 16 }}>
             {availability.map(a => (
-              <div key={a.day_of_week} style={{ fontSize: 11, background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.04)', borderRadius: 8, padding: '4px 10px', color: 'rgba(247,242,234,0.5)' }}>
-                <span style={{ fontWeight: 600, color: 'rgba(247,242,234,0.7)' }}>{DAY_MAP[a.day_of_week]}</span>
+              <div key={a.day_of_week} style={{ fontSize: 11, background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.1)', borderRadius: 8, padding: '4px 10px', color: 'rgba(26,22,18,0.55)' }}>
+                <span style={{ fontWeight: 600, color: 'rgba(26,22,18,0.75)' }}>{DAY_MAP[a.day_of_week]}</span>
                 {' '}{a.start_time.slice(0,5)}–{a.end_time.slice(0,5)}
               </div>
             ))}
@@ -118,7 +118,7 @@ export default function ProfessionalPage() {
       </div>
 
       {/* ── Tabs ── */}
-      <div style={{ display: 'flex', borderBottom: '1px solid rgba(0,0,0,0.04)', padding: '0 16px', position: 'sticky', top: 52, background: 'rgba(20,16,10,0.97)', backdropFilter: 'blur(16px)', zIndex: 20 }}>
+      <div style={{ display: 'flex', borderBottom: '1px solid rgba(0,0,0,0.04)', padding: '0 16px', position: 'sticky', top: 52, background: '#FFFFFF', borderBottom: '1px solid rgba(0,0,0,0.07)', zIndex: 20 }}>
         {[
           { key: 'services', label: `Servicios (${activeServices.length})` },
           { key: 'reviews',  label: `Reseñas (${prof.total_reviews ?? 0})` },
@@ -156,15 +156,15 @@ export default function ProfessionalPage() {
                   style={{
                     display: 'flex', alignItems: 'center', gap: 14,
                     padding: '16px 14px',
-                    background: 'rgba(0,0,0,0.04)',
-                    border: '1px solid rgba(0,0,0,0.04)',
+                    background: '#FFFFFF',
+                    border: '1.5px solid rgba(0,0,0,0.08)',
                     borderRadius: 14,
                     transition: 'all 0.2s',
                     marginBottom: 8,
                   }}
                 >
                   {/* Número */}
-                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(201,150,90,0.1)', border: '1px solid rgba(201,150,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#B8833A', fontWeight: 700, flexShrink: 0 }}>
+                  <div style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(184,131,58,0.08)', border: '1.5px solid rgba(184,131,58,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#B8833A', fontWeight: 700, flexShrink: 0 }}>
                     {i + 1}
                   </div>
 
@@ -172,11 +172,11 @@ export default function ProfessionalPage() {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ fontSize: 15, fontWeight: 600, color: '#1A1612', margin: '0 0 3px' }}>{service.name}</p>
                     {service.description && (
-                      <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.3)', margin: '0 0 3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.45)', margin: '0 0 3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                         {service.description}
                       </p>
                     )}
-                    <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.3)', margin: 0 }}>⏱ {service.duration_minutes} min</p>
+                    <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.4)', margin: 0 }}>⏱ {service.duration_minutes} min</p>
                   </div>
 
                   {/* Precio + botón */}
@@ -193,7 +193,7 @@ export default function ProfessionalPage() {
                       style={{
                         background: 'linear-gradient(135deg, #B8833A, #D4A055)',
                         border: 'none', borderRadius: 10, padding: '9px 16px',
-                        color: '#F7F5F2', fontWeight: 700, fontSize: 13,
+                        color: '#FFFFFF', fontWeight: 700, fontSize: 13,
                         cursor: 'pointer', fontFamily: 'Outfit, sans-serif',
                         transition: 'all 0.18s', whiteSpace: 'nowrap',
                       }}
@@ -219,7 +219,7 @@ export default function ProfessionalPage() {
                   {Number(prof.avg_rating).toFixed(1)}
                 </p>
                 <Stars rating={prof.avg_rating} />
-                <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.3)', margin: '4px 0 0' }}>{prof.total_reviews} reseñas</p>
+                <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.4)', margin: '4px 0 0' }}>{prof.total_reviews} reseñas</p>
               </div>
               <div style={{ flex: 1 }}>
                 {[5,4,3,2,1].map(star => {
@@ -259,7 +259,7 @@ export default function ProfessionalPage() {
                       {r.profiles?.avatar_url ? (
                         <img src={r.profiles.avatar_url} alt="" style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
                       ) : (
-                        <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(184,131,58,0.1)', border: '1px solid rgba(201,150,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#B8833A', flexShrink: 0 }}>
+                        <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(184,131,58,0.1)', border: '1.5px solid rgba(184,131,58,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#B8833A', flexShrink: 0 }}>
                           {initials}
                         </div>
                       )}
@@ -281,7 +281,7 @@ export default function ProfessionalPage() {
                       </div>
                     </div>
                     {r.comment && (
-                      <p style={{ fontSize: 13, color: 'rgba(247,242,234,0.5)', lineHeight: 1.6, margin: 0, paddingLeft: 46 }}>
+                      <p style={{ fontSize: 13, color: 'rgba(26,22,18,0.6)', lineHeight: 1.6, margin: 0, paddingLeft: 46 }}>
                         {r.comment}
                       </p>
                     )}
