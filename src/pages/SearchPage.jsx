@@ -195,14 +195,14 @@ export default function SearchPage() {
       {/* ── Sticky top: barra de búsqueda + categorías ── */}
       <div style={{
         position: 'sticky', top: 52, zIndex: 40,
-        background: 'rgba(20,16,10,0.98)', backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(0,0,0,0.04)',
+        background: '#FFFFFF', borderBottom: '1px solid rgba(0,0,0,0.07)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
       }}>
         {/* Búsqueda */}
         <div style={{ padding: '10px 16px 0', maxWidth: 1200, margin: '0 auto' }}>
           <form onSubmit={handleSearch} style={{ display: 'flex', gap: 8 }}>
             <div style={{ flex: 1, position: 'relative' }}>
-              <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: 'rgba(247,242,234,0.3)', pointerEvents: 'none' }}>🔍</span>
+              <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 14, color: 'rgba(26,22,18,0.3)', pointerEvents: 'none' }}>🔍</span>
               <input
                 value={search}
                 onChange={e => setSearch(e.target.value)}
