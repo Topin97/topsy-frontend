@@ -39,7 +39,7 @@ function Stars({ rating }) {
   return (
     <span>
       {[1,2,3,4,5].map(i => (
-        <span key={i} style={{ color: i <= r ? '#C9965A' : 'rgba(201,150,90,0.2)', fontSize: 12 }}>★</span>
+        <span key={i} style={{ color: i <= r ? '#B8833A' : 'rgba(201,150,90,0.2)', fontSize: 12 }}>★</span>
       ))}
     </span>
   )
@@ -59,13 +59,13 @@ function ProfCard({ prof, userCoords }) {
     <Link
       to={`/professional/${prof.id}`}
       style={{ display: 'flex', textDecoration: 'none', gap: 0,
-        background: 'rgba(255,240,210,0.03)',
-        border: '1px solid rgba(255,240,210,0.08)',
+        background: 'rgba(0,0,0,0.04)',
+        border: '1px solid rgba(0,0,0,0.04)',
         borderRadius: 16, overflow: 'hidden',
         transition: 'border-color 0.2s, background 0.2s',
       }}
-      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,150,90,0.3)'; e.currentTarget.style.background = 'rgba(201,150,90,0.04)' }}
-      onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,240,210,0.08)'; e.currentTarget.style.background = 'rgba(255,240,210,0.03)' }}
+      onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(201,150,90,0.3)'; e.currentTarget.style.background = 'rgba(184,131,58,0.07)' }}
+      onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(0,0,0,0.04)'; e.currentTarget.style.background = 'rgba(0,0,0,0.04)' }}
     >
       {/* Foto cuadrada */}
       <div style={{ width: 110, minHeight: 110, flexShrink: 0, position: 'relative', overflow: 'hidden',
@@ -75,7 +75,7 @@ function ProfCard({ prof, userCoords }) {
           : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, position: 'absolute', inset: 0 }}>✂️</div>
         }
         {prof.is_verified && (
-          <div style={{ position: 'absolute', bottom: 6, left: 6, background: 'rgba(201,150,90,0.95)', borderRadius: 100, padding: '2px 7px', fontSize: 9, color: '#16120E', fontWeight: 700 }}>✓ Ver</div>
+          <div style={{ position: 'absolute', bottom: 6, left: 6, background: 'rgba(184,131,58,0.92)', borderRadius: 100, padding: '2px 7px', fontSize: 9, color: '#F7F5F2', fontWeight: 700 }}>✓ Ver</div>
         )}
       </div>
 
@@ -83,15 +83,15 @@ function ProfCard({ prof, userCoords }) {
       <div style={{ flex: 1, padding: '12px 14px', minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 3 }}>
-            <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.05rem', fontWeight: 600, color: '#F7F2EA', margin: 0, lineHeight: 1.2 }}>
+            <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.05rem', fontWeight: 600, color: '#1A1612', margin: 0, lineHeight: 1.2 }}>
               {prof.business_name}
             </h3>
             {minPrice != null && (
-              <span style={{ fontSize: 13, color: '#C9965A', fontFamily: 'Cormorant Garamond, serif', fontStyle: 'italic', whiteSpace: 'nowrap', flexShrink: 0 }}>desde {minPrice}€</span>
+              <span style={{ fontSize: 13, color: '#B8833A', fontFamily: 'Cormorant Garamond, serif', fontStyle: 'italic', whiteSpace: 'nowrap', flexShrink: 0 }}>desde {minPrice}€</span>
             )}
           </div>
 
-          <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.35)', margin: '0 0 6px' }}>
+          <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.3)', margin: '0 0 6px' }}>
             📍 {prof.city}
             {distKm !== null && (
               <span style={{ marginLeft: 6, color: 'rgba(201,150,90,0.7)', fontWeight: 600 }}>
@@ -102,10 +102,10 @@ function ProfCard({ prof, userCoords }) {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginBottom: 8 }}>
             <Stars rating={prof.avg_rating} />
-            <span style={{ fontSize: 12, color: '#C9965A', fontWeight: 600 }}>
+            <span style={{ fontSize: 12, color: '#B8833A', fontWeight: 600 }}>
               {prof.avg_rating ? Number(prof.avg_rating).toFixed(1) : '—'}
             </span>
-            <span style={{ fontSize: 11, color: 'rgba(247,242,234,0.25)' }}>({prof.total_reviews})</span>
+            <span style={{ fontSize: 11, color: 'rgba(26,22,18,0.2)' }}>({prof.total_reviews})</span>
           </div>
         </div>
 
@@ -113,7 +113,7 @@ function ProfCard({ prof, userCoords }) {
         {topServices.length > 0 && (
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
             {topServices.map(s => (
-              <span key={s.id} style={{ fontSize: 10, background: 'rgba(255,240,210,0.05)', border: '1px solid rgba(255,240,210,0.08)', borderRadius: 100, padding: '2px 8px', color: 'rgba(247,242,234,0.4)', whiteSpace: 'nowrap' }}>
+              <span key={s.id} style={{ fontSize: 10, background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.04)', borderRadius: 100, padding: '2px 8px', color: 'rgba(247,242,234,0.4)', whiteSpace: 'nowrap' }}>
                 {s.name}
               </span>
             ))}
@@ -126,7 +126,7 @@ function ProfCard({ prof, userCoords }) {
 
 function SkeletonCard() {
   return (
-    <div style={{ display: 'flex', gap: 0, background: 'rgba(255,240,210,0.02)', border: '1px solid rgba(255,240,210,0.06)', borderRadius: 16, overflow: 'hidden', height: 110 }}>
+    <div style={{ display: 'flex', gap: 0, background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.04)', borderRadius: 16, overflow: 'hidden', height: 110 }}>
       <div className="skeleton" style={{ width: 110, flexShrink: 0 }} />
       <div style={{ flex: 1, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
         <div className="skeleton" style={{ height: 16, width: '60%', borderRadius: 6 }} />
@@ -186,17 +186,17 @@ export default function SearchPage() {
       <style>{`
         .scroll-cats::-webkit-scrollbar { display: none; }
         .scroll-cats { -ms-overflow-style: none; scrollbar-width: none; }
-        .cat-chip:hover { background: rgba(201,150,90,0.1) !important; border-color: rgba(201,150,90,0.35) !important; color: #C9965A !important; }
-        .search-input:focus { border-color: rgba(201,150,90,0.5) !important; background: rgba(201,150,90,0.04) !important; }
-        .rating-btn:hover { border-color: rgba(201,150,90,0.4) !important; color: #C9965A !important; }
-        .sort-opt:hover { background: rgba(201,150,90,0.08) !important; }
+        .cat-chip:hover { background: rgba(201,150,90,0.1) !important; border-color: rgba(184,131,58,0.28) !important; color: #B8833A !important; }
+        .search-input:focus { border-color: rgba(201,150,90,0.5) !important; background: rgba(184,131,58,0.07) !important; }
+        .rating-btn:hover { border-color: rgba(201,150,90,0.4) !important; color: #B8833A !important; }
+        .sort-opt:hover { background: rgba(184,131,58,0.07) !important; }
       `}</style>
 
       {/* ── Sticky top: barra de búsqueda + categorías ── */}
       <div style={{
         position: 'sticky', top: 52, zIndex: 40,
         background: 'rgba(20,16,10,0.98)', backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(255,240,210,0.07)',
+        borderBottom: '1px solid rgba(0,0,0,0.04)',
       }}>
         {/* Búsqueda */}
         <div style={{ padding: '10px 16px 0', maxWidth: 1200, margin: '0 auto' }}>
@@ -209,10 +209,10 @@ export default function SearchPage() {
                 placeholder="Servicio o profesional..."
                 className="search-input"
                 style={{
-                  width: '100%', background: 'rgba(255,240,210,0.05)',
-                  border: '1px solid rgba(255,240,210,0.1)',
+                  width: '100%', background: 'rgba(0,0,0,0.04)',
+                  border: '1px solid rgba(0,0,0,0.04)',
                   borderRadius: 10, padding: '10px 12px 10px 34px',
-                  color: '#F7F2EA', fontSize: 14, outline: 'none',
+                  color: '#1A1612', fontSize: 14, outline: 'none',
                   fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s',
                   boxSizing: 'border-box',
                 }}
@@ -224,18 +224,18 @@ export default function SearchPage() {
               placeholder="Ciudad"
               className="search-input"
               style={{
-                width: 110, background: 'rgba(255,240,210,0.05)',
-                border: '1px solid rgba(255,240,210,0.1)',
+                width: 110, background: 'rgba(0,0,0,0.04)',
+                border: '1px solid rgba(0,0,0,0.04)',
                 borderRadius: 10, padding: '10px 12px',
-                color: '#F7F2EA', fontSize: 14, outline: 'none',
+                color: '#1A1612', fontSize: 14, outline: 'none',
                 fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s',
                 boxSizing: 'border-box', flexShrink: 0,
               }}
             />
             <button type="submit" style={{
-              background: 'linear-gradient(135deg, #C9965A, #E8B97A)',
+              background: 'linear-gradient(135deg, #B8833A, #D4A055)',
               border: 'none', borderRadius: 10, padding: '0 16px',
-              color: '#16120E', fontWeight: 700, fontSize: 13,
+              color: '#F7F5F2', fontWeight: 700, fontSize: 13,
               cursor: 'pointer', flexShrink: 0, fontFamily: 'Outfit, sans-serif',
             }}>Buscar</button>
           </form>
@@ -253,9 +253,9 @@ export default function SearchPage() {
                 style={{
                   flexShrink: 0, display: 'flex', alignItems: 'center', gap: 5,
                   padding: '6px 14px', borderRadius: 100,
-                  background: active ? 'rgba(201,150,90,0.15)' : 'rgba(255,240,210,0.04)',
-                  border: `1px solid ${active ? 'rgba(201,150,90,0.5)' : 'rgba(255,240,210,0.1)'}`,
-                  color: active ? '#C9965A' : 'rgba(247,242,234,0.5)',
+                  background: active ? 'rgba(201,150,90,0.15)' : 'rgba(0,0,0,0.04)',
+                  border: `1px solid ${active ? 'rgba(201,150,90,0.5)' : 'rgba(0,0,0,0.04)'}`,
+                  color: active ? '#B8833A' : 'rgba(247,242,234,0.5)',
                   fontSize: 13, cursor: 'pointer', transition: 'all 0.18s',
                   fontFamily: 'Outfit, sans-serif', whiteSpace: 'nowrap',
                   fontWeight: active ? 600 : 400,
@@ -277,7 +277,7 @@ export default function SearchPage() {
           {/* Count + rating filter */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
             <span style={{ fontSize: 13, color: 'rgba(247,242,234,0.4)', fontFamily: 'Outfit, sans-serif' }}>
-              {isLoading ? 'Buscando...' : <><span style={{ color: '#C9965A', fontWeight: 600 }}>{total}</span> profesionales</>}
+              {isLoading ? 'Buscando...' : <><span style={{ color: '#B8833A', fontWeight: 600 }}>{total}</span> profesionales</>}
             </span>
             {/* Rating pills */}
             {[0,3,4,5].map(r => (
@@ -287,9 +287,9 @@ export default function SearchPage() {
                 onClick={() => setMinRating(r)}
                 style={{
                   fontSize: 11, padding: '3px 10px', borderRadius: 100, cursor: 'pointer',
-                  background: minRating === r ? 'rgba(201,150,90,0.12)' : 'transparent',
-                  border: `1px solid ${minRating === r ? 'rgba(201,150,90,0.4)' : 'rgba(255,240,210,0.1)'}`,
-                  color: minRating === r ? '#C9965A' : 'rgba(247,242,234,0.3)',
+                  background: minRating === r ? 'rgba(184,131,58,0.1)' : 'transparent',
+                  border: `1px solid ${minRating === r ? 'rgba(201,150,90,0.4)' : 'rgba(0,0,0,0.04)'}`,
+                  color: minRating === r ? '#B8833A' : 'rgba(247,242,234,0.3)',
                   fontFamily: 'Outfit, sans-serif', transition: 'all 0.15s',
                 }}
               >
@@ -304,7 +304,7 @@ export default function SearchPage() {
               onClick={() => setShowSort(!showSort)}
               style={{
                 display: 'flex', alignItems: 'center', gap: 6,
-                background: 'rgba(255,240,210,0.04)', border: '1px solid rgba(255,240,210,0.1)',
+                background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.04)',
                 borderRadius: 10, padding: '6px 12px', cursor: 'pointer',
                 color: 'rgba(247,242,234,0.5)', fontSize: 12, fontFamily: 'Outfit, sans-serif',
               }}
@@ -316,7 +316,7 @@ export default function SearchPage() {
               <div
                 style={{
                   position: 'absolute', top: 'calc(100% + 6px)', right: 0,
-                  background: '#1F1A14', border: '1px solid rgba(255,240,210,0.1)',
+                  background: '#FFFFFF', border: '1px solid rgba(0,0,0,0.04)',
                   borderRadius: 12, overflow: 'hidden', zIndex: 50, minWidth: 160,
                   boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
                 }}
@@ -330,7 +330,7 @@ export default function SearchPage() {
                     style={{
                       width: '100%', textAlign: 'left', padding: '10px 14px',
                       background: sort === opt.value ? 'rgba(201,150,90,0.1)' : 'transparent',
-                      border: 'none', color: sort === opt.value ? '#C9965A' : 'rgba(247,242,234,0.6)',
+                      border: 'none', color: sort === opt.value ? '#B8833A' : 'rgba(247,242,234,0.6)',
                       fontSize: 13, fontFamily: 'Outfit, sans-serif', cursor: 'pointer',
                       transition: 'background 0.15s',
                     }}
@@ -353,7 +353,7 @@ export default function SearchPage() {
 
         {/* Empty state */}
         {!isLoading && results.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: 'rgba(247,242,234,0.25)' }}>
+          <div style={{ textAlign: 'center', padding: '60px 0', color: 'rgba(26,22,18,0.2)' }}>
             <div style={{ fontSize: 44, marginBottom: 12 }}>🔍</div>
             <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.6rem', fontWeight: 300, marginBottom: 6 }}>Sin resultados</p>
             <p style={{ fontSize: 13, fontFamily: 'Outfit, sans-serif', marginBottom: 20 }}>Prueba con otros términos o cambia la categoría</p>

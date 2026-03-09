@@ -6,14 +6,14 @@ const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 })
 
-// Adjunta el token en cada request
+// Attach token to every request
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().token
   if (token) config.headers.Authorization = `Bearer ${token}`
   return config
 })
 
-// Si el token expira, refresca automáticamente
+// Auto-refresh on 401
 api.interceptors.response.use(
   (res) => res,
   async (err) => {
@@ -40,32 +40,50 @@ api.interceptors.response.use(
 
 // ── Auth ──────────────────────────────────────────────────────
 export const authApi = {
-  register:      (data) => api.post('/auth/register', data),
-  login:         (data) => api.post('/auth/login', data),
-  logout:        ()     => api.post('/auth/logout'),
-  me:            ()     => api.get('/auth/me'),
-  updateProfile:   (data) => api.put('/auth/profile', data),
-  forgotPassword:  (data) => api.post('/auth/forgot-password', data),
+  register: (data) => api.post('/auth/register', data),
+  login:    (data) => api.post('/auth/login', data),
+  logout:   ()     => api.post('/auth/logout'),
+  me:       ()     => api.get('/auth/me'),
 }
 
 // ── Professionals ─────────────────────────────────────────────
 export const profApi = {
-  getAll:   (params) => api.get('/professionals', { params }),
-  getOne:   (id)     => api.get(`/professionals/${id}`),
-  create:   (data)   => api.post('/professionals/profile', data),
-  update:   (data)   => api.put('/professionals/profile', data),
-  getStats: ()       => api.get('/professionals/me/stats'),
-  setAvail: (data)   => api.put('/professionals/availability', data),
+  getAll:    (params) => api.get('/professionals', { params }),
+  getOne:    (id)     => api.get(`/professionals/${id}`),
+  create:    (data)   => api.post('/professionals/profile', data),
+  update:    (data)   => api.put('/professionals/profile', data),
+  getStats:      ()     => api.get('/professionals/me/stats'),
+  getMyProfile:  ()     => api.get('/professionals/me/stats'),
+  setAvail:  (data)   => api.put('/professionals/availability', data),
 }
 
 // ── Bookings ──────────────────────────────────────────────────
 export const bookingsApi = {
-  getSlots:        (params) => api.get('/bookings/available-slots', { params }),
-  create:          (data)   => api.post('/bookings', data),
-  getMine:         (params) => api.get('/bookings/my', { params }),
-  getProfessional: (params) => api.get('/bookings/professional', { params }),
-  cancel:          (id)     => api.patch(`/bookings/${id}/cancel`),
-  review:          (id, data) => api.post(`/bookings/${id}/review`, data),
+  getSlots:         (params) => api.get('/bookings/available-slots', { params }),
+  create:           (data)   => api.post('/bookings', data),
+  getMine:          (params) => api.get('/bookings/my', { params }),
+  getProfessional:  (params) => api.get('/bookings/professional', { params }),
+  cancel:           (id, reason) => api.patch(`/bookings/${id}/cancel`, { reason }),
+  review:           (id, data)   => api.post(`/bookings/${id}/review`, data),
+}
+
+// ── Storage (Supabase direct) ─────────────────────────────────
+export const storageApi = {
+  uploadAvatar: async (file, userId) => {
+    const { createClient } = await import('@supabase/supabase-js')
+    const supabase = createClient(
+      import.meta.env.VITE_SUPABASE_URL,
+      import.meta.env.VITE_SUPABASE_ANON_KEY
+    )
+    const ext  = file.name.split('.').pop()
+    const path = `avatars/${userId}.${ext}`
+    const { error } = await supabase.storage
+      .from('topsy-public')
+      .upload(path, file, { upsert: true })
+    if (error) throw error
+    const { data } = supabase.storage.from('topsy-public').getPublicUrl(path)
+    return data.publicUrl
+  },
 }
 
 export default api

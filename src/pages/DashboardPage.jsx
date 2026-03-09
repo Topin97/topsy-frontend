@@ -27,7 +27,7 @@ function StarInput({ value, onChange }) {
           onMouseEnter={() => setHover(star)}
           onMouseLeave={() => setHover(0)}
           style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 36, padding: 0, lineHeight: 1,
-            color: star <= (hover || value) ? '#C9965A' : 'rgba(247,242,234,0.1)',
+            color: star <= (hover || value) ? '#B8833A' : 'rgba(247,242,234,0.1)',
             transition: 'color 0.12s, transform 0.1s',
             transform: star <= (hover || value) ? 'scale(1.15)' : 'scale(1)',
           }}
@@ -44,19 +44,19 @@ function ReviewModal({ booking, onClose, onSubmit, isLoading }) {
 
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: '#1F1A14', border: '1px solid rgba(201,150,90,0.2)', borderRadius: '24px 24px 0 0', padding: '28px 24px 40px', width: '100%', maxWidth: 440 }}>
-        <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(255,255,255,0.15)', margin: '0 auto 24px' }} />
+      <div onClick={e => e.stopPropagation()} style={{ background: '#FFFFFF', border: '1px solid rgba(201,150,90,0.2)', borderRadius: '24px 24px 0 0', padding: '28px 24px 40px', width: '100%', maxWidth: 440 }}>
+        <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(0,0,0,0.06)', margin: '0 auto 24px' }} />
         <p style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.5)', marginBottom: 4 }}>Valorar visita</p>
-        <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', fontWeight: 400, color: '#F7F2EA', margin: '0 0 4px' }}>
+        <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', fontWeight: 400, color: '#1A1612', margin: '0 0 4px' }}>
           {booking.professional_profiles?.business_name}
         </h3>
-        <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.35)', marginBottom: 24 }}>
+        <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.3)', marginBottom: 24 }}>
           {booking.services?.name} · {format(new Date(booking.starts_at), "d MMM yyyy", { locale: es })}
         </p>
 
         <div style={{ marginBottom: 20 }}>
           <StarInput value={rating} onChange={setRating} />
-          {rating > 0 && <p style={{ fontSize: 13, color: '#C9965A', marginTop: 8 }}>{LABELS[rating]}</p>}
+          {rating > 0 && <p style={{ fontSize: 13, color: '#B8833A', marginTop: 8 }}>{LABELS[rating]}</p>}
         </div>
 
         <textarea
@@ -64,17 +64,17 @@ function ReviewModal({ booking, onClose, onSubmit, isLoading }) {
           onChange={e => setComment(e.target.value)}
           placeholder="Cuéntanos tu experiencia... (opcional)"
           maxLength={400} rows={3}
-          style={{ width: '100%', boxSizing: 'border-box', background: 'rgba(255,240,210,0.04)', border: '1px solid rgba(255,240,210,0.1)', borderRadius: 12, padding: '12px 14px', color: '#F7F2EA', fontSize: 14, fontFamily: 'Outfit, sans-serif', resize: 'none', outline: 'none', marginBottom: 20 }}
+          style={{ width: '100%', boxSizing: 'border-box', background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.04)', borderRadius: 12, padding: '12px 14px', color: '#1A1612', fontSize: 14, fontFamily: 'Outfit, sans-serif', resize: 'none', outline: 'none', marginBottom: 20 }}
         />
 
         <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={onClose} style={{ flex: 1, background: 'transparent', border: '1px solid rgba(255,240,210,0.1)', borderRadius: 12, padding: '13px 0', color: 'rgba(247,242,234,0.4)', fontSize: 14, fontFamily: 'Outfit, sans-serif', cursor: 'pointer' }}>
+          <button onClick={onClose} style={{ flex: 1, background: 'transparent', border: '1px solid rgba(0,0,0,0.04)', borderRadius: 12, padding: '13px 0', color: 'rgba(247,242,234,0.4)', fontSize: 14, fontFamily: 'Outfit, sans-serif', cursor: 'pointer' }}>
             Cancelar
           </button>
           <button
             onClick={() => { if (!rating) { toast.error('Selecciona una puntuación'); return }; onSubmit({ rating, comment }) }}
             disabled={isLoading}
-            style={{ flex: 2, background: rating > 0 ? 'linear-gradient(135deg,#C9965A,#E8B97A)' : 'rgba(201,150,90,0.1)', border: 'none', borderRadius: 12, padding: '13px 0', color: rating > 0 ? '#16120E' : 'rgba(201,150,90,0.3)', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', cursor: rating > 0 ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}
+            style={{ flex: 2, background: rating > 0 ? 'linear-gradient(135deg,#B8833A,#D4A055)' : 'rgba(201,150,90,0.1)', border: 'none', borderRadius: 12, padding: '13px 0', color: rating > 0 ? '#F7F5F2' : 'rgba(201,150,90,0.3)', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', cursor: rating > 0 ? 'pointer' : 'not-allowed', transition: 'all 0.2s' }}
           >
             {isLoading ? 'Enviando...' : '★ Enviar valoración'}
           </button>
@@ -94,12 +94,12 @@ function BookingCard({ booking, onCancel, onReview }) {
   const coverUrl = booking.professional_profiles?.cover_image_url
 
   return (
-    <div style={{ background: 'rgba(255,240,210,0.03)', border: '1px solid rgba(255,240,210,0.08)', borderRadius: 16, overflow: 'hidden', display: 'flex' }}>
+    <div style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.04)', borderRadius: 16, overflow: 'hidden', display: 'flex' }}>
       {/* Color strip */}
       <div style={{ width: 4, flexShrink: 0, background: st.color, opacity: 0.6 }} />
 
       {/* Cover thumb */}
-      <div style={{ width: 80, flexShrink: 0, background: 'rgba(201,150,90,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, position: 'relative', overflow: 'hidden' }}>
+      <div style={{ width: 80, flexShrink: 0, background: 'rgba(184,131,58,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, position: 'relative', overflow: 'hidden' }}>
         {coverUrl
           ? <img src={coverUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
           : '✂️'
@@ -110,7 +110,7 @@ function BookingCard({ booking, onCancel, onReview }) {
       <div style={{ flex: 1, padding: '12px 14px', minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8, marginBottom: 3 }}>
           <div style={{ minWidth: 0 }}>
-            <p style={{ fontWeight: 600, fontSize: 14, color: '#F7F2EA', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <p style={{ fontWeight: 600, fontSize: 14, color: '#1A1612', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {booking.services?.name}
             </p>
             <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.4)', margin: '2px 0' }}>{proName}</p>
@@ -120,21 +120,21 @@ function BookingCard({ booking, onCancel, onReview }) {
           </span>
         </div>
 
-        <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.35)', margin: '0 0 8px' }}>
+        <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.3)', margin: '0 0 8px' }}>
           📅 {format(new Date(booking.starts_at), "EEEE d MMM · HH:mm", { locale: es })}
-          <span style={{ marginLeft: 6, color: 'rgba(247,242,234,0.25)' }}>· {booking.services?.duration_minutes} min</span>
+          <span style={{ marginLeft: 6, color: 'rgba(26,22,18,0.2)' }}>· {booking.services?.duration_minutes} min</span>
         </p>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
-          <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.2rem', color: '#C9965A', fontStyle: 'italic' }}>{booking.total_price}€</span>
+          <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.2rem', color: '#B8833A', fontStyle: 'italic' }}>{booking.total_price}€</span>
 
           {hasReview && (
-            <span style={{ fontSize: 11, color: '#C9965A', background: 'rgba(201,150,90,0.1)', padding: '2px 8px', borderRadius: 100 }}>
+            <span style={{ fontSize: 11, color: '#B8833A', background: 'rgba(201,150,90,0.1)', padding: '2px 8px', borderRadius: 100 }}>
               {'★'.repeat(booking.reviews[0].rating)} Valorada
             </span>
           )}
           {canReview && (
-            <button onClick={() => onReview(booking)} style={{ fontSize: 12, background: 'rgba(201,150,90,0.08)', border: '1px solid rgba(201,150,90,0.22)', borderRadius: 8, padding: '4px 12px', color: '#C9965A', cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+            <button onClick={() => onReview(booking)} style={{ fontSize: 12, background: 'rgba(184,131,58,0.07)', border: '1px solid rgba(184,131,58,0.18)', borderRadius: 8, padding: '4px 12px', color: '#B8833A', cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
               ★ Valorar
             </button>
           )}
@@ -151,12 +151,12 @@ function BookingCard({ booking, onCancel, onReview }) {
 
 function KpiCard({ icon, label, value, sub }) {
   return (
-    <div style={{ background: 'rgba(255,240,210,0.03)', border: '1px solid rgba(255,240,210,0.08)', borderRadius: 16, padding: '16px 18px' }}>
+    <div style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.04)', borderRadius: 16, padding: '16px 18px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
         <span style={{ fontSize: 18 }}>{icon}</span>
-        <span style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.35)', fontFamily: 'Outfit, sans-serif' }}>{label}</span>
+        <span style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.3)', fontFamily: 'Outfit, sans-serif' }}>{label}</span>
       </div>
-      <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2rem', fontWeight: 300, color: '#C9965A', margin: 0, lineHeight: 1 }}>{value}</p>
+      <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2rem', fontWeight: 300, color: '#B8833A', margin: 0, lineHeight: 1 }}>{value}</p>
       {sub && <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.3)', margin: '4px 0 0' }}>{sub}</p>}
     </div>
   )
@@ -233,15 +233,15 @@ export default function DashboardPage() {
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
           <div>
-            <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.35)', margin: '0 0 4px', fontFamily: 'Outfit, sans-serif' }}>
+            <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.3)', margin: '0 0 4px', fontFamily: 'Outfit, sans-serif' }}>
               {isProfessional() ? 'Panel profesional' : 'Mis reservas'}
             </p>
-            <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.8rem', fontWeight: 300, margin: 0, color: '#F7F2EA' }}>
-              Hola, <em style={{ color: '#C9965A' }}>{user?.full_name?.split(' ')[0]}</em>
+            <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.8rem', fontWeight: 300, margin: 0, color: '#1A1612' }}>
+              Hola, <em style={{ color: '#B8833A' }}>{user?.full_name?.split(' ')[0]}</em>
             </h1>
           </div>
           {!isProfessional() && (
-            <Link to="/search" style={{ textDecoration: 'none', background: 'linear-gradient(135deg,#C9965A,#E8B97A)', borderRadius: 12, padding: '10px 18px', color: '#16120E', fontWeight: 700, fontSize: 13, fontFamily: 'Outfit, sans-serif', whiteSpace: 'nowrap' }}>
+            <Link to="/search" style={{ textDecoration: 'none', background: 'linear-gradient(135deg,#B8833A,#D4A055)', borderRadius: 12, padding: '10px 18px', color: '#F7F5F2', fontWeight: 700, fontSize: 13, fontFamily: 'Outfit, sans-serif', whiteSpace: 'nowrap' }}>
               + Nueva cita
             </Link>
           )}
@@ -258,7 +258,7 @@ export default function DashboardPage() {
         )}
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 0, marginBottom: 16, background: 'rgba(255,240,210,0.04)', borderRadius: 12, padding: 4 }}>
+        <div style={{ display: 'flex', gap: 0, marginBottom: 16, background: 'rgba(0,0,0,0.04)', borderRadius: 12, padding: 4 }}>
           {TABS.map((tab, i) => (
             <button
               key={tab}
@@ -267,13 +267,13 @@ export default function DashboardPage() {
                 flex: 1, padding: '9px 0', borderRadius: 9, border: 'none', cursor: 'pointer',
                 fontFamily: 'Outfit, sans-serif', fontSize: 13, transition: 'all 0.2s',
                 background: activeTab === i ? 'rgba(201,150,90,0.15)' : 'transparent',
-                color: activeTab === i ? '#C9965A' : 'rgba(247,242,234,0.4)',
+                color: activeTab === i ? '#B8833A' : 'rgba(247,242,234,0.4)',
                 fontWeight: activeTab === i ? 600 : 400,
               }}
             >
               {tab}
               {tabs[i]?.length > 0 && (
-                <span style={{ marginLeft: 5, fontSize: 10, background: activeTab === i ? '#C9965A' : 'rgba(255,255,255,0.1)', color: activeTab === i ? '#16120E' : 'rgba(247,242,234,0.4)', borderRadius: 100, padding: '1px 6px' }}>
+                <span style={{ marginLeft: 5, fontSize: 10, background: activeTab === i ? '#B8833A' : 'rgba(255,255,255,0.1)', color: activeTab === i ? '#F7F5F2' : 'rgba(247,242,234,0.4)', borderRadius: 100, padding: '1px 6px' }}>
                   {tabs[i].length}
                 </span>
               )}
@@ -287,11 +287,11 @@ export default function DashboardPage() {
             {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 100, borderRadius: 16 }} />)}
           </div>
         ) : displayBookings.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '48px 0', color: 'rgba(247,242,234,0.25)' }}>
+          <div style={{ textAlign: 'center', padding: '48px 0', color: 'rgba(26,22,18,0.2)' }}>
             <p style={{ fontSize: 40, marginBottom: 12 }}>📅</p>
             <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', fontStyle: 'italic', marginBottom: 6 }}>Sin citas</p>
             {activeTab === 0 && !isProfessional() && (
-              <Link to="/search" style={{ display: 'inline-block', marginTop: 12, textDecoration: 'none', background: 'linear-gradient(135deg,#C9965A,#E8B97A)', borderRadius: 12, padding: '12px 24px', color: '#16120E', fontWeight: 700, fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>
+              <Link to="/search" style={{ display: 'inline-block', marginTop: 12, textDecoration: 'none', background: 'linear-gradient(135deg,#B8833A,#D4A055)', borderRadius: 12, padding: '12px 24px', color: '#F7F5F2', fontWeight: 700, fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>
                 Buscar profesionales
               </Link>
             )}

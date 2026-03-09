@@ -2,41 +2,37 @@
 
 /* ───────────────── THEME ───────────────── */
 :root {
-  --color-bg:    #16120E;
-  --color-bg2:   #1F1A14;
-  --color-bg3:   #26201A;
-  --color-gold:  #C9965A;
-  --color-gold2: #E8B97A;
-  --color-cream: #F7F2EA;
+  --color-bg:    #F7F5F2;
+  --color-bg2:   #FFFFFF;
+  --color-bg3:   #EFEDE9;
+  --color-border: rgba(0,0,0,0.08);
+  --color-border2: rgba(0,0,0,0.05);
+  --color-gold:  #B8833A;
+  --color-gold2: #D4A055;
+  --color-text:  #1A1612;
+  --color-text2: #6B5E52;
+  --color-text3: #A0917F;
+  --color-cream: #1A1612;
 
-  --radius-lg: 22px;
-  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-md: 12px;
+
+  --shadow-sm: 0 1px 4px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.1);
 
   --font-display: "Cormorant Garamond", serif;
   --font-body: "Outfit", sans-serif;
 }
 
 /* ───────────────── BASE RESET ───────────────── */
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html {
-  font-size: 15px;
-}
+html { font-size: 15px; }
 
 body {
-  /* Marrón oscuro cálido con halos dorados — da vida sin perder elegancia */
-  background-color: #16120E;
-  background-image:
-    radial-gradient(ellipse 90% 60% at 15% 0%,   rgba(201,150,90,0.11) 0%, transparent 55%),
-    radial-gradient(ellipse 70% 50% at 85% 100%,  rgba(160,90,30,0.09)  0%, transparent 55%),
-    radial-gradient(ellipse 50% 40% at 50% 50%,   rgba(30,20,10,0.5)    0%, transparent 100%);
-  background-attachment: fixed;
-  color: var(--color-cream);
+  background-color: var(--color-bg);
+  color: var(--color-text);
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   line-height: 1.6;
@@ -44,175 +40,127 @@ body {
   overflow-x: hidden;
 }
 
-#root {
-  overflow-x: hidden;
-}
+#root { overflow-x: hidden; }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: #16120E; }
-::-webkit-scrollbar-thumb {
-  background: rgba(201,150,90,0.45);
-  border-radius: 10px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-gold);
-}
+::-webkit-scrollbar-track { background: var(--color-bg3); }
+::-webkit-scrollbar-thumb { background: var(--color-gold2); border-radius: 10px; }
 
 /* ───────────────── TYPOGRAPHY ───────────────── */
-
 h1, h2, h3 {
   font-family: var(--font-display);
   font-weight: 300;
   letter-spacing: -0.02em;
+  color: var(--color-text);
 }
 
-p {
-  color: rgba(247,242,234,0.78);
-  font-size: 0.95rem;
-}
+p { color: var(--color-text2); font-size: 0.95rem; }
 
 /* ───────────────── INPUTS ───────────────── */
-
 .input {
   width: 100%;
-  background: rgba(255,240,210,0.06);
-  border: 1px solid rgba(255,240,210,0.12);
+  background: #FFFFFF;
+  border: 1.5px solid var(--color-border);
   border-radius: var(--radius-md);
-  padding: 14px 16px;
-  color: var(--color-cream);
+  padding: 12px 16px;
+  color: var(--color-text);
   font-size: 0.95rem;
   font-family: var(--font-body);
   outline: none;
-  transition: all 0.25s ease;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
 }
-
-.input::placeholder {
-  color: rgba(247,242,234,0.35);
-}
-
+.input::placeholder { color: var(--color-text3); }
 .input:focus {
-  border-color: rgba(201,150,90,0.55);
-  box-shadow: 0 0 0 3px rgba(201,150,90,0.12);
-  background: rgba(201,150,90,0.05);
+  border-color: var(--color-gold);
+  box-shadow: 0 0 0 3px rgba(184,131,58,0.12);
 }
 
 /* ───────────────── BUTTONS ───────────────── */
-
 .btn-primary {
   width: 100%;
   background: linear-gradient(135deg, var(--color-gold), var(--color-gold2));
-  color: #0A0806;
+  color: #FFFFFF;
   font-weight: 700;
-  padding: 14px;
-  border-radius: 12px;
+  padding: 13px;
+  border-radius: var(--radius-md);
   border: none;
   font-size: 0.8rem;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: all 0.25s ease;
+  transition: all 0.22s ease;
   font-family: var(--font-body);
   text-decoration: none;
   display: inline-block;
-  box-shadow: 0 4px 24px rgba(201,150,90,0.22);
+  box-shadow: 0 2px 12px rgba(184,131,58,0.25);
 }
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(201,150,90,0.38);
-}
-
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(184,131,58,0.35); }
 .btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
 
-.btn-primary:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-/* Outline */
 .btn-outline {
   width: 100%;
   background: transparent;
-  border: 1px solid rgba(201,150,90,0.45);
+  border: 1.5px solid var(--color-gold);
   color: var(--color-gold);
-  padding: 14px;
-  border-radius: 12px;
+  padding: 12px;
+  border-radius: var(--radius-md);
   font-size: 0.8rem;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  transition: 0.25s ease;
+  transition: 0.22s ease;
   cursor: pointer;
   font-family: var(--font-body);
+  font-weight: 600;
 }
+.btn-outline:hover { background: var(--color-gold); color: #fff; }
 
-.btn-outline:hover {
-  background: rgba(201,150,90,0.1);
-  border-color: var(--color-gold);
-}
-
-/* Ghost */
 .btn-ghost {
   background: transparent;
   border: none;
-  color: rgba(247,242,234,0.5);
+  color: var(--color-text3);
   font-size: 0.9rem;
   cursor: pointer;
   transition: 0.2s;
   font-family: var(--font-body);
 }
-.btn-ghost:hover { color: var(--color-cream); }
+.btn-ghost:hover { color: var(--color-text); }
 
 /* ───────────────── CARDS ───────────────── */
-
 .card {
-  background: rgba(255,240,210,0.04);
-  border: 1px solid rgba(255,240,210,0.09);
+  background: #FFFFFF;
+  border: 1.5px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: 22px;
-  transition: all 0.3s ease;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.25s ease;
 }
-
-.card:hover {
-  border-color: rgba(255,240,210,0.15);
-  background: rgba(255,240,210,0.065);
-}
+.card:hover { box-shadow: var(--shadow-md); border-color: rgba(184,131,58,0.2); }
 
 .card-gold {
-  background: rgba(201,150,90,0.04);
-  border: 1px solid rgba(201,150,90,0.18);
+  background: #FFFFFF;
+  border: 1.5px solid rgba(184,131,58,0.2);
   border-radius: var(--radius-lg);
-  transition: all 0.3s;
+  transition: all 0.25s;
 }
-
-.card-gold:hover {
-  border-color: rgba(201,150,90,0.45);
-  transform: translateY(-4px);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 40px rgba(201,150,90,0.06);
-}
+.card-gold:hover { border-color: var(--color-gold); box-shadow: 0 8px 32px rgba(184,131,58,0.12); transform: translateY(-3px); }
 
 /* ───────────────── LAYOUT ───────────────── */
-
 .container-app {
   max-width: 100%;
   margin: 0 auto;
   padding: 24px 18px;
 }
-
 @media (min-width: 768px) {
-  .container-app {
-    max-width: 1200px;
-    padding: 40px;
-  }
+  .container-app { max-width: 1200px; padding: 40px; }
 }
 
 /* ───────────────── SECTION TAG ───────────────── */
-
 .section-tag {
   font-size: 0.7rem;
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--color-gold);
@@ -221,40 +169,35 @@ p {
   gap: 8px;
   margin-bottom: 6px;
 }
-
 .section-tag::before {
   content: '';
-  width: 22px;
-  height: 1px;
+  width: 18px;
+  height: 1.5px;
   background: var(--color-gold);
 }
 
 /* ───────────────── ANIMATIONS ───────────────── */
-
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(14px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+.animate-fade-up { animation: fadeUp 0.45s ease forwards; }
 
-.animate-fade-up {
-  animation: fadeUp 0.5s ease forwards;
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
+.animate-fade-in { animation: fadeIn 0.3s ease forwards; }
 
 @keyframes shimmer {
   from { background-position: -200% 0; }
   to   { background-position:  200% 0; }
 }
-
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    rgba(255,240,210,0.05) 25%,
-    rgba(255,240,210,0.12) 50%,
-    rgba(255,240,210,0.05) 75%
-  );
+  background: linear-gradient(90deg, #F0EDE8 25%, #E8E4DE 50%, #F0EDE8 75%);
   background-size: 200% 100%;
-  animation: shimmer 1.6s infinite;
-  border-radius: 12px;
+  animation: shimmer 1.4s infinite;
+  border-radius: 10px;
 }
 
 /* ── Responsive ── */
