@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useRef } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { profApi } from '../services/api'
@@ -75,8 +75,6 @@ function ProfCard({ prof }) {
 
 export default function HomePage() {
   const navigate = useNavigate()
-  const [search, setSearch] = useState('')
-  const [city, setCity]     = useState('')
   const scrollRef = useRef(null)
 
   const { data: featured } = useQuery({
@@ -84,8 +82,6 @@ export default function HomePage() {
     queryFn: () => profApi.getAll({ limit: 8, verified: true }).then(r => r.data.data ?? []),
     staleTime: 5 * 60 * 1000,
   })
-
-  const handleSearch = () => navigate(`/search?q=${search}&city=${city}`)
 
   return (
     <div style={{ fontFamily: 'Outfit, sans-serif' }}>
@@ -141,49 +137,16 @@ export default function HomePage() {
             Reserva con profesionales verificados. Sin llamadas, sin esperas.
           </p>
 
-          {/* Search bar */}
-          <div
-            className="hero-search"
-            style={{
-              display: 'flex', flexDirection: 'column', gap: 0, maxWidth: 540, marginBottom: 16,
-              background: 'rgba(255,240,210,0.045)',
-              border: '1px solid rgba(201,150,90,0.2)',
-              borderRadius: 14, overflow: 'hidden',
-            }}
-          >
-            <input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSearch()}
-              placeholder="¿Qué servicio buscas?"
-              style={{ flex: '1 1 200px', background: 'transparent', border: 'none', outline: 'none', padding: '13px 16px', color: '#F7F2EA', fontSize: 14 }}
-            />
-            <div className="divider" style={{ display: 'none', width: 1, background: 'rgba(201,150,90,0.15)' }} />
-            <input
-              className="city-input"
-              value={city}
-              onChange={e => setCity(e.target.value)}
-              placeholder="Ciudad"
-              style={{ flex: '0 1 120px', background: 'transparent', border: 'none', outline: 'none', padding: '13px 14px', color: '#F7F2EA', fontSize: 14 }}
-            />
+          {/* Quick tags + CTA */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center' }}>
             <button
-              onClick={handleSearch}
-              style={{
-                padding: '13px 22px',
-                background: 'linear-gradient(135deg, #C9965A, #E8B97A)',
-                border: 'none', cursor: 'pointer', color: '#16120E',
-                fontWeight: 700, fontSize: 12, letterSpacing: '0.1em',
-                textTransform: 'uppercase', whiteSpace: 'nowrap',
-                borderTop: '1px solid rgba(201,150,90,0.15)',
-              }}
+              onClick={() => navigate('/search')}
+              className="btn-primary"
+              style={{ width: 'auto', padding: '10px 24px', fontSize: 13 }}
             >
-              Buscar
+              Explorar profesionales
             </button>
-          </div>
-
-          {/* Quick tags */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-            {['Peluquería', 'Masajes', 'Uñas', 'Barbería', 'Spa'].map(tag => (
+            {['Peluquería', 'Masajes', 'Uñas', 'Barbería'].map(tag => (
               <button
                 key={tag}
                 className="quick-tag"
@@ -191,7 +154,7 @@ export default function HomePage() {
                 style={{
                   fontSize: 12, background: 'transparent',
                   border: '1px solid rgba(255,240,210,0.1)',
-                  borderRadius: 100, padding: '4px 12px',
+                  borderRadius: 100, padding: '5px 13px',
                   color: 'rgba(247,242,234,0.4)', cursor: 'pointer', transition: 'all 0.18s',
                 }}
               >
