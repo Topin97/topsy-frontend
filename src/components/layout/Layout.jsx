@@ -97,7 +97,12 @@ export default function Layout() {
             ? <div style={{ width: 24, height: 24, borderRadius: '50%', overflow: 'hidden', border: `2px solid ${on ? '#B8833A' : 'rgba(0,0,0,0.15)'}`, transition: 'border-color 0.22s' }}>
                 <img src={avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
-            : <img src={img} alt={label} style={{ width: 18, height: 18, objectFit: 'contain', opacity: on ? 1 : 0.35, filter: on ? 'sepia(1) saturate(2) hue-rotate(5deg)' : 'none', transition: 'all 0.22s' }} />
+            : <img src={img} alt={label} style={{ width: 18, height: 18, objectFit: 'contain', transition: 'all 0.22s',
+                opacity: on ? 1 : 0.4,
+                filter: on
+                  ? 'brightness(0) saturate(1) invert(48%) sepia(60%) saturate(500%) hue-rotate(10deg) brightness(0.85)'
+                  : 'brightness(0)'
+              }} />
           }
         </div>
         <span style={{ fontSize: 10, marginTop: 2, color: on ? '#B8833A' : 'rgba(26,22,18,0.4)', fontFamily: 'Outfit, sans-serif', fontWeight: on ? 600 : 400, transition: 'all 0.22s' }}>

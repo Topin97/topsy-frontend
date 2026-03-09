@@ -66,7 +66,7 @@ function ProfCard({ prof }) {
         <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.3)', margin: '0 0 7px' }}>📍 {prof.city}</p>
         <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <Stars rating={prof.avg_rating} />
-          <span style={{ fontSize: 10, color: 'rgba(247,242,234,0.3)' }}>({prof.total_reviews})</span>
+          <span style={{ fontSize: 10, color: 'rgba(26,22,18,0.35)' }}>({prof.total_reviews})</span>
         </div>
       </div>
     </div>
@@ -117,7 +117,7 @@ export default function HomePage() {
           {/* Badge */}
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, border: '1px solid rgba(184,131,58,0.1)', borderRadius: 100, padding: '4px 12px', marginBottom: 20 }}>
             <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#B8833A', flexShrink: 0 }} />
-            <span style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.7)' }}>
+            <span style={{ fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(184,131,58,0.8)' }}>
               Belleza y bienestar · España
             </span>
           </div>
@@ -152,10 +152,10 @@ export default function HomePage() {
                 className="quick-tag"
                 onClick={() => navigate(`/search?q=${tag}`)}
                 style={{
-                  fontSize: 12, background: 'transparent',
-                  border: '1px solid rgba(0,0,0,0.04)',
+                  fontSize: 12, background: 'white',
+                  border: '1px solid rgba(0,0,0,0.12)',
                   borderRadius: 100, padding: '5px 13px',
-                  color: 'rgba(247,242,234,0.4)', cursor: 'pointer', transition: 'all 0.18s',
+                  color: 'rgba(26,22,18,0.45)', cursor: 'pointer', transition: 'all 0.18s',
                 }}
               >
                 {tag}
@@ -170,7 +170,7 @@ export default function HomePage() {
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
           {/* Header */}
           <div style={{ padding: '0 20px', marginBottom: 18 }}>
-            <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.5)', marginBottom: 4 }}>Categorías</p>
+            <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(184,131,58,0.6)', marginBottom: 4 }}>Categorías</p>
             <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.5rem, 3vw, 2.2rem)', fontWeight: 300, color: '#1A1612', margin: 0 }}>
               Explora por <em style={{ color: '#B8833A' }}>servicio</em>
             </h2>
@@ -207,7 +207,7 @@ export default function HomePage() {
       <section style={{ padding: 'clamp(32px, 6vw, 72px) 0', borderTop: '1px solid rgba(184,131,58,0.07)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 20px' }}>
           <div style={{ marginBottom: 28 }}>
-            <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.5)', marginBottom: 4 }}>Simple y rápido</p>
+            <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(184,131,58,0.6)', marginBottom: 4 }}>Simple y rápido</p>
             <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.5rem, 3vw, 2.2rem)', fontWeight: 300, color: '#1A1612', margin: 0 }}>
               ¿Cómo <em style={{ color: '#B8833A' }}>funciona</em>?
             </h2>
@@ -228,7 +228,7 @@ export default function HomePage() {
                 </div>
                 <div>
                   <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.2rem', fontWeight: 600, color: '#1A1612', marginBottom: 4 }}>{s.title}</h3>
-                  <p style={{ fontSize: 13, color: 'rgba(247,242,234,0.4)', lineHeight: 1.6, margin: 0 }}>{s.desc}</p>
+                  <p style={{ fontSize: 13, color: 'rgba(26,22,18,0.45)', lineHeight: 1.6, margin: 0 }}>{s.desc}</p>
                 </div>
               </div>
             ))}
@@ -242,7 +242,7 @@ export default function HomePage() {
           <div style={{ maxWidth: 1200, margin: '0 auto' }}>
             <div style={{ padding: '0 20px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 18, gap: 10 }}>
               <div>
-                <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.5)', marginBottom: 4 }}>Destacados</p>
+                <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(184,131,58,0.6)', marginBottom: 4 }}>Destacados</p>
                 <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.5rem, 3vw, 2.2rem)', fontWeight: 300, color: '#1A1612', margin: 0 }}>
                   Esta <em style={{ color: '#B8833A' }}>semana</em>
                 </h2>
@@ -277,7 +277,7 @@ export default function HomePage() {
           }}>
             <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 400, height: 400, background: 'radial-gradient(circle, rgba(184,131,58,0.07) 0%, transparent 65%)', borderRadius: '50%', pointerEvents: 'none' }} />
             <div style={{ position: 'relative', zIndex: 1 }}>
-              <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.5)', marginBottom: 10 }}>Empieza hoy</p>
+              <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(184,131,58,0.6)', marginBottom: 10 }}>Empieza hoy</p>
               <h2 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(2rem, 5vw, 3.6rem)', fontWeight: 300, color: '#1A1612', marginBottom: 10, lineHeight: 1.08 }}>
                 Tu bienestar,<br /><em style={{ color: '#B8833A' }}>reservado</em>
               </h2>
