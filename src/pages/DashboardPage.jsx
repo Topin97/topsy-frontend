@@ -8,11 +8,11 @@ import toast from 'react-hot-toast'
 import { Link } from 'react-router-dom'
 
 const STATUS = {
-  pending:   { label: 'Pendiente',  bg: 'rgba(251,191,36,0.12)',  color: '#fbbf24' },
-  confirmed: { label: 'Confirmada', bg: 'rgba(74,222,128,0.12)',  color: '#4ade80' },
-  completed: { label: 'Completada', bg: 'rgba(96,165,250,0.12)',  color: '#60a5fa' },
-  cancelled: { label: 'Cancelada',  bg: 'rgba(248,113,113,0.12)', color: '#f87171' },
-  no_show:   { label: 'No asistió', bg: 'rgba(156,163,175,0.12)', color: '#9ca3af' },
+  pending:   { label: 'Pendiente',  bg: 'rgba(217,119,6,0.1)',  color: '#d97706' },
+  confirmed: { label: 'Confirmada', bg: 'rgba(22,163,74,0.1)',  color: '#16a34a' },
+  completed: { label: 'Completada', bg: 'rgba(37,99,235,0.1)',  color: '#2563eb' },
+  cancelled: { label: 'Cancelada',  bg: 'rgba(220,38,38,0.08)', color: '#dc2626' },
+  no_show:   { label: 'No asistió', bg: 'rgba(107,114,128,0.1)', color: '#6b7280' },
 }
 
 const TABS = ['Próximas', 'Pasadas', 'Canceladas']
@@ -27,7 +27,7 @@ function StarInput({ value, onChange }) {
           onMouseEnter={() => setHover(star)}
           onMouseLeave={() => setHover(0)}
           style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 36, padding: 0, lineHeight: 1,
-            color: star <= (hover || value) ? '#B8833A' : 'rgba(247,242,234,0.1)',
+            color: star <= (hover || value) ? '#B8833A' : 'rgba(26,22,18,0.15)',
             transition: 'color 0.12s, transform 0.1s',
             transform: star <= (hover || value) ? 'scale(1.15)' : 'scale(1)',
           }}
@@ -68,7 +68,7 @@ function ReviewModal({ booking, onClose, onSubmit, isLoading }) {
         />
 
         <div style={{ display: 'flex', gap: 10 }}>
-          <button onClick={onClose} style={{ flex: 1, background: 'transparent', border: '1px solid rgba(0,0,0,0.04)', borderRadius: 12, padding: '13px 0', color: 'rgba(247,242,234,0.4)', fontSize: 14, fontFamily: 'Outfit, sans-serif', cursor: 'pointer' }}>
+          <button onClick={onClose} style={{ flex: 1, background: 'transparent', border: '1px solid rgba(0,0,0,0.04)', borderRadius: 12, padding: '13px 0', color: 'rgba(26,22,18,0.4)', fontSize: 14, fontFamily: 'Outfit, sans-serif', cursor: 'pointer' }}>
             Cancelar
           </button>
           <button
@@ -94,7 +94,7 @@ function BookingCard({ booking, onCancel, onReview }) {
   const coverUrl = booking.professional_profiles?.cover_image_url
 
   return (
-    <div style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.04)', borderRadius: 16, overflow: 'hidden', display: 'flex' }}>
+    <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 16, overflow: 'hidden', display: 'flex', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
       {/* Color strip */}
       <div style={{ width: 4, flexShrink: 0, background: st.color, opacity: 0.6 }} />
 
@@ -113,7 +113,7 @@ function BookingCard({ booking, onCancel, onReview }) {
             <p style={{ fontWeight: 600, fontSize: 14, color: '#1A1612', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {booking.services?.name}
             </p>
-            <p style={{ fontSize: 12, color: 'rgba(247,242,234,0.4)', margin: '2px 0' }}>{proName}</p>
+            <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.4)', margin: '2px 0' }}>{proName}</p>
           </div>
           <span style={{ fontSize: 11, padding: '3px 8px', borderRadius: 100, background: st.bg, color: st.color, whiteSpace: 'nowrap', flexShrink: 0, fontFamily: 'Outfit, sans-serif' }}>
             {st.label}
@@ -122,7 +122,7 @@ function BookingCard({ booking, onCancel, onReview }) {
 
         <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.3)', margin: '0 0 8px' }}>
           📅 {format(new Date(booking.starts_at), "EEEE d MMM · HH:mm", { locale: es })}
-          <span style={{ marginLeft: 6, color: 'rgba(26,22,18,0.2)' }}>· {booking.services?.duration_minutes} min</span>
+          <span style={{ marginLeft: 6, color: 'rgba(26,22,18,0.3)' }}>· {booking.services?.duration_minutes} min</span>
         </p>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
@@ -139,7 +139,7 @@ function BookingCard({ booking, onCancel, onReview }) {
             </button>
           )}
           {canCancel && (
-            <button onClick={() => onCancel(booking.id)} style={{ fontSize: 12, background: 'transparent', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 8, padding: '4px 12px', color: 'rgba(248,113,113,0.6)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
+            <button onClick={() => onCancel(booking.id)} style={{ fontSize: 12, background: 'transparent', border: '1.5px solid rgba(220,38,38,0.2)', borderRadius: 8, padding: '4px 12px', color: '#dc2626', cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
               Cancelar
             </button>
           )}
@@ -151,13 +151,13 @@ function BookingCard({ booking, onCancel, onReview }) {
 
 function KpiCard({ icon, label, value, sub }) {
   return (
-    <div style={{ background: 'rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.04)', borderRadius: 16, padding: '16px 18px' }}>
+    <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 16, padding: '16px 18px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
         <span style={{ fontSize: 18 }}>{icon}</span>
         <span style={{ fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.3)', fontFamily: 'Outfit, sans-serif' }}>{label}</span>
       </div>
       <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2rem', fontWeight: 300, color: '#B8833A', margin: 0, lineHeight: 1 }}>{value}</p>
-      {sub && <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.3)', margin: '4px 0 0' }}>{sub}</p>}
+      {sub && <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.35)', margin: '4px 0 0' }}>{sub}</p>}
     </div>
   )
 }
@@ -241,7 +241,7 @@ export default function DashboardPage() {
             </h1>
           </div>
           {!isProfessional() && (
-            <Link to="/search" style={{ textDecoration: 'none', background: 'linear-gradient(135deg,#B8833A,#D4A055)', borderRadius: 12, padding: '10px 18px', color: '#F7F5F2', fontWeight: 700, fontSize: 13, fontFamily: 'Outfit, sans-serif', whiteSpace: 'nowrap' }}>
+            <Link to="/search" style={{ textDecoration: 'none', background: 'linear-gradient(135deg,#B8833A,#D4A055)', borderRadius: 12, padding: '10px 18px', color: '#FFFFFF', fontWeight: 700, fontSize: 13, fontFamily: 'Outfit, sans-serif', whiteSpace: 'nowrap' }}>
               + Nueva cita
             </Link>
           )}
@@ -258,7 +258,7 @@ export default function DashboardPage() {
         )}
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 0, marginBottom: 16, background: 'rgba(0,0,0,0.04)', borderRadius: 12, padding: 4 }}>
+        <div style={{ display: 'flex', gap: 0, marginBottom: 16, background: '#EFEDE9', borderRadius: 12, padding: 4 }}>
           {TABS.map((tab, i) => (
             <button
               key={tab}
@@ -273,7 +273,7 @@ export default function DashboardPage() {
             >
               {tab}
               {tabs[i]?.length > 0 && (
-                <span style={{ marginLeft: 5, fontSize: 10, background: activeTab === i ? '#B8833A' : 'rgba(255,255,255,0.1)', color: activeTab === i ? '#F7F5F2' : 'rgba(247,242,234,0.4)', borderRadius: 100, padding: '1px 6px' }}>
+                <span style={{ marginLeft: 5, fontSize: 10, background: activeTab === i ? '#B8833A' : 'rgba(26,22,18,0.12)', color: activeTab === i ? '#FFFFFF' : 'rgba(26,22,18,0.4)', borderRadius: 100, padding: '1px 6px' }}>
                   {tabs[i].length}
                 </span>
               )}
@@ -287,11 +287,11 @@ export default function DashboardPage() {
             {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 100, borderRadius: 16 }} />)}
           </div>
         ) : displayBookings.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '48px 0', color: 'rgba(26,22,18,0.2)' }}>
+          <div style={{ textAlign: 'center', padding: '48px 0', color: 'rgba(26,22,18,0.3)' }}>
             <p style={{ fontSize: 40, marginBottom: 12 }}>📅</p>
             <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', fontStyle: 'italic', marginBottom: 6 }}>Sin citas</p>
             {activeTab === 0 && !isProfessional() && (
-              <Link to="/search" style={{ display: 'inline-block', marginTop: 12, textDecoration: 'none', background: 'linear-gradient(135deg,#B8833A,#D4A055)', borderRadius: 12, padding: '12px 24px', color: '#F7F5F2', fontWeight: 700, fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>
+              <Link to="/search" style={{ display: 'inline-block', marginTop: 12, textDecoration: 'none', background: 'linear-gradient(135deg,#B8833A,#D4A055)', borderRadius: 12, padding: '12px 24px', color: '#FFFFFF', fontWeight: 700, fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>
                 Buscar profesionales
               </Link>
             )}
