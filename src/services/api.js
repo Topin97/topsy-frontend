@@ -58,7 +58,7 @@ export const profApi = {
   getStats:      ()     => api.get('/professionals/me/stats'),
   getMyProfile:  ()     => api.get('/professionals/me/stats'),
   setAvail:  (data)   => api.put('/professionals/availability', data),
-  uploadGalleryImage: (base64, filename) => api.post('/professionals/gallery/upload', { image: base64, filename }),
+  uploadGalleryImage: (base64, caption) => api.post('/professionals/gallery/upload', { image: base64, caption }),
   deleteGalleryImage: (url)              => api.delete('/professionals/gallery/image', { data: { url } }),
 }
 

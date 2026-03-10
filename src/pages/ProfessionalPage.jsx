@@ -65,7 +65,12 @@ export default function ProfessionalPage() {
   const activeServices = prof.services?.filter(s => s.is_active) ?? []
   const availability   = DAY_ORDER.map(d => prof.availability?.find(a => a.day_of_week === d)).filter(Boolean)
   const availableDays  = availability.filter(a => a.is_available)
-  const gallery        = prof.gallery_urls?.filter(Boolean) ?? []
+  const gallery        = (() => {
+    // Soporta tanto gallery (nuevo, JSONB) como gallery_urls (legacy TEXT[])
+    if (prof.gallery?.length) return prof.gallery  // [{url, caption}]
+    if (prof.gallery_urls?.length) return prof.gallery_urls.filter(Boolean).map(url => ({ url, caption: '' }))
+    return []
+  })()
   const minPrice       = activeServices.length ? Math.min(...activeServices.map(s => s.price)) : null
 
   const handleBook = (service) => {
@@ -86,13 +91,16 @@ export default function ProfessionalPage() {
 
       {/* ── GALLERY LIGHTBOX ── */}
       {galleryOpen !== null && (
-        <div onClick={() => setGalleryOpen(null)} style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.92)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <img src={gallery[galleryOpen]} alt="" style={{ maxWidth: '100%', maxHeight: '90vh', borderRadius: 12, objectFit: 'contain' }} />
+        <div onClick={() => setGalleryOpen(null)} style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.94)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+          <img src={gallery[galleryOpen].url} alt={gallery[galleryOpen].caption} style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 12, objectFit: 'contain' }} />
+          {gallery[galleryOpen].caption && (
+            <p style={{ marginTop: 14, color: '#FFFFFF', fontSize: 15, fontFamily: 'Outfit, sans-serif', fontWeight: 600, textAlign: 'center', opacity: 0.9 }}>{gallery[galleryOpen].caption}</p>
+          )}
           <button onClick={() => setGalleryOpen(null)} style={{ position: 'absolute', top: 20, right: 20, background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: 40, height: 40, color: '#FFF', fontSize: 18, cursor: 'pointer' }}>✕</button>
           {gallery.length > 1 && (
             <>
-              <button onClick={e => { e.stopPropagation(); setGalleryOpen((galleryOpen - 1 + gallery.length) % gallery.length) }} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: 44, height: 44, color: '#FFF', fontSize: 20, cursor: 'pointer' }}>‹</button>
-              <button onClick={e => { e.stopPropagation(); setGalleryOpen((galleryOpen + 1) % gallery.length) }} style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: 44, height: 44, color: '#FFF', fontSize: 20, cursor: 'pointer' }}>›</button>
+              <button onClick={e => { e.stopPropagation(); setGalleryOpen((galleryOpen - 1 + gallery.length) % gallery.length) }} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '50%', width: 44, height: 44, color: '#FFF', fontSize: 20, cursor: 'pointer' }}>‹</button>
+              <button onClick={e => { e.stopPropagation(); setGalleryOpen((galleryOpen + 1) % gallery.length) }} style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '50%', width: 44, height: 44, color: '#FFF', fontSize: 20, cursor: 'pointer' }}>›</button>
             </>
           )}
         </div>
@@ -181,18 +189,28 @@ export default function ProfessionalPage() {
 
       {/* ── GALERÍA ── */}
       {gallery.length > 0 && (
-        <div style={{ padding: '12px 16px' }}>
-          <div style={{ display: 'flex', gap: 8, overflowX: 'auto' }}>
-            <style>{`.gallery-scroll::-webkit-scrollbar{display:none}`}</style>
-            {gallery.map((url, i) => (
-              <img
+        <div style={{ padding: '12px 16px 4px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
+            {gallery.map((item, i) => (
+              <div
                 key={i}
-                src={url}
-                alt=""
                 className="gallery-thumb"
                 onClick={() => setGalleryOpen(i)}
-                style={{ width: i === 0 ? 180 : 120, height: 90, objectFit: 'cover', borderRadius: 12, flexShrink: 0, border: '1.5px solid rgba(0,0,0,0.07)' }}
-              />
+                style={{ position: 'relative', aspectRatio: '1', borderRadius: 12, overflow: 'hidden', border: '1.5px solid rgba(0,0,0,0.07)', background: '#EFEDE9' }}
+              >
+                <img
+                  src={item.url}
+                  alt={item.caption}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                />
+                {item.caption && (
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, background: 'linear-gradient(transparent, rgba(0,0,0,0.6))', padding: '18px 7px 6px' }}>
+                    <p style={{ margin: 0, fontSize: 10, color: '#FFFFFF', fontFamily: 'Outfit, sans-serif', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {item.caption}
+                    </p>
+                  </div>
+                )}
+              </div>
             ))}
           </div>
         </div>
