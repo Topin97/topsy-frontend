@@ -64,12 +64,15 @@ export const profApi = {
 
 // ── Bookings ──────────────────────────────────────────────────
 export const bookingsApi = {
-  getSlots:         (params) => api.get('/bookings/available-slots', { params }),
-  create:           (data)   => api.post('/bookings', data),
-  getMine:          (params) => api.get('/bookings/my', { params }),
-  getProfessional:  (params) => api.get('/bookings/professional', { params }),
+  getSlots:         (params)    => api.get('/bookings/available-slots', { params }),
+  create:           (data)      => api.post('/bookings', data),
+  getMine:          ()          => api.get('/bookings/my'),
+  getPro:           ()          => api.get('/bookings/professional'),
   cancel:           (id, reason) => api.patch(`/bookings/${id}/cancel`, { reason }),
-  review:           (id, data)   => api.post(`/bookings/${id}/review`, data),
+  complete:         (id)        => api.patch(`/bookings/${id}/complete`),
+  review:           (id, data)  => api.post(`/bookings/${id}/review`, data),
+  reschedule:       (id, starts_at) => api.patch(`/bookings/${id}/reschedule`, { starts_at }),
+  addNote:          (id, note)  => api.patch(`/bookings/${id}/note`, { note }),
 }
 
 // ── Storage (Supabase direct) ─────────────────────────────────
