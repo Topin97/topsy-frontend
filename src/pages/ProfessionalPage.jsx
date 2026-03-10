@@ -386,26 +386,37 @@ export default function ProfessionalPage() {
             })}
           </div>
 
-          {/* Dirección */}
+          {/* Ubicación con mapa */}
           {(prof.address || prof.city) && (
-            <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 18, padding: '18px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-              <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#B8833A', marginBottom: 12, fontWeight: 700 }}>Ubicación</p>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <div style={{ width: 44, height: 44, borderRadius: 14, background: 'rgba(184,131,58,0.08)', border: '1.5px solid rgba(184,131,58,0.18)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>📍</div>
+            <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 18, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+              {/* Mapa OpenStreetMap */}
+              {prof.latitude && prof.longitude ? (
+                <div style={{ position: 'relative', height: 180 }}>
+                  <iframe
+                    title="mapa"
+                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${prof.longitude - 0.005},${prof.latitude - 0.003},${prof.longitude + 0.005},${prof.latitude + 0.003}&layer=mapnik&marker=${prof.latitude},${prof.longitude}`}
+                    style={{ width: '100%', height: '100%', border: 'none', display: 'block' }}
+                    loading="lazy"
+                  />
+                </div>
+              ) : (
+                <div style={{ height: 120, background: '#EFEDE9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>🗺️</div>
+              )}
+              {/* Dirección */}
+              <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
                 <div>
+                  <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#B8833A', marginBottom: 5, fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>Ubicación</p>
                   {prof.address && <p style={{ fontSize: 14, fontWeight: 600, color: '#1A1612', margin: '0 0 2px', fontFamily: 'Outfit, sans-serif' }}>{prof.address}</p>}
                   <p style={{ fontSize: 13, color: 'rgba(26,22,18,0.45)', margin: 0, fontFamily: 'Outfit, sans-serif' }}>{prof.city}</p>
                 </div>
-              </div>
-              {prof.address && (
                 <a
-                  href={`https://maps.google.com?q=${encodeURIComponent(`${prof.address}, ${prof.city}`)}`}
+                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${prof.address ?? ''} ${prof.city}`)}`}
                   target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'inline-block', marginTop: 12, fontSize: 12, color: '#B8833A', fontFamily: 'Outfit, sans-serif', fontWeight: 600, textDecoration: 'none' }}
+                  style={{ flexShrink: 0, background: '#F7F5F2', border: '1.5px solid rgba(0,0,0,0.1)', borderRadius: 10, padding: '8px 14px', fontSize: 12, color: '#1A1612', fontFamily: 'Outfit, sans-serif', fontWeight: 600, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 5 }}
                 >
-                  Ver en Google Maps →
+                  📍 Cómo llegar
                 </a>
-              )}
+              </div>
             </div>
           )}
 
