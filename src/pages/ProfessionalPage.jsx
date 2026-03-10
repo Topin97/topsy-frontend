@@ -90,21 +90,56 @@ export default function ProfessionalPage() {
       `}</style>
 
       {/* ── GALLERY LIGHTBOX ── */}
-      {galleryOpen !== null && (
-        <div onClick={() => setGalleryOpen(null)} style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.94)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
-          <img src={gallery[galleryOpen].url} alt={gallery[galleryOpen].caption} style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 12, objectFit: 'contain' }} />
-          {gallery[galleryOpen].caption && (
-            <p style={{ marginTop: 14, color: '#FFFFFF', fontSize: 15, fontFamily: 'Outfit, sans-serif', fontWeight: 600, textAlign: 'center', opacity: 0.9 }}>{gallery[galleryOpen].caption}</p>
-          )}
-          <button onClick={() => setGalleryOpen(null)} style={{ position: 'absolute', top: 20, right: 20, background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: 40, height: 40, color: '#FFF', fontSize: 18, cursor: 'pointer' }}>✕</button>
-          {gallery.length > 1 && (
-            <>
-              <button onClick={e => { e.stopPropagation(); setGalleryOpen((galleryOpen - 1 + gallery.length) % gallery.length) }} style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '50%', width: 44, height: 44, color: '#FFF', fontSize: 20, cursor: 'pointer' }}>‹</button>
-              <button onClick={e => { e.stopPropagation(); setGalleryOpen((galleryOpen + 1) % gallery.length) }} style={{ position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '50%', width: 44, height: 44, color: '#FFF', fontSize: 20, cursor: 'pointer' }}>›</button>
-            </>
-          )}
-        </div>
-      )}
+      {galleryOpen !== null && (() => {
+        const prev = () => setGalleryOpen((galleryOpen - 1 + gallery.length) % gallery.length)
+        const next = () => setGalleryOpen((galleryOpen + 1) % gallery.length)
+        let touchStartX = null
+        return (
+          <div
+            onClick={() => setGalleryOpen(null)}
+            onTouchStart={e => { touchStartX = e.touches[0].clientX }}
+            onTouchEnd={e => {
+              if (touchStartX === null) return
+              const dx = e.changedTouches[0].clientX - touchStartX
+              touchStartX = null
+              if (Math.abs(dx) < 40) return
+              e.stopPropagation()
+              dx < 0 ? next() : prev()
+            }}
+            style={{ position: 'fixed', inset: 0, zIndex: 300, background: 'rgba(0,0,0,0.94)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px 60px', touchAction: 'pan-y' }}
+          >
+            <img
+              src={gallery[galleryOpen].url}
+              alt={gallery[galleryOpen].caption}
+              onClick={e => e.stopPropagation()}
+              style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: 12, objectFit: 'contain', userSelect: 'none', pointerEvents: 'none' }}
+            />
+            {gallery[galleryOpen].caption && (
+              <p style={{ marginTop: 14, color: '#FFFFFF', fontSize: 15, fontFamily: 'Outfit, sans-serif', fontWeight: 600, textAlign: 'center', opacity: 0.9 }}>{gallery[galleryOpen].caption}</p>
+            )}
+
+            {/* Dots */}
+            {gallery.length > 1 && (
+              <div style={{ display: 'flex', gap: 6, marginTop: 16 }}>
+                {gallery.map((_, i) => (
+                  <div key={i} onClick={e => { e.stopPropagation(); setGalleryOpen(i) }} style={{ width: i === galleryOpen ? 18 : 6, height: 6, borderRadius: 3, background: i === galleryOpen ? '#D4A055' : 'rgba(255,255,255,0.3)', transition: 'all 0.25s', cursor: 'pointer' }} />
+                ))}
+              </div>
+            )}
+
+            {/* Close */}
+            <button onClick={() => setGalleryOpen(null)} style={{ position: 'absolute', top: 20, right: 20, background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '50%', width: 40, height: 40, color: '#FFF', fontSize: 18, cursor: 'pointer' }}>✕</button>
+
+            {/* Arrows (desktop) */}
+            {gallery.length > 1 && (
+              <>
+                <button onClick={e => { e.stopPropagation(); prev() }} style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '50%', width: 44, height: 44, color: '#FFF', fontSize: 22, cursor: 'pointer' }}>‹</button>
+                <button onClick={e => { e.stopPropagation(); next() }} style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'rgba(255,255,255,0.12)', border: 'none', borderRadius: '50%', width: 44, height: 44, color: '#FFF', fontSize: 22, cursor: 'pointer' }}>›</button>
+              </>
+            )}
+          </div>
+        )
+      })()}
 
       {/* ── COVER ── */}
       <div style={{ position: 'relative', height: 260, overflow: 'hidden', background: 'linear-gradient(135deg,rgba(184,131,58,0.1),#EFEDE9)' }}>
