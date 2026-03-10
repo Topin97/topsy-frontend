@@ -133,7 +133,7 @@ function NotesModal({ booking, onClose, onSend, isLoading }) {
         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
           <textarea value={text} onChange={e => setText(e.target.value)} placeholder="Escribe una nota o petición..." maxLength={500} rows={2}
             style={{ flex: 1, background: '#F7F5F2', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 14, padding: '11px 14px', fontSize: 14, fontFamily: 'Outfit, sans-serif', resize: 'none', outline: 'none', color: '#1A1612' }} />
-          <button onClick={() => { if (!text.trim()) return; onSend(text.trim()) }} disabled={isLoading || !text.trim()}
+          <button onClick={() => { if (!text.trim()) return; onSend(text.trim()); setText('') }} disabled={isLoading || !text.trim()}
             style={{ width: 46, height: 46, borderRadius: '50%', background: text.trim() ? 'linear-gradient(135deg,#B8833A,#D4A055)' : 'rgba(184,131,58,0.15)', border: 'none', color: '#FFFFFF', fontSize: 20, cursor: text.trim() ? 'pointer' : 'not-allowed', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>↑</button>
         </div>
       </div>
