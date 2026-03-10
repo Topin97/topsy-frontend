@@ -44,9 +44,11 @@ export const authApi = {
   login:         (data) => api.post('/auth/login', data),
   logout:        ()     => api.post('/auth/logout'),
   me:            ()     => api.get('/auth/me'),
+  refresh:       (rt)   => api.post('/auth/refresh', { refresh_token: rt }),
+  forgotPassword:(email)=> api.post('/auth/forgot-password', { email }),
   updateProfile: (data) => api.put('/auth/profile', data),
-  forgotPassword: (data) => api.post('/auth/forgot-password', data),
-  resetPassword:  (data) => api.post('/auth/reset-password', data),
+  oauthGoogle:   (access_token, refresh_token, role) =>
+    api.post('/auth/oauth', { access_token, refresh_token, role }),
 }
 
 // ── Professionals ─────────────────────────────────────────────
