@@ -85,7 +85,7 @@ function MapPin({ lat, lng }) {
       className: '',
       html: `<div style="
         width:36px;height:36px;border-radius:50% 50% 50% 0;
-        background:linear-gradient(135deg,#C9965A,#E8B97A);
+        background:linear-gradient(135deg,#B8833A,#D4A055);
         transform:rotate(-45deg);
         border:3px solid #fff;
         box-shadow:0 4px 16px rgba(0,0,0,0.4);
@@ -187,10 +187,10 @@ export default function ProOnboardingPage() {
 
   const inputStyle = {
     width: '100%', boxSizing: 'border-box',
-    background: 'rgba(255,255,255,0.04)',
+    background: 'rgba(0,0,0,0.07)',
     border: '1px solid rgba(255,255,255,0.1)',
     borderRadius: 12, padding: '12px 16px',
-    color: '#F7F2EA', fontSize: 14,
+    color: '#1A1612', fontSize: 14,
     fontFamily: 'Outfit, sans-serif',
     outline: 'none', transition: 'border 0.2s',
   }
@@ -206,10 +206,10 @@ export default function ProOnboardingPage() {
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <div style={{ textAlign: 'center', maxWidth: 420 }}>
         <div style={{ fontSize: 64, marginBottom: 24 }}>🎉</div>
-        <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.5rem', fontWeight: 300, color: '#F7F2EA', marginBottom: 12 }}>
+        <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.5rem', fontWeight: 300, color: '#1A1612', marginBottom: 12 }}>
           ¡Todo listo!
         </h1>
-        <p style={{ color: 'rgba(247,242,234,0.5)', fontFamily: 'Outfit, sans-serif', marginBottom: 32, lineHeight: 1.6 }}>
+        <p style={{ color: 'rgba(26,22,18,0.45)', fontFamily: 'Outfit, sans-serif', marginBottom: 32, lineHeight: 1.6 }}>
           Tu perfil profesional ha sido creado. Ahora configura tus servicios y tu disponibilidad.
         </p>
         <button
@@ -232,20 +232,20 @@ export default function ProOnboardingPage() {
           <p style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.6)', marginBottom: 12, fontFamily: 'Outfit, sans-serif' }}>
             Paso {step} de 2
           </p>
-          <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.2rem', fontWeight: 300, color: '#F7F2EA', margin: 0 }}>
+          <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.2rem', fontWeight: 300, color: '#1A1612', margin: 0 }}>
             {step === 1 ? 'Crea tu perfil profesional' : 'Ubicación de tu negocio'}
           </h1>
-          <p style={{ color: 'rgba(247,242,234,0.4)', fontFamily: 'Outfit, sans-serif', marginTop: 8, fontSize: 14 }}>
+          <p style={{ color: 'rgba(26,22,18,0.36)', fontFamily: 'Outfit, sans-serif', marginTop: 8, fontSize: 14 }}>
             {step === 1 ? 'Información básica de tu negocio' : 'Los clientes te encontrarán cerca de ellos'}
           </p>
         </div>
 
         {/* Progress bar */}
-        <div style={{ height: 3, background: 'rgba(255,255,255,0.06)', borderRadius: 100, marginBottom: 32 }}>
-          <div style={{ height: '100%', width: step === 1 ? '50%' : '100%', background: 'linear-gradient(90deg,#C9965A,#E8B97A)', borderRadius: 100, transition: 'width 0.4s' }} />
+        <div style={{ height: 3, background: 'rgba(0,0,0,0.1)', borderRadius: 100, marginBottom: 32 }}>
+          <div style={{ height: '100%', width: step === 1 ? '50%' : '100%', background: 'linear-gradient(90deg,#B8833A,#D4A055)', borderRadius: 100, transition: 'width 0.4s' }} />
         </div>
 
-        <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(201,150,90,0.12)', borderRadius: 20, padding: 32 }}>
+        <div style={{ background: 'rgba(0,0,0,0.07)', border: '1px solid rgba(201,150,90,0.12)', borderRadius: 20, padding: 32 }}>
 
           {/* ── STEP 1: Basic info ──────────────────────────────── */}
           {step === 1 && (
@@ -275,9 +275,9 @@ export default function ProOnboardingPage() {
                       onClick={() => set('category', cat.value)}
                       style={{
                         padding: '10px 8px', borderRadius: 10, cursor: 'pointer',
-                        background: form.category === cat.value ? 'rgba(201,150,90,0.15)' : 'rgba(255,255,255,0.03)',
-                        border: form.category === cat.value ? '1px solid rgba(201,150,90,0.4)' : '1px solid rgba(255,255,255,0.07)',
-                        color: form.category === cat.value ? '#C9965A' : 'rgba(247,242,234,0.45)',
+                        background: form.category === cat.value ? 'rgba(201,150,90,0.15)' : 'rgba(0,0,0,0.07)',
+                        border: form.category === cat.value ? '1px solid rgba(201,150,90,0.4)' : '1px solid rgba(0,0,0,0.1)',
+                        color: form.category === cat.value ? '#B8833A' : 'rgba(26,22,18,0.41)',
                         fontSize: 12, fontFamily: 'Outfit, sans-serif',
                         transition: 'all 0.15s', display: 'flex', flexDirection: 'column',
                         alignItems: 'center', gap: 4,
@@ -346,7 +346,7 @@ export default function ProOnboardingPage() {
                 {suggestions.length > 0 && (
                   <div style={{
                     position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50,
-                    background: '#1C1C1E', border: '1px solid rgba(201,150,90,0.2)',
+                    background: '#FFFFFF', border: '1px solid rgba(201,150,90,0.2)',
                     borderRadius: 12, overflow: 'hidden', marginTop: 4,
                     boxShadow: '0 16px 40px rgba(0,0,0,0.5)',
                   }}>
@@ -357,8 +357,8 @@ export default function ProOnboardingPage() {
                         onClick={() => selectSuggestion(s)}
                         style={{
                           width: '100%', textAlign: 'left', padding: '12px 16px',
-                          background: 'none', border: 'none', borderBottom: i < suggestions.length - 1 ? '1px solid rgba(255,255,255,0.05)' : 'none',
-                          color: 'rgba(247,242,234,0.7)', fontSize: 13,
+                          background: 'none', border: 'none', borderBottom: i < suggestions.length - 1 ? '1px solid rgba(0,0,0,0.07)' : 'none',
+                          color: 'rgba(26,22,18,0.63)', fontSize: 13,
                           fontFamily: 'Outfit, sans-serif', cursor: 'pointer',
                           transition: 'background 0.15s',
                         }}
@@ -379,7 +379,7 @@ export default function ProOnboardingPage() {
                   value={form.city}
                   onChange={e => set('city', e.target.value)}
                   placeholder="Se rellena automáticamente"
-                  style={{ ...inputStyle, background: form.city ? 'rgba(201,150,90,0.06)' : 'rgba(255,255,255,0.04)' }}
+                  style={{ ...inputStyle, background: form.city ? 'rgba(201,150,90,0.06)' : 'rgba(0,0,0,0.07)' }}
                   onFocus={e => e.target.style.borderColor = 'rgba(201,150,90,0.5)'}
                   onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
                 />
@@ -389,7 +389,7 @@ export default function ProOnboardingPage() {
               {form.latitude && form.longitude ? (
                 <div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    <span style={{ fontSize: 12, color: '#C9965A', fontFamily: 'Outfit, sans-serif' }}>
+                    <span style={{ fontSize: 12, color: '#B8833A', fontFamily: 'Outfit, sans-serif' }}>
                       ✓ Ubicación fijada · {form.latitude.toFixed(5)}, {form.longitude.toFixed(5)}
                     </span>
                   </div>
@@ -401,7 +401,7 @@ export default function ProOnboardingPage() {
                   border: '1px dashed rgba(201,150,90,0.2)',
                   display: 'flex', flexDirection: 'column',
                   alignItems: 'center', justifyContent: 'center',
-                  color: 'rgba(247,242,234,0.2)', gap: 8,
+                  color: 'rgba(26,22,18,0.18)', gap: 8,
                 }}>
                   <span style={{ fontSize: 32 }}>🗺️</span>
                   <span style={{ fontSize: 13, fontFamily: 'Outfit, sans-serif' }}>
@@ -415,9 +415,9 @@ export default function ProOnboardingPage() {
                   onClick={() => setStep(1)}
                   style={{
                     flex: 1, background: 'transparent',
-                    border: '1px solid rgba(247,242,234,0.1)',
+                    border: '1px solid rgba(26,22,18,0.09)',
                     borderRadius: 12, padding: '13px 0',
-                    color: 'rgba(247,242,234,0.4)', fontSize: 14,
+                    color: 'rgba(26,22,18,0.36)', fontSize: 14,
                     fontFamily: 'Outfit, sans-serif', cursor: 'pointer',
                   }}
                 >
