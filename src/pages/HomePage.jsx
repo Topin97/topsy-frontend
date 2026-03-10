@@ -167,23 +167,6 @@ export default function HomePage() {
               <button key={tag} className="quick-tag" onClick={() => navigate(`/search?q=${tag}`)} style={{ fontSize: 13, background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.1)', borderRadius: 100, padding: '7px 16px', color: 'rgba(26,22,18,0.55)', cursor: 'pointer', transition: 'all 0.18s', fontFamily: 'Outfit, sans-serif', boxShadow: '0 1px 4px rgba(0,0,0,0.05)' }}>{tag}</button>
             ))}
           </div>
-
-          {/* Social proof */}
-          <div className="fade-up-4" style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <div style={{ display: 'flex' }}>
-                {['👩','👨','👩‍🦱','🧑','👩‍🦰'].map((e,i) => (
-                  <div key={i} style={{ width: 30, height: 30, borderRadius: '50%', background: 'linear-gradient(135deg,#EFEDE9,#E8E4DE)', border: '2px solid #F7F5F2', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, marginLeft: i > 0 ? -9 : 0, boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>{e}</div>
-                ))}
-              </div>
-              <span style={{ fontSize: 12, color: 'rgba(26,22,18,0.45)' }}>+2.000 clientes felices</span>
-            </div>
-            <div style={{ width: 1, height: 20, background: 'rgba(0,0,0,0.1)' }} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-              {'★★★★★'.split('').map((s,i) => <span key={i} style={{ color: '#B8833A', fontSize: 15 }}>{s}</span>)}
-              <span style={{ fontSize: 12, color: 'rgba(26,22,18,0.45)', marginLeft: 4 }}>4.9 · media valoraciones</span>
-            </div>
-          </div>
         </div>
       </section>
 
