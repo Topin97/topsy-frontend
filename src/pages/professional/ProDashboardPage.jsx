@@ -8,10 +8,10 @@ import toast from 'react-hot-toast'
 import api from '../../services/api'
 
 const STATUS = {
-  pending:   { label: 'Pendiente',  color: '#facc15', bg: 'rgba(250,204,21,0.1)' },
-  confirmed: { label: 'Confirmada', color: '#4ade80', bg: 'rgba(74,222,128,0.1)' },
-  completed: { label: 'Completada', color: '#60a5fa', bg: 'rgba(96,165,250,0.1)' },
-  cancelled: { label: 'Cancelada',  color: '#f87171', bg: 'rgba(248,113,113,0.1)' },
+  pending:   { label: 'Pendiente',  color: '#d97706', bg: 'rgba(217,119,6,0.1)' },
+  confirmed: { label: 'Confirmada', color: '#16a34a', bg: 'rgba(22,163,74,0.1)' },
+  completed: { label: 'Completada', color: '#2563eb', bg: 'rgba(37,99,235,0.1)' },
+  cancelled: { label: 'Cancelada',  color: '#dc2626', bg: 'rgba(220,38,38,0.1)' },
 }
 
 export default function ProDashboardPage() {
@@ -47,7 +47,7 @@ export default function ProDashboardPage() {
   const { mutate: completeBooking } = useMutation({
     mutationFn: (id) => api.patch(`/bookings/${id}/complete`),
     onSuccess: () => {
-      toast.success('Cita marcada como completada ✓')
+      toast.success('Cita completada ✓')
       queryClient.invalidateQueries({ queryKey: ['pro-bookings-today'] })
       queryClient.invalidateQueries({ queryKey: ['pro-stats'] })
     },
@@ -70,15 +70,15 @@ export default function ProDashboardPage() {
   const maxCount = Math.max(...weekData.map(d => d.count), 1)
 
   return (
-    <div style={{ background: '#1C1C1E', minHeight: '100vh', paddingBottom: 40 }}>
+    <div style={{ background: '#F7F5F2', minHeight: '100vh', paddingBottom: 60 }}>
       <style>{`
-        .nav-btn:hover { background: rgba(201,150,90,0.1) !important; border-color: rgba(201,150,90,0.3) !important; color: #C9965A !important; }
-        .booking-card:hover { border-color: rgba(201,150,90,0.15) !important; }
-        .booking-card { transition: border-color 0.2s; }
+        .nav-btn:hover { background: rgba(184,131,58,0.08) !important; border-color: rgba(184,131,58,0.3) !important; color: #B8833A !important; }
+        .booking-card { transition: box-shadow 0.2s, border-color 0.2s; }
+        .booking-card:hover { border-color: rgba(184,131,58,0.2) !important; box-shadow: 0 4px 16px rgba(0,0,0,0.06) !important; }
         .kpi-card { transition: transform 0.2s, box-shadow 0.2s; }
-        .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.3) !important; }
-        .complete-btn:hover { background: rgba(96,165,250,0.15) !important; border-color: rgba(96,165,250,0.3) !important; }
-        .cancel-btn:hover { background: rgba(248,113,113,0.15) !important; }
+        .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.09) !important; }
+        .complete-btn:hover { background: rgba(37,99,235,0.1) !important; border-color: rgba(37,99,235,0.3) !important; }
+        .cancel-btn:hover { background: rgba(220,38,38,0.08) !important; border-color: rgba(220,38,38,0.3) !important; }
         @media (max-width: 768px) {
           .kpi-grid { grid-template-columns: 1fr 1fr !important; }
           .main-grid { grid-template-columns: 1fr !important; }
@@ -87,17 +87,17 @@ export default function ProDashboardPage() {
       `}</style>
 
       {/* Header */}
-      <div style={{ background: 'linear-gradient(180deg, #0F0D0A 0%, #0A0806 100%)', borderBottom: '1px solid rgba(255,255,255,0.04)', padding: '32px 0 24px' }}>
+      <div style={{ background: '#FFFFFF', borderBottom: '1px solid rgba(0,0,0,0.07)', padding: '28px 0 22px', boxShadow: '0 1px 8px rgba(0,0,0,0.04)' }}>
         <div className="container-app">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
             <div>
-              <p style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.6)', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ display: 'inline-block', width: 20, height: 1, background: '#C9965A' }} /> Panel profesional
+              <p style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#B8833A', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+                <span style={{ display: 'inline-block', width: 20, height: 1.5, background: '#B8833A', borderRadius: 1 }} /> Panel profesional
               </p>
-              <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.8rem,4vw,2.8rem)', fontWeight: 300, lineHeight: 1.1 }}>
-                {greeting()},<br /><em style={{ color: '#C9965A' }}>{user?.full_name?.split(' ')[0]}</em>
+              <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.8rem,4vw,2.6rem)', fontWeight: 300, lineHeight: 1.1, color: '#1A1612' }}>
+                {greeting()},<br /><em style={{ color: '#B8833A' }}>{user?.full_name?.split(' ')[0]}</em>
               </h1>
-              <p style={{ color: 'rgba(247,242,234,0.3)', fontSize: 12, marginTop: 6 }}>
+              <p style={{ color: 'rgba(26,22,18,0.4)', fontSize: 12, marginTop: 6, fontFamily: 'Outfit, sans-serif' }}>
                 {format(new Date(), "EEEE, d 'de' MMMM yyyy", { locale: es })}
               </p>
             </div>
@@ -110,8 +110,8 @@ export default function ProDashboardPage() {
                 <Link key={to} to={to} className="nav-btn" style={{
                   textDecoration: 'none', fontSize: 12, padding: '9px 16px', borderRadius: 10,
                   display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s',
-                  background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
-                  color: 'rgba(247,242,234,0.55)', fontFamily: 'Outfit, sans-serif',
+                  background: '#F7F5F2', border: '1.5px solid rgba(0,0,0,0.1)',
+                  color: 'rgba(26,22,18,0.55)', fontFamily: 'Outfit, sans-serif', fontWeight: 500,
                 }}>{icon} {label}</Link>
               ))}
             </div>
@@ -135,14 +135,15 @@ export default function ProDashboardPage() {
               { label: 'Valoración',     value: stats.avg_rating || '—',             icon: '⭐', delta: `${stats.total_reviews ?? 0} reseñas` },
             ].map((kpi, i) => (
               <div key={i} className="kpi-card" style={{
-                background: kpi.accent ? 'linear-gradient(135deg, rgba(201,150,90,0.1), rgba(201,150,90,0.03))' : 'rgba(255,255,255,0.02)',
-                border: `1px solid ${kpi.accent ? 'rgba(201,150,90,0.2)' : 'rgba(255,255,255,0.05)'}`,
+                background: kpi.accent ? 'linear-gradient(135deg, rgba(184,131,58,0.08), rgba(184,131,58,0.03))' : '#FFFFFF',
+                border: `1.5px solid ${kpi.accent ? 'rgba(184,131,58,0.2)' : 'rgba(0,0,0,0.07)'}`,
                 borderRadius: 18, padding: '18px 16px', position: 'relative', overflow: 'hidden',
+                boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
               }}>
-                <div style={{ position: 'absolute', top: 14, right: 14, fontSize: '1.4rem', opacity: 0.12 }}>{kpi.icon}</div>
-                <p style={{ fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(247,242,234,0.3)', marginBottom: 8 }}>{kpi.label}</p>
-                <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.6rem,3vw,2.4rem)', fontWeight: 300, color: kpi.accent ? '#C9965A' : '#F7F2EA', lineHeight: 1, marginBottom: 4 }}>{kpi.value}</p>
-                <p style={{ fontSize: 10, color: 'rgba(247,242,234,0.25)' }}>{kpi.delta}</p>
+                <div style={{ position: 'absolute', top: 14, right: 14, fontSize: '1.4rem', opacity: 0.15 }}>{kpi.icon}</div>
+                <p style={{ fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.35)', marginBottom: 8, fontFamily: 'Outfit, sans-serif' }}>{kpi.label}</p>
+                <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.6rem,3vw,2.4rem)', fontWeight: 300, color: kpi.accent ? '#B8833A' : '#1A1612', lineHeight: 1, marginBottom: 4 }}>{kpi.value}</p>
+                <p style={{ fontSize: 10, color: 'rgba(26,22,18,0.3)', fontFamily: 'Outfit, sans-serif' }}>{kpi.delta}</p>
               </div>
             ))}
           </div>
@@ -150,15 +151,15 @@ export default function ProDashboardPage() {
 
         {/* Mini chart */}
         {weekData.length > 0 && (
-          <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 18, padding: '20px 20px 16px', marginBottom: 24 }}>
-            <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.6)', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ display: 'inline-block', width: 16, height: 1, background: '#C9965A' }} /> Citas últimos 7 días
+          <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 18, padding: '20px 20px 16px', marginBottom: 24, boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
+            <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#B8833A', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+              <span style={{ display: 'inline-block', width: 16, height: 1.5, background: '#B8833A' }} /> Citas últimos 7 días
             </p>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 60 }}>
               {weekData.map((d, i) => (
                 <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                  <div style={{ width: '100%', background: d.count > 0 ? 'linear-gradient(180deg, #C9965A, rgba(201,150,90,0.3))' : 'rgba(255,255,255,0.04)', borderRadius: '4px 4px 0 0', height: `${Math.max((d.count / maxCount) * 48, d.count > 0 ? 8 : 4)}px`, transition: 'height 0.3s' }} />
-                  <span style={{ fontSize: 9, color: 'rgba(247,242,234,0.25)', textTransform: 'capitalize' }}>{d.day}</span>
+                  <div style={{ width: '100%', background: d.count > 0 ? 'linear-gradient(180deg, #B8833A, rgba(184,131,58,0.3))' : '#EFEDE9', borderRadius: '4px 4px 0 0', height: `${Math.max((d.count / maxCount) * 48, d.count > 0 ? 8 : 4)}px`, transition: 'height 0.3s' }} />
+                  <span style={{ fontSize: 9, color: 'rgba(26,22,18,0.3)', textTransform: 'capitalize', fontFamily: 'Outfit, sans-serif' }}>{d.day}</span>
                 </div>
               ))}
             </div>
@@ -170,10 +171,10 @@ export default function ProDashboardPage() {
           {/* Citas hoy */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-              <p style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.7)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ display: 'inline-block', width: 16, height: 1, background: '#C9965A' }} /> Citas hoy
+              <p style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#B8833A', display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+                <span style={{ display: 'inline-block', width: 16, height: 1.5, background: '#B8833A' }} /> Citas hoy
               </p>
-              <span style={{ fontSize: 11, color: 'rgba(247,242,234,0.25)' }}>{format(new Date(), "d MMM", { locale: es })}</span>
+              <span style={{ fontSize: 11, color: 'rgba(26,22,18,0.3)', fontFamily: 'Outfit, sans-serif' }}>{format(new Date(), "d MMM", { locale: es })}</span>
             </div>
 
             {loadingToday ? (
@@ -181,9 +182,9 @@ export default function ProDashboardPage() {
                 {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 80, borderRadius: 14 }} />)}
               </div>
             ) : !bookingsToday?.length ? (
-              <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 16, padding: '36px 20px', textAlign: 'center' }}>
+              <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 16, padding: '36px 20px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
                 <p style={{ fontSize: '2rem', marginBottom: 8 }}>☀️</p>
-                <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', fontStyle: 'italic', color: 'rgba(247,242,234,0.25)' }}>Sin citas hoy</p>
+                <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', fontStyle: 'italic', color: 'rgba(26,22,18,0.3)' }}>Sin citas hoy</p>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -191,33 +192,33 @@ export default function ProDashboardPage() {
                   const st = STATUS[b.status] ?? STATUS.pending
                   const isPast = new Date(b.ends_at) < new Date()
                   return (
-                    <div key={b.id} className="booking-card" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 14, padding: '14px 16px' }}>
+                    <div key={b.id} className="booking-card" style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 14, padding: '14px 16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div style={{ width: 36, height: 36, borderRadius: '50%', overflow: 'hidden', background: 'rgba(201,150,90,0.1)', border: '1px solid rgba(201,150,90,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <div style={{ width: 36, height: 36, borderRadius: '50%', overflow: 'hidden', background: 'rgba(184,131,58,0.08)', border: '1.5px solid rgba(184,131,58,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                           {b.profiles?.avatar_url
                             ? <img src={b.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', color: '#C9965A' }}>{b.profiles?.full_name?.[0]?.toUpperCase()}</span>
+                            : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', color: '#B8833A' }}>{b.profiles?.full_name?.[0]?.toUpperCase()}</span>
                           }
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontWeight: 600, fontSize: 13, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.services?.name}</p>
-                          <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.35)' }}>
+                          <p style={{ fontWeight: 600, fontSize: 13, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1A1612', fontFamily: 'Outfit, sans-serif' }}>{b.services?.name}</p>
+                          <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.4)', fontFamily: 'Outfit, sans-serif' }}>
                             {b.profiles?.full_name} · {format(new Date(b.starts_at), 'HH:mm')}–{format(new Date(b.ends_at), 'HH:mm')}
                           </p>
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
-                          <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 100, color: st.color, background: st.bg }}>{st.label}</span>
-                          <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', color: '#C9965A' }}>{b.total_price}€</span>
+                          <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 100, color: st.color, background: st.bg, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{st.label}</span>
+                          <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', color: '#B8833A' }}>{b.total_price}€</span>
                         </div>
                       </div>
                       {b.status === 'confirmed' && (
-                        <div style={{ display: 'flex', gap: 8, marginTop: 10, paddingTop: 10, borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                        <div style={{ display: 'flex', gap: 8, marginTop: 10, paddingTop: 10, borderTop: '1px solid rgba(0,0,0,0.06)' }}>
                           {isPast && (
-                            <button className="complete-btn" onClick={() => completeBooking(b.id)} style={{ flex: 1, background: 'rgba(96,165,250,0.08)', border: '1px solid rgba(96,165,250,0.2)', borderRadius: 8, padding: '7px', fontSize: 12, color: '#60a5fa', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s' }}>
+                            <button className="complete-btn" onClick={() => completeBooking(b.id)} style={{ flex: 1, background: 'rgba(37,99,235,0.06)', border: '1.5px solid rgba(37,99,235,0.2)', borderRadius: 8, padding: '7px', fontSize: 12, color: '#2563eb', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', fontWeight: 600 }}>
                               ✓ Completar
                             </button>
                           )}
-                          <button className="cancel-btn" onClick={() => { if (confirm('¿Cancelar esta cita?')) cancelBooking(b.id) }} style={{ flex: 1, background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.2)', borderRadius: 8, padding: '7px', fontSize: 12, color: '#f87171', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s' }}>
+                          <button className="cancel-btn" onClick={() => { if (confirm('¿Cancelar esta cita?')) cancelBooking(b.id) }} style={{ flex: 1, background: 'rgba(220,38,38,0.05)', border: '1.5px solid rgba(220,38,38,0.15)', borderRadius: 8, padding: '7px', fontSize: 12, color: '#dc2626', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', fontWeight: 600 }}>
                             Cancelar
                           </button>
                         </div>
@@ -232,36 +233,36 @@ export default function ProDashboardPage() {
           {/* Próximas */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-              <p style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.7)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ display: 'inline-block', width: 16, height: 1, background: '#C9965A' }} /> Próximas
+              <p style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#B8833A', display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+                <span style={{ display: 'inline-block', width: 16, height: 1.5, background: '#B8833A' }} /> Próximas
               </p>
-              <span style={{ fontSize: 11, color: 'rgba(247,242,234,0.25)' }}>{upcoming?.length ?? 0} confirmadas</span>
+              <span style={{ fontSize: 11, color: 'rgba(26,22,18,0.3)', fontFamily: 'Outfit, sans-serif' }}>{upcoming?.length ?? 0} confirmadas</span>
             </div>
 
             {!upcoming?.length ? (
-              <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 16, padding: '36px 20px', textAlign: 'center' }}>
+              <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 16, padding: '36px 20px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
                 <p style={{ fontSize: '2rem', marginBottom: 8 }}>📭</p>
-                <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', fontStyle: 'italic', color: 'rgba(247,242,234,0.25)' }}>Sin próximas citas</p>
+                <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', fontStyle: 'italic', color: 'rgba(26,22,18,0.3)' }}>Sin próximas citas</p>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {upcoming.slice(0, 8).map(b => (
-                  <div key={b.id} className="booking-card" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 14, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 32, height: 32, borderRadius: '50%', overflow: 'hidden', background: 'rgba(201,150,90,0.1)', border: '1px solid rgba(201,150,90,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <div key={b.id} className="booking-card" style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 14, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+                    <div style={{ width: 32, height: 32, borderRadius: '50%', overflow: 'hidden', background: 'rgba(184,131,58,0.08)', border: '1.5px solid rgba(184,131,58,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       {b.profiles?.avatar_url
                         ? <img src={b.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '0.85rem', color: '#C9965A' }}>{b.profiles?.full_name?.[0]?.toUpperCase()}</span>
+                        : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '0.85rem', color: '#B8833A' }}>{b.profiles?.full_name?.[0]?.toUpperCase()}</span>
                       }
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontWeight: 600, fontSize: 13, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{b.services?.name}</p>
-                      <p style={{ fontSize: 11, color: 'rgba(247,242,234,0.35)' }}>
+                      <p style={{ fontWeight: 600, fontSize: 13, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1A1612', fontFamily: 'Outfit, sans-serif' }}>{b.services?.name}</p>
+                      <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.4)', fontFamily: 'Outfit, sans-serif' }}>
                         {b.profiles?.full_name} · {format(new Date(b.starts_at), "d MMM · HH:mm", { locale: es })}
                       </p>
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                      <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', color: '#C9965A' }}>{b.total_price}€</span>
-                      <button className="cancel-btn" onClick={() => { if (confirm('¿Cancelar esta cita?')) cancelBooking(b.id) }} style={{ background: 'rgba(248,113,113,0.08)', border: '1px solid rgba(248,113,113,0.15)', borderRadius: 8, padding: '5px 10px', fontSize: 11, color: '#f87171', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s' }}>
+                      <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', color: '#B8833A' }}>{b.total_price}€</span>
+                      <button className="cancel-btn" onClick={() => { if (confirm('¿Cancelar esta cita?')) cancelBooking(b.id) }} style={{ background: 'rgba(220,38,38,0.05)', border: '1.5px solid rgba(220,38,38,0.15)', borderRadius: 8, padding: '5px 10px', fontSize: 11, color: '#dc2626', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', fontWeight: 600 }}>
                         ✕
                       </button>
                     </div>
