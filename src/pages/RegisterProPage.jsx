@@ -5,6 +5,18 @@ import { authApi } from '../services/api'
 import { useAuthStore } from '../store/authStore'
 import toast from 'react-hot-toast'
 import { useState } from 'react'
+import { useGoogleAuth } from '../hooks/useGoogleAuth'
+
+function GoogleIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 48 48">
+      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.6 29.3 35 24 35c-6.1 0-11-4.9-11-11s4.9-11 11-11c2.8 0 5.3 1 7.2 2.7l5.7-5.7C33.5 7.1 29 5 24 5 12.9 5 4 13.9 4 25s8.9 20 20 20 20-8.9 20-20c0-1.5-.2-3-.4-4.5z"/>
+      <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.6 16 19 13 24 13c2.8 0 5.3 1 7.2 2.7l5.7-5.7C33.5 7.1 29 5 24 5 16.3 5 9.7 8.9 6.3 14.7z"/>
+      <path fill="#4CAF50" d="M24 45c4.9 0 9.3-1.9 12.7-4.9l-5.9-5c-1.9 1.4-4.2 2.2-6.8 2.2-5.2 0-9.6-3.5-11.2-8.3l-6.5 5C9.5 41 16.3 45 24 45z"/>
+      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4-4.1 5.3l5.9 5C37 38.8 44 33 44 25c0-1.5-.2-3-.4-4.5z"/>
+    </svg>
+  )
+}
 
 const CATEGORIES = [
   { value: 'hair',        label: 'Peluquería',       icon: '💇' },
@@ -50,6 +62,7 @@ export default function RegisterProPage() {
   const [step, setStep] = useState(1)
   const [focused, setFocused] = useState(null)
   const { register, handleSubmit, trigger, formState: { errors } } = useForm()
+  const { loginWithGoogle, loading: googleLoading } = useGoogleAuth()
 
   const { mutate, isPending } = useMutation({
     mutationFn: (data) => authApi.register({ full_name: data.full_name, email: data.email, password: data.password, phone: data.phone, role: 'professional' }),
@@ -144,6 +157,26 @@ export default function RegisterProPage() {
               </div>
             ))}
           </div>
+        </div>
+
+        {/* Google OAuth */}
+        <button
+          type="button"
+          onClick={() => loginWithGoogle('professional')}
+          disabled={googleLoading}
+          style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '14px 16px', background: googleLoading ? '#F7F5F2' : '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.12)', borderRadius: 14, cursor: googleLoading ? 'not-allowed' : 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 600, color: '#1A1612', transition: 'all 0.2s', boxShadow: '0 1px 6px rgba(0,0,0,0.06)', marginBottom: 16 }}
+        >
+          {googleLoading
+            ? <span style={{ width: 18, height: 18, border: '2px solid rgba(0,0,0,0.1)', borderTopColor: '#B8833A', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
+            : <GoogleIcon />
+          }
+          {googleLoading ? 'Conectando...' : 'Continuar con Google'}
+        </button>
+
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+          <div style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.07)' }} />
+          <span style={{ fontSize: 12, color: 'rgba(26,22,18,0.3)', fontFamily: 'Outfit, sans-serif' }}>o completa el formulario</span>
+          <div style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.07)' }} />
         </div>
 
         {/* Form */}
