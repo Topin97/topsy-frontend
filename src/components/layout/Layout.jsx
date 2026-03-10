@@ -88,31 +88,32 @@ export default function Layout() {
     const inner = (
       <>
         <div style={{
-          width: 28, height: 28, borderRadius: 9,
-          background: on ? 'rgba(184,131,58,0.12)' : 'transparent',
+          width: 32, height: 32, borderRadius: 10,
+          background: on ? 'linear-gradient(135deg, rgba(184,131,58,0.15), rgba(212,160,85,0.1))' : 'transparent',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          transition: 'all 0.22s',
+          transition: 'all 0.25s cubic-bezier(0.34,1.56,0.64,1)',
+          transform: on ? 'scale(1.08)' : 'scale(1)',
+          border: on ? '1px solid rgba(184,131,58,0.2)' : '1px solid transparent',
         }}>
           {isProfile && avatarUrl
-            ? <div style={{ width: 24, height: 24, borderRadius: '50%', overflow: 'hidden', border: `2px solid ${on ? '#B8833A' : 'rgba(0,0,0,0.15)'}`, transition: 'border-color 0.22s' }}>
+            ? <div style={{ width: 22, height: 22, borderRadius: '50%', overflow: 'hidden', border: `2px solid ${on ? '#B8833A' : 'rgba(0,0,0,0.15)'}`, transition: 'border-color 0.22s' }}>
                 <img src={avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
             : <img src={img} alt={label} style={{ width: 18, height: 18, objectFit: 'contain', transition: 'all 0.22s',
-                opacity: on ? 1 : 0.4,
+                opacity: on ? 1 : 0.38,
                 filter: on
                   ? 'brightness(0) saturate(1) invert(48%) sepia(60%) saturate(500%) hue-rotate(10deg) brightness(0.85)'
                   : 'brightness(0)'
               }} />
           }
         </div>
-        <span style={{ fontSize: 10, marginTop: 2, color: on ? '#B8833A' : 'rgba(26,22,18,0.4)', fontFamily: 'Outfit, sans-serif', fontWeight: on ? 600 : 400, transition: 'all 0.22s' }}>
+        <span style={{ fontSize: 10, marginTop: 1, color: on ? '#B8833A' : 'rgba(26,22,18,0.35)', fontFamily: 'Outfit, sans-serif', fontWeight: on ? 700 : 400, transition: 'all 0.22s', letterSpacing: on ? '0.01em' : 0 }}>
           {label}
         </span>
-        {on && <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 16, height: 2, borderRadius: 2, background: '#B8833A' }} />}
       </>
     )
 
-    const style = { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, flex: 1, padding: '6px 0', cursor: 'pointer', WebkitTapHighlightColor: 'transparent', position: 'relative' }
+    const style = { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, flex: 1, padding: '7px 0 4px', cursor: 'pointer', WebkitTapHighlightColor: 'transparent', position: 'relative', transition: 'opacity 0.1s', userSelect: 'none' }
 
     return isProfile && token
       ? <button onClick={() => setProfileMenuOpen(!profileMenuOpen)} style={{ ...style, background: 'none', border: 'none' }}>{inner}</button>
@@ -259,7 +260,7 @@ export default function Layout() {
           )}
 
           {/* Bottom bar */}
-          <div className="bottom-nav" style={{ display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0, background: '#FFFFFF', borderTop: '1px solid rgba(0,0,0,0.07)', boxShadow: '0 -2px 16px rgba(0,0,0,0.06)', paddingBottom: 'env(safe-area-inset-bottom)', zIndex: 80, justifyContent: 'space-around', alignItems: 'flex-start', paddingTop: 6 }}>
+          <div className="bottom-nav" style={{ display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0, background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderTop: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 -4px 24px rgba(0,0,0,0.08)', paddingBottom: 'env(safe-area-inset-bottom)', zIndex: 80, justifyContent: 'space-around', alignItems: 'flex-start', paddingTop: 4 }}>
             {bottomNav.map(item => <NavItem key={item.to} item={item} />)}
           </div>
         </>
