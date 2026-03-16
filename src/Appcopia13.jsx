@@ -23,7 +23,6 @@ import ForgotPasswordPage  from './pages/ForgotPasswordPage'
 import ResetPasswordPage   from './pages/ResetPasswordPage'
 import AuthCallbackPage    from './pages/AuthCallbackPage'
 import OAuthCallbackPage   from './pages/OAuthCallbackPage'
-import PrivacyPage         from './pages/PrivacyPage'
 import ProOnboardingPage   from './pages/ProOnboardingPage'
 
 // Panel profesional
@@ -108,7 +107,6 @@ export default function App() {
             <Route path="reset-password"  element={<ResetPasswordPage />} />
             <Route path="auth/callback"   element={<AuthCallbackPage />} />
             <Route path="oauth/callback"  element={<OAuthCallbackPage />} />
-            <Route path="privacy"          element={<PrivacyPage />} />
             <Route path="welcome"         element={<WelcomePage />} />
 
             {/* Cliente */}

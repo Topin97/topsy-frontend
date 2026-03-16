@@ -268,15 +268,6 @@ export default function Layout() {
 
       <main style={{ paddingTop: '60px', paddingBottom: hideBottomNav ? 0 : 'calc(60px + env(safe-area-inset-bottom))' }}>
         <Outlet />
-
-        {/* Mini footer */}
-        {!hideBottomNav && (
-          <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, flexWrap: 'wrap' }}>
-            <Link to="/privacy" style={{ fontSize: 11, color: 'rgba(26,22,18,0.35)', textDecoration: 'none', fontFamily: 'Outfit, sans-serif', letterSpacing: '0.04em' }}>Política de Privacidad</Link>
-            <span style={{ fontSize: 11, color: 'rgba(26,22,18,0.2)' }}>·</span>
-            <span style={{ fontSize: 11, color: 'rgba(26,22,18,0.25)', fontFamily: 'Outfit, sans-serif' }}>© 2026 TopSy</span>
-          </div>
-        )}
       </main>
     </div>
   )

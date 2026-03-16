@@ -2,12 +2,43 @@
 <html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>TopSy — Reserva tu cita</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#1A0F05" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="TopSy" />
+
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="/icons/icon-512.png" />
+
+    <!-- SEO -->
+    <meta name="description" content="Reserva con los mejores profesionales de belleza y bienestar cerca de ti. Sin llamadas, sin esperas." />
+    <meta name="keywords" content="reservas belleza, peluquería, masajes, barbería, spa, topsy" />
+    <meta property="og:title" content="TopSy — Reserva tu cita" />
+    <meta property="og:description" content="Reserva con los mejores profesionales de belleza y bienestar cerca de ti." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://topsy.es" />
+
+    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
   </head>
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then(reg => console.log('[SW] registered:', reg.scope))
+            .catch(err => console.warn('[SW] registration failed:', err))
+        })
+      }
+    </script>
   </body>
 </html>

@@ -18,7 +18,8 @@ jobs:
 
       - name: Deploy frontend en VPS
         run: |
-          ssh -i ~/.ssh/github_actions ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} "
+          ssh -i ~/.ssh/github_actions ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} '
+            export GIT_SSH_COMMAND="ssh -i ~/.ssh/github_actions -o IdentitiesOnly=yes"
             cd /home/topindev/topsy-frontend &&
             git pull origin main &&
             npm install &&
@@ -26,4 +27,4 @@ jobs:
             sudo rm -rf /var/www/topsy/* &&
             sudo cp -r dist/* /var/www/topsy/ &&
             sudo systemctl reload nginx
-          "
+          '
