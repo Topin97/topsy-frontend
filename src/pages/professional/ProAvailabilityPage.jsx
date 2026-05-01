@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { profApi, authApi } from '../../services/api'
+import { profApi, authApi, calendarApi } from '../../services/api'
 import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import toast from 'react-hot-toast'
 
 const DAYS = [
@@ -44,7 +45,7 @@ function TimeBlock({ label, startVal, endVal, active, onToggle, onStartChange, o
         </span>
         <div onClick={onToggle} style={{
           width: 40, height: 22, borderRadius: 11, cursor: 'pointer',
-          background: active ? (accent ? '#B8833A' : 'rgba(26,22,18,0.25)') : 'rgba(0,0,0,0.1)',
+          background: active ? '#B8833A' : 'rgba(0,0,0,0.1)',
           position: 'relative', transition: 'background 0.2s', flexShrink: 0,
         }}>
           <div style={{
@@ -83,14 +84,229 @@ function TimeBlock({ label, startVal, endVal, active, onToggle, onStartChange, o
   )
 }
 
+// ─────────────────────────────────────────────────────────────
+// Google Calendar Connect Card
+// ─────────────────────────────────────────────────────────────
+function GoogleCalendarCard() {
+  const [loading, setLoading] = useState(false)
+
+  const { data: status, refetch } = useQuery({
+    queryKey: ['gcalStatus'],
+    queryFn: () => calendarApi.getStatus().then(r => r.data),
+    retry: false,
+  })
+
+  const { mutate: doDisconnect, isPending: disconnecting } = useMutation({
+    mutationFn: () => calendarApi.disconnect(),
+    onSuccess: () => {
+      toast.success('Google Calendar desconectado')
+      refetch()
+    },
+    onError: () => toast.error('Error al desconectar'),
+  })
+
+  const handleConnect = async () => {
+    try {
+      setLoading(true)
+      const { data } = await calendarApi.getConnectUrl()
+      // Abre la URL de autorización de Google en la misma pestaña
+      window.location.href = data.url
+    } catch {
+      toast.error('Error al conectar con Google Calendar')
+      setLoading(false)
+    }
+  }
+
+  const connected = status?.connected ?? false
+
+  return (
+    <div style={{
+      background: '#FFFFFF', border: `1.5px solid ${connected ? 'rgba(184,131,58,0.25)' : 'rgba(0,0,0,0.07)'}`,
+      borderRadius: 16, padding: '18px 20px', marginBottom: 20,
+      boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
+    }}>
+      {/* Título */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+        {/* Icono Google Calendar (SVG inline simplificado) */}
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="3" y="4" width="18" height="17" rx="2" fill={connected ? '#B8833A' : '#E0E0E0'} />
+          <rect x="3" y="4" width="18" height="5" rx="2" fill={connected ? '#8B6020' : '#9E9E9E'} />
+          <rect x="7" y="2" width="2" height="4" rx="1" fill={connected ? '#B8833A' : '#757575'} />
+          <rect x="15" y="2" width="2" height="4" rx="1" fill={connected ? '#B8833A' : '#757575'} />
+          <rect x="7" y="12" width="3" height="3" rx="0.5" fill="white" opacity="0.9" />
+          <rect x="11" y="12" width="3" height="3" rx="0.5" fill="white" opacity="0.9" />
+          <rect x="15" y="12" width="3" height="3" rx="0.5" fill="white" opacity="0.5" />
+        </svg>
+        <div>
+          <p style={{ fontSize: 12, fontWeight: 700, color: '#1A1612', fontFamily: 'Outfit, sans-serif', margin: 0 }}>
+            Google Calendar
+          </p>
+          <p style={{ fontSize: 10, color: connected ? '#B8833A' : 'rgba(26,22,18,0.4)', fontFamily: 'Outfit, sans-serif', margin: 0, fontWeight: connected ? 600 : 400 }}>
+            {connected ? '● Sincronizado' : '○ No conectado'}
+          </p>
+        </div>
+      </div>
+
+      {/* Descripción */}
+      <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.55)', fontFamily: 'Outfit, sans-serif', marginBottom: 14, lineHeight: 1.5 }}>
+        {connected
+          ? 'Tus reservas de Topsy se sincronizan automáticamente con tu calendario y los eventos externos bloquean tus slots.'
+          : 'Conecta tu Google Calendar para sincronizar tus reservas y que tus eventos externos bloqueen automáticamente tus slots.'
+        }
+      </p>
+
+      {/* Botón */}
+      {connected ? (
+        <button
+          onClick={() => doDisconnect()}
+          disabled={disconnecting}
+          style={{
+            width: '100%', border: '1.5px solid rgba(184,131,58,0.25)',
+            borderRadius: 10, padding: '10px', background: 'rgba(184,131,58,0.04)',
+            color: '#B8833A', fontSize: 12, fontWeight: 600, fontFamily: 'Outfit, sans-serif',
+            cursor: disconnecting ? 'not-allowed' : 'pointer', opacity: disconnecting ? 0.6 : 1,
+          }}
+        >
+          {disconnecting ? 'Desconectando...' : 'Desconectar Google Calendar'}
+        </button>
+      ) : (
+        <button
+          onClick={handleConnect}
+          disabled={loading}
+          style={{
+            width: '100%', border: 'none', borderRadius: 10, padding: '11px',
+            background: loading ? 'rgba(184,131,58,0.4)' : 'linear-gradient(135deg, #B8833A, #D4A055)',
+            color: '#FFFFFF', fontSize: 12, fontWeight: 700, fontFamily: 'Outfit, sans-serif',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            boxShadow: loading ? 'none' : '0 4px 14px rgba(184,131,58,0.25)',
+            opacity: loading ? 0.7 : 1, transition: 'all 0.2s',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+          }}
+        >
+          {loading ? 'Redirigiendo...' : '🗓 Conectar Google Calendar'}
+        </button>
+      )}
+    </div>
+  )
+}
+
+function BlockedDatesCard() {
+  const qc = useQueryClient()
+  const [newDate, setNewDate] = useState('')
+  const [newReason, setNewReason] = useState('')
+  const [adding, setAdding] = useState(false)
+
+  const { data: blocked = [] } = useQuery({
+    queryKey: ['blocked-dates'],
+    queryFn: () => profApi.getBlockedDates().then(r => r.data.data),
+  })
+
+  const { mutate: addDate, isPending: addPending } = useMutation({
+    mutationFn: ({ date, reason }) => profApi.addBlockedDate(date, reason),
+    onSuccess: () => {
+      toast.success('Fecha bloqueada ✓')
+      setNewDate(''); setNewReason(''); setAdding(false)
+      qc.invalidateQueries({ queryKey: ['blocked-dates'] })
+    },
+    onError: err => toast.error(err.response?.data?.error ?? 'Error'),
+  })
+
+  const { mutate: removeDate } = useMutation({
+    mutationFn: (date) => profApi.removeBlockedDate(date),
+    onSuccess: () => { toast.success('Fecha desbloqueada'); qc.invalidateQueries({ queryKey: ['blocked-dates'] }) },
+    onError: () => toast.error('Error al desbloquear'),
+  })
+
+  const today = new Date().toISOString().slice(0, 10)
+
+  return (
+    <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 16, padding: '18px 20px', marginBottom: 20, boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
+      <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#B8833A', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+        <span style={{ display: 'inline-block', width: 16, height: 1.5, background: '#B8833A' }} /> Días no disponibles
+      </p>
+      <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.45)', marginBottom: 14, fontFamily: 'Outfit, sans-serif' }}>
+        Bloquea días específicos por vacaciones, festivos o cualquier ausencia puntual.
+      </p>
+
+      {/* Lista de fechas bloqueadas */}
+      {blocked.length > 0 && (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
+          {blocked.map(({ date, reason }) => (
+            <div key={date} style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'rgba(220,38,38,0.04)', border: '1px solid rgba(220,38,38,0.12)', borderRadius: 10, padding: '8px 12px' }}>
+              <span style={{ fontSize: 14 }}>🚫</span>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 600, color: '#1A1612', margin: 0 }}>
+                  {new Date(date + 'T12:00:00').toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
+                </p>
+                {reason && <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 11, color: 'rgba(26,22,18,0.4)', margin: '2px 0 0' }}>{reason}</p>}
+              </div>
+              <button
+                onClick={() => { if (confirm('¿Desbloquear este día?')) removeDate(date) }}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: 'rgba(220,38,38,0.5)', padding: 4, lineHeight: 1 }}
+              >✕</button>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Formulario para añadir */}
+      {adding ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          <input
+            type="date"
+            value={newDate}
+            min={today}
+            onChange={e => setNewDate(e.target.value)}
+            style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, border: '1.5px solid rgba(184,131,58,0.3)', borderRadius: 10, padding: '9px 12px', color: '#1A1612', background: '#FDFCFB', outline: 'none' }}
+          />
+          <input
+            type="text"
+            value={newReason}
+            onChange={e => setNewReason(e.target.value)}
+            placeholder="Motivo (opcional) — vacaciones, festivo..."
+            maxLength={100}
+            style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, border: '1.5px solid rgba(0,0,0,0.1)', borderRadius: 10, padding: '9px 12px', color: '#1A1612', background: '#FDFCFB', outline: 'none' }}
+          />
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => { if (newDate) addDate({ date: newDate, reason: newReason || null }) }}
+              disabled={!newDate || addPending}
+              style={{ flex: 1, background: newDate ? 'linear-gradient(135deg,#dc2626,#ef4444)' : 'rgba(0,0,0,0.08)', border: 'none', borderRadius: 10, padding: '9px', fontSize: 13, fontWeight: 700, color: newDate ? '#fff' : 'rgba(0,0,0,0.3)', cursor: newDate ? 'pointer' : 'not-allowed', fontFamily: 'Outfit, sans-serif' }}
+            >{addPending ? 'Bloqueando...' : 'Bloquear día'}</button>
+            <button onClick={() => { setAdding(false); setNewDate(''); setNewReason('') }} style={{ background: 'rgba(0,0,0,0.05)', border: 'none', borderRadius: 10, padding: '9px 14px', fontSize: 13, color: 'rgba(26,22,18,0.5)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>Cancelar</button>
+          </div>
+        </div>
+      ) : (
+        <button
+          onClick={() => setAdding(true)}
+          style={{ width: '100%', background: 'rgba(220,38,38,0.05)', border: '1.5px dashed rgba(220,38,38,0.2)', borderRadius: 10, padding: '10px', fontSize: 13, color: '#dc2626', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}
+        >+ Añadir día no disponible</button>
+      )}
+    </div>
+  )
+}
+
 export default function ProAvailabilityPage() {
   const qc = useQueryClient()
   const [schedule, setSchedule] = useState(DEFAULT_SCHEDULE)
+  const [searchParams] = useSearchParams()
 
   const { data: me, isLoading } = useQuery({
     queryKey: ['me'],
     queryFn: () => authApi.me().then(r => r.data.user),
   })
+
+  // Toast tras callback de Google Calendar
+  useEffect(() => {
+    const gcal = searchParams.get('gcal')
+    if (gcal === 'connected') {
+      toast.success('¡Google Calendar conectado correctamente!')
+    } else if (gcal === 'denied') {
+      toast.error('Permisos denegados. No se conectó Google Calendar.')
+    } else if (gcal === 'error') {
+      toast.error('Error al conectar con Google Calendar. Inténtalo de nuevo.')
+    }
+  }, [])
 
   useEffect(() => {
     if (!me) return
@@ -276,6 +492,12 @@ export default function ProAvailabilityPage() {
             </div>
           </div>
         )}
+
+        {/* Google Calendar */}
+        <GoogleCalendarCard />
+
+        {/* Fechas bloqueadas */}
+        <BlockedDatesCard />
 
         <button onClick={() => save()} disabled={isPending} style={{
           width: '100%', border: 'none', borderRadius: 14, padding: '16px',

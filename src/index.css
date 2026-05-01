@@ -28,7 +28,7 @@
 /* ───────────────── BASE RESET ───────────────── */
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { font-size: 15px; }
+html { font-size: 15px; overflow-x: hidden; }
 
 body {
   background-color: var(--color-bg);
@@ -206,4 +206,13 @@ p { color: var(--color-text2); font-size: 0.95rem; }
   .hide-mobile   { display: none !important; }
   .grid-mobile-1 { grid-template-columns: 1fr !important; }
   .grid-mobile-2 { grid-template-columns: 1fr 1fr !important; }
+}
+
+/* ───────────────── RECAPTCHA ───────────────── */
+/* Ocultar badge de reCAPTCHA — válido si el aviso aparece en login/footer:
+   "Protegido por reCAPTCHA · Privacidad · Condiciones" */
+.grecaptcha-badge {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
 }

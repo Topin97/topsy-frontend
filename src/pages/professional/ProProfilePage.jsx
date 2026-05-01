@@ -229,7 +229,7 @@ function AddressSearch({ initialAddress, initialCity, initialLat, initialLng, on
           {searching && <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: 'rgba(201,150,90,0.5)' }}>Buscando...</span>}
         </div>
         {suggestions.length > 0 && (
-          <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, background: '#FFFFFF', border: '1px solid rgba(201,150,90,0.2)', borderRadius: 12, overflow: 'hidden', marginTop: 4, boxShadow: '0 16px 40px rgba(0,0,0,0.5)' }}>
+          <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, background: '#FFFFFF', border: '1px solid rgba(201,150,90,0.2)', borderRadius: 12, overflow: 'hidden', marginTop: 4, boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
             {suggestions.map((s, i) => (
               <button key={i} type="button" onClick={() => selectSuggestion(s)}
                 style={{ width: '100%', textAlign: 'left', padding: '11px 14px', background: 'none', border: 'none', borderBottom: i < suggestions.length - 1 ? '1px solid rgba(0,0,0,0.07)' : 'none', color: 'rgba(26,22,18,0.63)', fontSize: 13, fontFamily: 'Outfit, sans-serif', cursor: 'pointer' }}
@@ -464,9 +464,11 @@ export default function ProProfilePage() {
 
   const { register, handleSubmit, watch, formState: { errors } } = useForm({
     values: {
-      business_name: prof?.business_name ?? '',
-      description:   prof?.description   ?? '',
-      category:      prof?.category      ?? 'hair',
+      business_name:  prof?.business_name  ?? '',
+      description:    prof?.description    ?? '',
+      category:       prof?.category       ?? 'hair',
+      instagram_url:  prof?.instagram_url  ?? '',
+      website_url:    prof?.website_url    ?? '',
     },
   })
 
@@ -570,6 +572,20 @@ export default function ProProfilePage() {
                   <textarea {...register('description')} placeholder="Describe tu negocio, especialidades, experiencia..." className="input" style={{ height: 100, resize: 'none' }} />
                 </div>
 
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginBottom: 18 }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.32)', marginBottom: 8 }}>📸 Instagram</label>
+                    <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
+                      <span style={{ position: 'absolute', left: 12, fontSize: 13, color: 'rgba(26,22,18,0.35)', fontFamily: 'Outfit, sans-serif', pointerEvents: 'none', whiteSpace: 'nowrap' }}>@</span>
+                      <input {...register('instagram_url')} placeholder="tu_negocio" className="input" style={{ paddingLeft: 26 }} />
+                    </div>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.32)', marginBottom: 8 }}>🌐 Web</label>
+                    <input {...register('website_url')} placeholder="https://tu-web.com" className="input" />
+                  </div>
+                </div>
+
                 {/* Ubicación con autocompletado y mapa */}
                 <div style={{ marginBottom: 24, padding: 16, background: 'rgba(201,150,90,0.04)', border: '1px solid rgba(201,150,90,0.1)', borderRadius: 14 }}>
                   <p style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.6)', marginBottom: 14 }}>📍 Ubicación</p>
@@ -586,7 +602,7 @@ export default function ProProfilePage() {
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
                   {creating && !hasProfile && (
-                    <button type="button" onClick={() => setCreating(false)} style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 10, padding: '12px 24px', color: 'rgba(26,22,18,0.45)', fontSize: 13, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>Cancelar</button>
+                    <button type="button" onClick={() => setCreating(false)} style={{ background: 'transparent', border: '1px solid rgba(0,0,0,0.12)', borderRadius: 10, padding: '12px 24px', color: 'rgba(26,22,18,0.45)', fontSize: 13, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>Cancelar</button>
                   )}
                   <button type="submit" disabled={isPending} className="btn-primary" style={{ padding: '12px 32px' }}>
                     {isPending ? 'Guardando...' : hasProfile ? 'Guardar cambios' : 'Crear perfil'}
@@ -605,7 +621,7 @@ export default function ProProfilePage() {
                     <span style={{ fontSize: 13, color: 'rgba(26,22,18,0.54)' }}>{prof?.is_active ? 'Perfil activo' : 'Perfil inactivo'}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: prof?.is_verified ? '#B8833A' : 'rgba(255,255,255,0.2)' }} />
+                    <div style={{ width: 8, height: 8, borderRadius: '50%', background: prof?.is_verified ? '#B8833A' : 'rgba(0,0,0,0.15)' }} />
                     <span style={{ fontSize: 13, color: 'rgba(26,22,18,0.54)' }}>{prof?.is_verified ? '✓ Verificado' : 'Pendiente de verificación'}</span>
                   </div>
                 </div>

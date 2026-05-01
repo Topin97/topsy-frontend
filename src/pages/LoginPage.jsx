@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
 import { authApi } from '../services/api'
 import { useAuthStore } from '../store/authStore'
@@ -18,191 +18,184 @@ function GoogleIcon() {
   )
 }
 
+function AppleIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 814 1000">
+      <path fill="currentColor" d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 790.8 0 663.1 0 541.8c0-194.3 126.4-297.5 250.8-297.5 66.1 0 121.2 43.4 162.7 43.4 39.5 0 101.1-46 176.3-46 28.5 0 130.9 2.6 198.3 99.2zm-234-181.5c31.1-36.9 53.1-88.1 53.1-139.3 0-7.1-.6-14.3-1.9-20.1-50.6 1.9-110.8 33.7-147.1 75.8-28.5 32.4-55.1 83.6-55.1 135.5 0 7.8 1.3 15.6 1.9 18.1 3.2.6 8.4 1.3 13.6 1.3 45.4 0 102.5-30.4 135.5-71.3z"/>
+    </svg>
+  )
+}
+
 export default function LoginPage() {
-  const navigate    = useNavigate()
-  const { setAuth } = useAuthStore()
-  const [focused, setFocused]           = useState(null)
+  const navigate       = useNavigate()
+  const location       = useLocation()
+  const [searchParams] = useSearchParams()
+  const { setAuth }    = useAuthStore()
   const [showPassword, setShowPassword] = useState(false)
+  const [email, setEmail] = useState('')
+  const [emailStep, setEmailStep] = useState(false)
   const { register, handleSubmit, formState: { errors } } = useForm()
   const { loginWithGoogle, loading: googleLoading } = useGoogleAuth()
+
+  // Destino tras login: ?next= param (más fiable con OAuth) → state → default
+  const getRedirect = (role) => {
+    const next = searchParams.get('next') || location.state?.from
+    if (next && next !== '/login' && !next.startsWith('/login')) return next
+    return role === 'professional' ? '/pro/dashboard' : '/'
+  }
+
+  // Guardar ?next= en sessionStorage para recuperarlo tras redirect OAuth
+  const nextParam = searchParams.get('next')
+  if (nextParam) sessionStorage.setItem('login_redirect', nextParam)
 
   const { mutate, isPending } = useMutation({
     mutationFn: authApi.login,
     onSuccess: ({ data }) => {
       setAuth(data.user, data.access_token, data.refresh_token)
       toast.success(`Bienvenido, ${data.user.full_name?.split(' ')[0]} ✨`)
-      navigate(data.user.role === 'professional' ? '/pro/dashboard' : '/')
+      navigate(getRedirect(data.user.role))
     },
-    onError: (err) => toast.error(err.response?.data?.error ?? 'Error al iniciar sesión'),
+    onError: (err) => {
+      const data = err.response?.data
+      if (data?.email_not_confirmed) {
+        toast.error('Verifica tu email antes de entrar. Revisa tu bandeja de entrada.', { duration: 6000 })
+      } else if (data?.banned) {
+        toast.error(data.error ?? 'Tu cuenta ha sido suspendida.', { duration: 8000 })
+      } else {
+        toast.error(data?.error ?? 'Email o contraseña incorrectos')
+      }
+    },
   })
 
+  const handleApple = async () => {
+    try {
+      const { createClient } = await import('@supabase/supabase-js')
+      const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY)
+      sessionStorage.setItem('oauth_role', 'client')
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: { redirectTo: `${window.location.origin}/oauth/callback` },
+      })
+      if (error) toast.error('Error al conectar con Apple')
+    } catch {
+      toast.error('Error inesperado con Apple')
+    }
+  }
+
   return (
-    <div style={{ minHeight: '100dvh', background: '#F7F5F2', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px 20px', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ minHeight: '100dvh', background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
       <style>{`
-        @keyframes spin    { to { transform: rotate(360deg) } }
-        @keyframes fadeUp  { from { opacity:0; transform:translateY(20px) } to { opacity:1; transform:none } }
-        .login-card { animation: fadeUp 0.45s cubic-bezier(0.22,1,0.36,1) forwards; }
-        .google-btn:hover  { border-color: rgba(0,0,0,0.25) !important; box-shadow: 0 4px 16px rgba(0,0,0,0.1) !important; transform: translateY(-1px); }
-        .google-btn:active { transform: translateY(0) !important; }
-        .google-btn { transition: all 0.18s ease !important; }
-        .login-btn:hover  { box-shadow: 0 10px 28px rgba(184,131,58,0.45) !important; transform: translateY(-1px); }
-        .login-btn:active { transform: translateY(0) !important; }
-        .login-btn { transition: all 0.18s ease !important; }
-        .forgot-link:hover { color: #B8833A !important; }
-        .register-link:hover { border-color: rgba(184,131,58,0.4) !important; color: #B8833A !important; }
+        @keyframes spin{to{transform:rotate(360deg)}}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+        .fade-up{animation:fadeUp 0.3s ease forwards}
+        .social-btn:hover{background:#F5F5F4 !important}
+        .login-btn:hover{opacity:0.88}
+        input:focus{border-color:#1A1612 !important}
       `}</style>
 
-      {/* Fondo decorativo */}
-      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-        <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: 600, height: 600, background: 'radial-gradient(circle, rgba(184,131,58,0.07) 0%, transparent 60%)', borderRadius: '50%' }} />
-        <div style={{ position: 'absolute', bottom: '-15%', left: '-8%', width: 400, height: 400, background: 'radial-gradient(circle, rgba(184,131,58,0.05) 0%, transparent 60%)', borderRadius: '50%' }} />
+      {/* Header */}
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+        <button onClick={() => emailStep ? setEmailStep(false) : navigate('/')}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(26,22,18,0.5)', fontSize: 20, padding: 4 }}>
+          ←
+        </button>
+        <Link to="/" style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.4rem', fontWeight: 700, letterSpacing: '2px', textDecoration: 'none', color: '#1A1612' }}>
+          TOP<span style={{ color: '#B8833A', fontStyle: 'italic' }}>sy</span>
+        </Link>
+        <div style={{ width: 32 }} />
       </div>
 
-      <div className="login-card" style={{ width: '100%', maxWidth: 420, position: 'relative', zIndex: 1 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', maxWidth: 480, margin: '0 auto', width: '100%', padding: '0 24px 40px' }}>
 
-        {/* Logo + header */}
-        <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <Link to="/" style={{ display: 'inline-block', textDecoration: 'none', marginBottom: 20 }}>
-            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.2rem', fontWeight: 700, letterSpacing: '4px', color: '#1A1612' }}>TOP</span>
-            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.2rem', fontWeight: 400, fontStyle: 'italic', color: '#B8833A' }}>sy</span>
-          </Link>
-          <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.9rem,7vw,2.6rem)', fontWeight: 300, lineHeight: 1.1, color: '#1A1612', margin: '0 0 8px' }}>
-            Bienvenido <em style={{ color: '#B8833A' }}>de vuelta</em>
-          </h1>
-          <p style={{ color: 'rgba(26,22,18,0.4)', fontSize: 14, fontFamily: 'Outfit, sans-serif', margin: 0 }}>
-            Gestiona tus citas desde un solo lugar
-          </p>
-        </div>
-
-        {/* Card principal */}
-        <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 24, padding: '28px 24px', boxShadow: '0 8px 40px rgba(0,0,0,0.07)' }}>
-
-          {/* ── BOTÓN GOOGLE (destacado) ── */}
-          <button
-            type="button"
-            className="google-btn"
-            onClick={() => loginWithGoogle('client')}
-            disabled={googleLoading}
-            style={{
-              width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
-              padding: '14px 16px', background: googleLoading ? '#F7F5F2' : '#FFFFFF',
-              border: '1.5px solid rgba(0,0,0,0.14)', borderRadius: 14,
-              cursor: googleLoading ? 'not-allowed' : 'pointer',
-              fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 600, color: '#1A1612',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.07)', marginBottom: 6,
-            }}
-          >
-            {googleLoading
-              ? <span style={{ width: 20, height: 20, border: '2px solid rgba(0,0,0,0.1)', borderTopColor: '#B8833A', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
-              : <GoogleIcon />
-            }
-            {googleLoading ? 'Conectando...' : 'Continuar con Google'}
-          </button>
-
-          <p style={{ textAlign: 'center', fontSize: 11, color: 'rgba(26,22,18,0.3)', fontFamily: 'Outfit, sans-serif', marginBottom: 18 }}>
-            La forma más rápida de entrar
-          </p>
-
-          {/* Divider */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-            <div style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.07)' }} />
-            <span style={{ fontSize: 11, color: 'rgba(26,22,18,0.28)', fontFamily: 'Outfit, sans-serif', letterSpacing: '0.06em', textTransform: 'uppercase' }}>o con email</span>
-            <div style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.07)' }} />
-          </div>
-
-          {/* Formulario */}
-          <form onSubmit={handleSubmit(d => mutate(d))} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-
-            {/* Email */}
-            <div>
-              <div style={{ background: focused === 'email' ? 'rgba(184,131,58,0.03)' : '#FAFAF9', border: `1.5px solid ${errors.email ? '#f87171' : focused === 'email' ? '#B8833A' : 'rgba(0,0,0,0.09)'}`, borderRadius: 14, padding: '12px 16px', transition: 'all 0.2s', boxShadow: focused === 'email' ? '0 0 0 3px rgba(184,131,58,0.1)' : 'none' }}>
-                <label style={{ display: 'block', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: focused === 'email' ? '#B8833A' : 'rgba(26,22,18,0.38)', marginBottom: 4, fontFamily: 'Outfit, sans-serif', fontWeight: 700, transition: 'color 0.2s' }}>
-                  Email
-                </label>
-                <input
-                  {...register('email', { required: 'Email requerido', pattern: { value: /\S+@\S+\.\S+/, message: 'Email inválido' } })}
-                  type="email" placeholder="tu@email.com" autoComplete="email"
-                  onFocus={() => setFocused('email')} onBlur={() => setFocused(null)}
-                  style={{ width: '100%', background: 'none', border: 'none', outline: 'none', color: '#1A1612', fontSize: 15, fontFamily: 'Outfit, sans-serif', padding: 0 }}
-                />
-              </div>
-              {errors.email && <p style={{ color: '#f87171', fontSize: 12, marginTop: 4, paddingLeft: 4, fontFamily: 'Outfit, sans-serif' }}>{errors.email.message}</p>}
+        {!emailStep ? (
+          <div className="fade-up">
+            <div style={{ paddingTop: 40, paddingBottom: 32, textAlign: 'center' }}>
+              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.8rem', fontWeight: 700, color: '#1A1612', marginBottom: 8 }}>Iniciar sesión</h1>
+              <p style={{ color: 'rgba(26,22,18,0.45)', fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>Accede a tu cuenta de TopSy</p>
             </div>
 
-            {/* Contraseña */}
-            <div>
-              <div style={{ background: focused === 'password' ? 'rgba(184,131,58,0.03)' : '#FAFAF9', border: `1.5px solid ${errors.password ? '#f87171' : focused === 'password' ? '#B8833A' : 'rgba(0,0,0,0.09)'}`, borderRadius: 14, padding: '12px 16px', transition: 'all 0.2s', boxShadow: focused === 'password' ? '0 0 0 3px rgba(184,131,58,0.1)' : 'none' }}>
-                <label style={{ display: 'block', fontSize: 10, letterSpacing: '0.14em', textTransform: 'uppercase', color: focused === 'password' ? '#B8833A' : 'rgba(26,22,18,0.38)', marginBottom: 4, fontFamily: 'Outfit, sans-serif', fontWeight: 700, transition: 'color 0.2s' }}>
-                  Contraseña
-                </label>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {/* Email input */}
+            <div style={{ marginBottom: 16 }}>
+              <input
+                type="email" placeholder="Email" value={email}
+                onChange={e => setEmail(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && email && setEmailStep(true)}
+                style={{ width: '100%', padding: '14px 16px', border: '1.5px solid rgba(0,0,0,0.15)', borderRadius: 10, fontSize: 15, fontFamily: 'Outfit, sans-serif', color: '#1A1612', background: '#FAFAF9', outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.2s' }}
+              />
+            </div>
+
+            <button onClick={() => email && setEmailStep(true)} disabled={!email}
+              style={{ width: '100%', padding: '15px', background: !email ? 'rgba(26,22,18,0.12)' : '#1A1612', color: !email ? 'rgba(26,22,18,0.3)' : '#FFFFFF', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, fontFamily: 'Outfit, sans-serif', cursor: !email ? 'not-allowed' : 'pointer', marginBottom: 24, transition: 'all 0.15s' }}>
+              Continuar
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+              <div style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.1)' }} />
+              <span style={{ fontSize: 12, color: 'rgba(26,22,18,0.35)', fontFamily: 'Outfit, sans-serif' }}>o</span>
+              <div style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.1)' }} />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              <button onClick={() => loginWithGoogle('client')} disabled={googleLoading} className="social-btn"
+                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '14px', background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.15)', borderRadius: 10, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 600, color: '#1A1612', transition: 'background 0.15s' }}>
+                {googleLoading ? <span style={{ width: 20, height: 20, border: '2px solid rgba(0,0,0,0.1)', borderTopColor: '#1A1612', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} /> : <GoogleIcon />}
+                Continuar con Google
+              </button>
+              <button onClick={handleApple} className="social-btn"
+                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '14px', background: '#1A1612', border: 'none', borderRadius: 10, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 600, color: '#FFFFFF', transition: 'opacity 0.15s' }}>
+                <AppleIcon />
+                Continuar con Apple
+              </button>
+            </div>
+
+            <p style={{ textAlign: 'center', color: 'rgba(26,22,18,0.4)', fontSize: 13, marginTop: 28, fontFamily: 'Outfit, sans-serif' }}>
+              ¿Nuevo en TopSy?{' '}
+              <Link to="/register" style={{ color: '#1A1612', fontWeight: 700, textDecoration: 'none' }}>Crear cuenta</Link>
+            </p>
+          </div>
+        ) : (
+          <div className="fade-up">
+            <div style={{ paddingTop: 32, paddingBottom: 24 }}>
+              <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.6rem', fontWeight: 700, color: '#1A1612', marginBottom: 6 }}>Introduce tu contraseña</h1>
+              <p style={{ color: 'rgba(26,22,18,0.45)', fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>{email}</p>
+            </div>
+
+            <form onSubmit={handleSubmit(d => mutate({ email, password: d.password }))} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', border: `1.5px solid ${errors.password ? '#f87171' : 'rgba(0,0,0,0.15)'}`, borderRadius: 10, background: '#FAFAF9', overflow: 'hidden', transition: 'border-color 0.2s' }}>
                   <input
                     {...register('password', { required: 'Contraseña requerida' })}
-                    type={showPassword ? 'text' : 'password'} placeholder="••••••••" autoComplete="current-password"
-                    onFocus={() => setFocused('password')} onBlur={() => setFocused(null)}
-                    style={{ flex: 1, background: 'none', border: 'none', outline: 'none', color: '#1A1612', fontSize: 15, fontFamily: 'Outfit, sans-serif', padding: 0 }}
+                    type={showPassword ? 'text' : 'password'} placeholder="Contraseña" autoComplete="current-password"
+                    style={{ flex: 1, padding: '14px 16px', border: 'none', fontSize: 15, fontFamily: 'Outfit, sans-serif', color: '#1A1612', background: 'transparent', outline: 'none' }}
                   />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(26,22,18,0.25)', fontSize: 15, padding: 0, lineHeight: 1, flexShrink: 0 }}>
+                  <button type="button" onClick={() => setShowPassword(p => !p)}
+                    style={{ background: 'none', border: 'none', padding: '14px 12px', cursor: 'pointer', color: 'rgba(26,22,18,0.35)', fontSize: 16 }}>
                     {showPassword ? '🙈' : '👁️'}
                   </button>
                 </div>
+                {errors.password && <p style={{ color: '#f87171', fontSize: 12, marginTop: 4, fontFamily: 'Outfit, sans-serif' }}>{errors.password.message}</p>}
               </div>
-              {errors.password && <p style={{ color: '#f87171', fontSize: 12, marginTop: 4, paddingLeft: 4, fontFamily: 'Outfit, sans-serif' }}>{errors.password.message}</p>}
-            </div>
 
-            {/* Olvidé contraseña */}
-            <div style={{ textAlign: 'right', marginTop: -4 }}>
-              <Link to="/forgot-password" className="forgot-link" style={{ fontSize: 13, color: 'rgba(26,22,18,0.4)', textDecoration: 'none', fontFamily: 'Outfit, sans-serif', transition: 'color 0.15s' }}>
-                ¿Olvidaste tu contraseña?
-              </Link>
-            </div>
+              <div style={{ textAlign: 'right' }}>
+                <Link to="/forgot-password" style={{ fontSize: 13, color: 'rgba(26,22,18,0.45)', textDecoration: 'none', fontFamily: 'Outfit, sans-serif' }}>
+                  ¿Olvidaste tu contraseña?
+                </Link>
+              </div>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={isPending}
-              className="login-btn"
-              style={{
-                width: '100%', padding: '15px', fontSize: 15, fontWeight: 700,
-                background: isPending ? 'rgba(184,131,58,0.45)' : 'linear-gradient(135deg,#B8833A,#D4A055)',
-                color: '#FFFFFF', border: 'none', borderRadius: 14,
-                cursor: isPending ? 'not-allowed' : 'pointer',
-                fontFamily: 'Outfit, sans-serif', letterSpacing: '0.03em',
-                boxShadow: isPending ? 'none' : '0 6px 20px rgba(184,131,58,0.32)',
-                marginTop: 4,
-              }}
-            >
-              {isPending
-                ? <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-                    <span style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#FFFFFF', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
-                    Entrando...
-                  </span>
-                : 'Iniciar sesión →'
-              }
-            </button>
-          </form>
-        </div>
-
-        {/* Registro */}
-        <div style={{ marginTop: 16, textAlign: 'center' }}>
-          <p style={{ fontSize: 13, color: 'rgba(26,22,18,0.4)', fontFamily: 'Outfit, sans-serif', marginBottom: 10 }}>
-            ¿Nuevo en TopSy?
-          </p>
-          <Link
-            to="/register"
-            className="register-link"
-            style={{
-              display: 'block', textAlign: 'center', textDecoration: 'none',
-              background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.1)',
-              borderRadius: 14, padding: '14px', fontSize: 14, fontWeight: 600,
-              color: '#1A1612', fontFamily: 'Outfit, sans-serif',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.05)', transition: 'all 0.18s',
-            }}
-          >
-            Crear cuenta gratis →
-          </Link>
-        </div>
-
+              <button type="submit" disabled={isPending} className="login-btn"
+                style={{ width: '100%', padding: '15px', background: '#1A1612', color: '#FFFFFF', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, fontFamily: 'Outfit, sans-serif', cursor: isPending ? 'not-allowed' : 'pointer', opacity: isPending ? 0.7 : 1, transition: 'opacity 0.15s', marginTop: 4 }}>
+                {isPending
+                  ? <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                      <span style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#FFFFFF', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
+                      Entrando...
+                    </span>
+                  : 'Iniciar sesión →'
+                }
+              </button>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   )

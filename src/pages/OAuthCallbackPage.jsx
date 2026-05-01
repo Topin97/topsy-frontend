@@ -17,44 +17,54 @@ export default function OAuthCallbackPage() {
     if (called.current) return
     called.current = true
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('[OAuthCallback] event:', event, 'session:', !!session)
+    let subscription = null
+    let timeout = null
 
-      if (event === 'SIGNED_IN' && session) {
-        subscription.unsubscribe()
-        handleCallback(session)
-      } else if (event === 'SIGNED_OUT') {
-        subscription.unsubscribe()
+    const setup = async () => {
+      // Primero intentamos obtener la sesión directamente — puede que Supabase
+      // ya procesó el hash de la URL antes de que este componente se montara
+      // (race condition con lazy loading + Suspense).
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session) {
+          handleCallback(session)
+          return
+        }
+      } catch (_) { /* continúa con el listener */ }
+
+      // Si no hay sesión aún, esperamos el evento
+      const { data } = supabase.auth.onAuthStateChange((event, session) => {
+        if (event === 'SIGNED_IN' && session) {
+          clearTimeout(timeout)
+          data.subscription.unsubscribe()
+          handleCallback(session)
+        } else if (event === 'SIGNED_OUT') {
+          clearTimeout(timeout)
+          data.subscription.unsubscribe()
+          navigate('/login')
+        }
+      })
+      subscription = data.subscription
+
+      timeout = setTimeout(() => {
+        subscription?.unsubscribe()
         navigate('/login')
-      }
-    })
-
-    // Timeout de seguridad 10s
-    const timeout = setTimeout(() => {
-      console.warn('[OAuthCallback] timeout — redirigiendo a login')
-      subscription.unsubscribe()
-      navigate('/login')
-    }, 10000)
-
-    return () => {
-      clearTimeout(timeout)
-      subscription.unsubscribe()
+      }, 10000)
     }
+
+    setup()
+
+    return () => { clearTimeout(timeout); subscription?.unsubscribe() }
   }, []) // eslint-disable-line
 
   return (
-    <div style={{ minHeight: '100dvh', background: '#F7F5F2', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20 }}>
+    <div style={{ minHeight: '100dvh', background: '#FFFFFF', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20 }}>
       <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
-
-      <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2rem', fontWeight: 700, letterSpacing: '3px', color: '#1A1612' }}>
+      <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2rem', fontWeight: 700, letterSpacing: '3px', color: '#1A1612' }}>
         TOP<span style={{ color: '#B8833A', fontStyle: 'italic' }}>sy</span>
-      </div>
-
-      <div style={{ width: 44, height: 44, borderRadius: '50%', border: '3px solid rgba(184,131,58,0.15)', borderTopColor: '#B8833A', animation: 'spin 0.8s linear infinite' }} />
-
-      <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 14, color: 'rgba(26,22,18,0.4)' }}>
-        Conectando con Google...
       </p>
+      <div style={{ width: 44, height: 44, borderRadius: '50%', border: '3px solid rgba(26,22,18,0.08)', borderTopColor: '#1A1612', animation: 'spin 0.8s linear infinite' }} />
+      <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 14, color: 'rgba(26,22,18,0.4)' }}>Conectando...</p>
     </div>
   )
 }

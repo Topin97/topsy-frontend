@@ -16,6 +16,9 @@ export const useAuthStore = create(
 
       setUser: (user) => set({ user }),
 
+      updatePoints: (points) =>
+        set((s) => ({ user: s.user ? { ...s.user, points } : s.user })),
+
       logout: () => set({ user: null, token: null, refreshToken: null }),
 
       isAuthenticated: () => !!get().token,

@@ -40,41 +40,68 @@ api.interceptors.response.use(
 
 // ── Auth ──────────────────────────────────────────────────────
 export const authApi = {
-  register:      (data) => api.post('/auth/register', data),
-  login:         (data) => api.post('/auth/login', data),
-  logout:        ()     => api.post('/auth/logout'),
-  me:            ()     => api.get('/auth/me'),
-  refresh:       (rt)   => api.post('/auth/refresh', { refresh_token: rt }),
-  forgotPassword:(email)=> api.post('/auth/forgot-password', { email }),
-  updateProfile: (data) => api.put('/auth/profile', data),
-  oauthGoogle:   (access_token, refresh_token, role) =>
+  register:        (data)  => api.post('/auth/register', data),
+  login:           (data)  => api.post('/auth/login', data),
+  logout:          ()      => api.post('/auth/logout'),
+  me:              ()      => api.get('/auth/me', {
+    params: {
+      _t: Date.now(),
+    },
+  }),
+  refresh:         (rt)    => api.post('/auth/refresh', { refresh_token: rt }),
+  forgotPassword:  (email) => api.post('/auth/forgot-password', { email }),
+  updateProfile:   (data)  => api.put('/auth/profile', data),
+  oauthGoogle:     (access_token, refresh_token, role) =>
     api.post('/auth/oauth', { access_token, refresh_token, role }),
+  sendPhoneCode:        (phone) => api.post('/auth/phone/send', { phone }),
+  sendPhoneCodeOAuth:   (phone) => api.post('/auth/phone/send-any', { phone }),
+  verifyPhoneCode:      (phone, code) => api.post('/auth/phone/verify', { phone, code }),
+  resendVerification:   (email) => api.post('/auth/resend-verification', { email }),
 }
 
 // ── Professionals ─────────────────────────────────────────────
 export const profApi = {
-  getAll:    (params) => api.get('/professionals', { params }),
-  getOne:    (id)     => api.get(`/professionals/${id}`),
-  create:    (data)   => api.post('/professionals/profile', data),
-  update:    (data)   => api.put('/professionals/profile', data),
-  getStats:      ()     => api.get('/professionals/me/stats'),
-  getMyProfile:  ()     => api.get('/professionals/me/stats'),
-  setAvail:  (data)   => api.put('/professionals/availability', data),
+  getAll:             (params)          => api.get('/professionals', { params }),
+  getOne:             (id)              => api.get(`/professionals/${id}`),
+  create:             (data)            => api.post('/professionals/profile', data),
+  update:             (data)            => api.put('/professionals/profile', data),
+  getStats:           ()                => api.get('/professionals/me/stats'),
+  getMyProfile:       ()                => api.get('/professionals/me/stats'),
+  setAvail:           (data)            => api.put('/professionals/availability', data),
   uploadGalleryImage: (base64, caption) => api.post('/professionals/gallery/upload', { image: base64, caption }),
-  deleteGalleryImage: (url)              => api.delete('/professionals/gallery/image', { data: { url } }),
+  deleteGalleryImage: (url)             => api.delete('/professionals/gallery/image', { data: { url } }),
+  getBlockedDates:    ()                => api.get('/professionals/me/blocked-dates'),
+  addBlockedDate:     (date, reason)    => api.post('/professionals/me/blocked-dates', { date, reason }),
+  removeBlockedDate:  (date)            => api.delete(`/professionals/me/blocked-dates/${date}`),
+}
+
+// ── Waitlist ──────────────────────────────────────────────────
+export const waitlistApi = {
+  join:    (data)                => api.post('/waitlist', data),
+  leave:   (professional_id, date) => api.delete('/waitlist', { data: { professional_id, date } }),
+  check:   (params)              => api.get('/waitlist/check', { params }),
+  getMine: ()                    => api.get('/waitlist/mine'),
 }
 
 // ── Bookings ──────────────────────────────────────────────────
 export const bookingsApi = {
-  getSlots:         (params)    => api.get('/bookings/available-slots', { params }),
-  create:           (data)      => api.post('/bookings', data),
-  getMine:          ()          => api.get('/bookings/my'),
-  getPro:           ()          => api.get('/bookings/professional'),
-  cancel:           (id, reason) => api.patch(`/bookings/${id}/cancel`, { reason }),
-  complete:         (id)        => api.patch(`/bookings/${id}/complete`),
-  review:           (id, data)  => api.post(`/bookings/${id}/review`, data),
+  getSlots:         (params)        => api.get('/bookings/available-slots', { params }),
+  create:           (data)          => api.post('/bookings', data),
+  getMine:          ()              => api.get('/bookings/my'),
+  getPro:           (params)        => api.get('/bookings/professional', { params }),
+  cancel:           (id, reason)    => api.patch(`/bookings/${id}/cancel`, { reason }),
+  complete:         (id)            => api.patch(`/bookings/${id}/complete`),
+  review:           (id, data)      => api.post(`/bookings/${id}/review`, data),
   reschedule:       (id, starts_at) => api.patch(`/bookings/${id}/reschedule`, { starts_at }),
-  addNote:          (id, note)  => api.patch(`/bookings/${id}/note`, { note }),
+  rescheduleClient: (id, data)      => api.post(`/bookings/${id}/reschedule-client`, data),
+  addNote:          (id, note)      => api.patch(`/bookings/${id}/note`, { note }),
+}
+
+// ── Google Calendar ───────────────────────────────────────────
+export const calendarApi = {
+  getConnectUrl: ()  => api.get('/calendar/connect'),
+  getStatus:     ()  => api.get('/calendar/status'),
+  disconnect:    ()  => api.delete('/calendar/disconnect'),
 }
 
 // ── Storage (Supabase direct) ─────────────────────────────────

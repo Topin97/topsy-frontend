@@ -102,7 +102,19 @@ export default function ProServicesPage() {
 
   return (
     <div style={{ background: '#F7F5F2', minHeight: '100vh', paddingBottom: 60 }}>
-      <style>{`.svc-card { transition: box-shadow 0.2s, border-color 0.2s; } .svc-card:hover { border-color: rgba(184,131,58,0.2) !important; box-shadow: 0 4px 16px rgba(0,0,0,0.07) !important; } .toggle-btn:hover { background: rgba(184,131,58,0.08) !important; border-color: rgba(184,131,58,0.25) !important; color: #B8833A !important; } .edit-btn:hover { background: rgba(26,22,18,0.05) !important; }`}</style>
+      <style>{`
+        .svc-card { transition: box-shadow 0.2s, border-color 0.2s; }
+        .svc-card:hover { border-color: rgba(184,131,58,0.2) !important; box-shadow: 0 4px 16px rgba(0,0,0,0.07) !important; }
+        .toggle-btn:hover { background: rgba(184,131,58,0.08) !important; border-color: rgba(184,131,58,0.25) !important; color: #B8833A !important; }
+        .edit-btn:hover { background: rgba(26,22,18,0.05) !important; }
+        .svc-actions { display: flex; gap: 8px; flex-shrink: 0; }
+        @media (max-width: 480px) {
+          .svc-card-inner { flex-wrap: wrap; }
+          .svc-price { order: -1; margin-left: auto; }
+          .svc-actions { width: 100%; margin-top: 8px; }
+          .svc-actions button { flex: 1; }
+        }
+      `}</style>
 
       {/* Header */}
       <div style={{ background: '#FFFFFF', borderBottom: '1px solid rgba(0,0,0,0.07)', padding: '28px 0 22px', boxShadow: '0 1px 8px rgba(0,0,0,0.04)', marginBottom: 28 }}>
@@ -155,9 +167,9 @@ export default function ProServicesPage() {
                 ) : (
                   <div className="svc-card" style={{
                     background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 16,
-                    padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 16,
-                    opacity: s.is_active ? 1 : 0.55, boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                    padding: '18px 20px', opacity: s.is_active ? 1 : 0.55, boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
                   }}>
+                  <div className="svc-card-inner" style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                     {/* Number circle */}
                     <div style={{ width: 40, height: 40, borderRadius: '50%', background: s.is_active ? 'rgba(184,131,58,0.1)' : 'rgba(0,0,0,0.05)', border: `1.5px solid ${s.is_active ? 'rgba(184,131,58,0.25)' : 'rgba(0,0,0,0.08)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', color: s.is_active ? '#B8833A' : 'rgba(26,22,18,0.3)' }}>✂️</span>
@@ -170,8 +182,8 @@ export default function ProServicesPage() {
                       {s.description && <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.45)', marginBottom: 4, fontFamily: 'Outfit, sans-serif' }}>{s.description}</p>}
                       <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.35)', fontFamily: 'Outfit, sans-serif' }}>⏱ {s.duration_minutes} min</p>
                     </div>
-                    <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.6rem', color: '#B8833A', fontStyle: 'italic', flexShrink: 0 }}>{s.price}€</span>
-                    <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                    <span className="svc-price" style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.6rem', color: '#B8833A', fontStyle: 'italic', flexShrink: 0 }}>{s.price}€</span>
+                    <div className="svc-actions">
                       <button onClick={() => setEditingId(s.id)} className="edit-btn" style={{ background: '#F7F5F2', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 9, padding: '7px 14px', fontSize: 12, color: 'rgba(26,22,18,0.6)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600, transition: 'all 0.2s' }}>
                         Editar
                       </button>
@@ -179,6 +191,7 @@ export default function ProServicesPage() {
                         {s.is_active ? 'Desactivar' : 'Activar'}
                       </button>
                     </div>
+                  </div>{/* svc-card-inner */}
                   </div>
                 )}
               </div>

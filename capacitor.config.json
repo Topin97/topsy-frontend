@@ -1,0 +1,25 @@
+{
+  "appId": "es.topsy.app",
+  "appName": "TopSy",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": false,
+    "scrollEnabled": true
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#1A0F05",
+      "androidSplashResourceName": "splash",
+      "showSpinner": false
+    },
+    "CapacitorHttp": {
+      "enabled": true
+    }
+  }
+}

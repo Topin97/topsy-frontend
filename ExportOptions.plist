@@ -1,0 +1,95 @@
+name: iOS Build & Upload
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build-ios:
+    runs-on: macos-latest
+
+    steps:
+      # 1. Checkout
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # 2. Node
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      # 3. Instalar dependencias y compilar web
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web
+        run: npm run build
+
+      # 4. Capacitor sync
+      - name: Capacitor sync iOS
+        run: npx cap sync ios
+
+      # 5. Instalar certificados
+      - name: Install Apple certificate & provisioning profile
+        env:
+          P12_BASE64: ${{ secrets.IOS_DISTRIBUTION_CERT_P12 }}
+          P12_PASSWORD: ${{ secrets.IOS_DISTRIBUTION_CERT_PASSWORD }}
+          PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE }}
+        run: |
+          # Keychain temporal
+          KEYCHAIN_PATH=$RUNNER_TEMP/build.keychain
+          KEYCHAIN_PASSWORD=temporalkeychain123
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+
+          # Instalar certificado p12
+          echo "$P12_BASE64" | base64 --decode > $RUNNER_TEMP/distribution.p12
+          security import $RUNNER_TEMP/distribution.p12 \
+            -P "$P12_PASSWORD" \
+            -A -t cert -f pkcs12 \
+            -k "$KEYCHAIN_PATH"
+          security list-keychain -d user -s "$KEYCHAIN_PATH"
+
+          # Instalar provisioning profile
+          echo "$PROVISIONING_PROFILE_BASE64" | base64 --decode > $RUNNER_TEMP/profile.mobileprovision
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $RUNNER_TEMP/profile.mobileprovision \
+            ~/Library/MobileDevice/Provisioning\ Profiles/
+
+      # 6. Build .ipa con xcodebuild
+      - name: Build iOS .ipa
+        env:
+          TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          cd ios/App
+
+          xcodebuild archive \
+            -scheme App \
+            -configuration Release \
+            -archivePath $RUNNER_TEMP/TopSy.xcarchive \
+            -destination "generic/platform=iOS" \
+            CODE_SIGN_STYLE=Manual \
+            DEVELOPMENT_TEAM="$TEAM_ID" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            PROVISIONING_PROFILE_SPECIFIER="Topsy AppStore Distribution" \
+            -allowProvisioningUpdates \
+            | xcpretty
+
+          xcodebuild -exportArchive \
+            -archivePath $RUNNER_TEMP/TopSy.xcarchive \
+            -exportOptionsPlist ../../ExportOptions.plist \
+            -exportPath $RUNNER_TEMP/ipa \
+            | xcpretty
+
+      # 7. Subir .ipa como artefacto descargable
+      - name: Upload .ipa artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TopSy-iOS
+          path: ${{ runner.temp }}/ipa/*.ipa
+          retention-days: 14

@@ -4,20 +4,30 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { authApi } from '../../services/api'
 import toast from 'react-hot-toast'
 import { useState, useEffect, useRef } from 'react'
-import navHome     from '../../assets/icons/nav-home.png'
-import navExplore  from '../../assets/icons/nav-explore.png'
+import navHome from '../../assets/icons/nav-home.png'
+import navExplore from '../../assets/icons/nav-explore.png'
 import navBookings from '../../assets/icons/nav-bookings.png'
-import navProfile  from '../../assets/icons/nav-profile.png'
+import navProfile from '../../assets/icons/nav-profile.png'
+
+const ddStyle = {
+  display: 'flex', alignItems: 'center', gap: 10,
+  padding: '10px 12px', borderRadius: 12,
+  textDecoration: 'none', color: '#181512', fontSize: 14,
+}
 
 export default function Layout() {
   const { user, token, logout, isProfessional } = useAuthStore()
-  const navigate  = useNavigate()
-  const qc        = useQueryClient()
-  const location  = useLocation()
-  const [scrolled, setScrolled]             = useState(false)
-  const [dropdownOpen, setDropdownOpen]     = useState(false)
+  const navigate = useNavigate()
+  const qc = useQueryClient()
+  const location = useLocation()
+
+  const [scrolled, setScrolled] = useState(false)
+  const [dropdownOpen, setDropdownOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const dropdownRef = useRef(null)
+
+  const isHome = location.pathname === '/'
+  const transparent = isHome && !scrolled
 
   const { data: me } = useQuery({
     queryKey: ['me'],
@@ -26,102 +36,141 @@ export default function Layout() {
   })
 
   const avatarUrl = me?.avatar_url
-  const isAdmin   = user?.role === 'admin'
+  const isAdmin = user?.role === 'admin'
 
-  const hideBottomNav = ['/login','/register','/welcome','/forgot-password','/reset-password']
-    .some(p => location.pathname === p || location.pathname.startsWith('/register/'))
+  const hideBottomNav =
+    ['/login', '/register', '/welcome', '/forgot-password', '/reset-password', '/pro/onboarding', '/complete-profile'].includes(location.pathname) ||
+    location.pathname.startsWith('/register/') ||
+    location.pathname.startsWith('/booking/') ||
+    location.pathname.startsWith('/professional/')
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 8)
+    const fn = () => setScrolled(window.scrollY > 10)
     window.addEventListener('scroll', fn, { passive: true })
     return () => window.removeEventListener('scroll', fn)
   }, [])
 
-  useEffect(() => { setDropdownOpen(false); setProfileMenuOpen(false) }, [location.pathname])
+  useEffect(() => {
+    setDropdownOpen(false)
+    setProfileMenuOpen(false)
+  }, [location.pathname])
 
   useEffect(() => {
-    const fn = e => { if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setDropdownOpen(false) }
+    const fn = e => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) setDropdownOpen(false)
+    }
     document.addEventListener('mousedown', fn)
     return () => document.removeEventListener('mousedown', fn)
   }, [])
 
   const handleLogout = async () => {
     try { await authApi.logout() } catch {}
-    logout(); qc.clear()
+    logout()
+    qc.clear()
     toast.success('Sesión cerrada')
     navigate('/')
   }
 
   const isActive = path => path === '/' ? location.pathname === '/' : location.pathname.startsWith(path)
 
-  const profileLink  = isAdmin ? '/admin' : isProfessional() ? '/pro/profile' : '/profile'
+  const profileLink = isAdmin ? '/admin' : isProfessional() ? '/pro/profile' : '/profile'
   const bookingsLink = token ? (isProfessional() ? '/pro/dashboard' : '/dashboard') : '/login'
 
   const clientNav = [
-    { to: '/',          img: navHome,     label: 'Inicio' },
-    { to: '/search',    img: navExplore,  label: 'Explorar' },
-    { to: bookingsLink, img: navBookings, label: 'Reservas' },
+    { to: '/',           img: navHome,     label: 'Inicio' },
+    { to: '/search',     img: navExplore,  label: 'Explorar' },
+    { to: bookingsLink,  img: navBookings, label: 'Reservas' },
     { to: token ? profileLink : '/login', img: navProfile, label: 'Perfil', isProfile: true },
   ]
+
   const proNav = [
     { to: '/pro/dashboard',    img: navHome,     label: 'Panel' },
     { to: '/pro/services',     img: navExplore,  label: 'Servicios' },
     { to: '/pro/availability', img: navBookings, label: 'Horarios' },
     { to: '/pro/profile',      img: navProfile,  label: 'Perfil', isProfile: true },
   ]
+
   const bottomNav = token && isProfessional() ? proNav : clientNav
 
-  const Avatar = ({ size = 30 }) => (
-    <div style={{ width: size, height: size, borderRadius: '50%', overflow: 'hidden', border: '2px solid rgba(184,131,58,0.3)', background: 'rgba(184,131,58,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+  const Avatar = ({ size = 32 }) => (
+    <div style={{
+      width: size, height: size, borderRadius: '50%', overflow: 'hidden',
+      border: '1.5px solid rgba(197,138,61,0.25)', background: 'rgba(197,138,61,0.08)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+    }}>
       {avatarUrl
         ? <img src={avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: size * 0.4, color: '#B8833A', fontWeight: 700 }}>{user?.full_name?.[0]?.toUpperCase()}</span>
+        : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: size * 0.42, color: '#B57932', fontWeight: 700, lineHeight: 1 }}>
+            {user?.full_name?.[0]?.toUpperCase() || 'T'}
+          </span>
       }
     </div>
   )
 
+  const DesktopNavLink = ({ to, children }) => {
+    const active = isActive(to)
+    return (
+      <Link to={to} style={{
+        textDecoration: 'none', fontSize: 12,
+        letterSpacing: '0.14em', textTransform: 'uppercase',
+        fontWeight: active ? 700 : 600,
+        color: transparent
+          ? active ? '#D4A055' : 'rgba(255,255,255,0.75)'
+          : active ? '#B57932' : 'rgba(24,21,18,0.50)',
+        transition: 'color .18s ease',
+      }}>
+        {children}
+      </Link>
+    )
+  }
+
   const NavItem = ({ item }) => {
     const { to, img, label, isProfile } = item
     const active = isActive(to)
-    const on = isProfile ? (active || profileMenuOpen) : active
+    const on = isProfile ? active || profileMenuOpen : active
 
     const inner = (
       <>
         <div style={{
-          width: 32, height: 32, borderRadius: 10,
-          background: on ? 'linear-gradient(135deg, rgba(184,131,58,0.15), rgba(212,160,85,0.1))' : 'transparent',
+          width: 36, height: 36, borderRadius: 12,
+          background: on ? 'rgba(197,138,61,0.12)' : 'transparent',
+          border: on ? '1px solid rgba(197,138,61,0.18)' : '1px solid transparent',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          transition: 'all 0.25s cubic-bezier(0.34,1.56,0.64,1)',
-          transform: on ? 'scale(1.08)' : 'scale(1)',
-          border: on ? '1px solid rgba(184,131,58,0.2)' : '1px solid transparent',
+          transition: 'all .2s ease',
         }}>
           {isProfile && avatarUrl
-            ? <div style={{ width: 22, height: 22, borderRadius: '50%', overflow: 'hidden', border: `2px solid ${on ? '#B8833A' : 'rgba(0,0,0,0.15)'}`, transition: 'border-color 0.22s' }}>
+            ? <div style={{ width: 24, height: 24, borderRadius: '50%', overflow: 'hidden', border: `1.5px solid ${on ? '#B57932' : 'rgba(0,0,0,0.14)'}` }}>
                 <img src={avatarUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>
-            : <img src={img} alt={label} style={{ width: 18, height: 18, objectFit: 'contain', transition: 'all 0.22s',
-                opacity: on ? 1 : 0.38,
+            : <img src={img} alt={label} style={{
+                width: 18, height: 18, objectFit: 'contain',
+                opacity: on ? 1 : 0.4,
                 filter: on
-                  ? 'brightness(0) saturate(1) invert(48%) sepia(60%) saturate(500%) hue-rotate(10deg) brightness(0.85)'
-                  : 'brightness(0)'
+                  ? 'brightness(0) saturate(1) invert(48%) sepia(47%) saturate(705%) hue-rotate(356deg) brightness(93%) contrast(89%)'
+                  : 'brightness(0)',
               }} />
           }
         </div>
-        <span style={{ fontSize: 10, marginTop: 1, color: on ? '#B8833A' : 'rgba(26,22,18,0.35)', fontFamily: 'Outfit, sans-serif', fontWeight: on ? 700 : 400, transition: 'all 0.22s', letterSpacing: on ? '0.01em' : 0 }}>
+        <span style={{ fontSize: 10, color: on ? '#B57932' : 'rgba(24,21,18,0.38)', fontWeight: on ? 700 : 500, marginTop: 2 }}>
           {label}
         </span>
       </>
     )
 
-    const style = { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1, flex: 1, padding: '7px 0 4px', cursor: 'pointer', WebkitTapHighlightColor: 'transparent', position: 'relative', transition: 'opacity 0.1s', userSelect: 'none' }
+    const btnStyle = {
+      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
+      flex: 1, padding: '7px 0 5px', cursor: 'pointer',
+      WebkitTapHighlightColor: 'transparent', position: 'relative',
+      userSelect: 'none', textDecoration: 'none', background: 'none', border: 'none',
+    }
 
     return isProfile && token
-      ? <button onClick={() => setProfileMenuOpen(!profileMenuOpen)} style={{ ...style, background: 'none', border: 'none' }}>{inner}</button>
-      : <Link to={to} style={{ ...style, textDecoration: 'none' }}>{inner}</Link>
+      ? <button onClick={() => setProfileMenuOpen(!profileMenuOpen)} style={btnStyle}>{inner}</button>
+      : <Link to={to} style={btnStyle}>{inner}</Link>
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#F7F5F2' }}>
+    <div style={{ minHeight: '100vh', background: '#F8F5F0', fontFamily: 'Outfit, sans-serif' }}>
       <style>{`
         @media (max-width: 768px) {
           .nav-desktop { display: none !important; }
@@ -130,151 +179,253 @@ export default function Layout() {
         @media (min-width: 769px) {
           .bottom-nav { display: none !important; }
         }
-        .nav-link:hover { color: #B8833A !important; }
-        .dd-item:hover  { background: #F7F5F2 !important; }
+        .dd-item:hover { background: #F8F5F0 !important; }
+        .nav-link-hover:hover { opacity: 1 !important; }
       `}</style>
 
-      {/* ── TOP NAV ── */}
+      {/* ══ NAVBAR */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        height: scrolled ? 52 : 60,
-        background: '#FFFFFF',
-        borderBottom: '1px solid rgba(0,0,0,0.07)',
-        boxShadow: scrolled ? '0 2px 12px rgba(0,0,0,0.06)' : 'none',
-        transition: 'all 0.25s ease',
+        height: scrolled ? 60 : 68,
+        background: transparent ? 'transparent' : scrolled ? 'rgba(255,255,255,0.94)' : 'rgba(255,255,255,0.85)',
+        backdropFilter: transparent ? 'none' : 'blur(20px)',
+        WebkitBackdropFilter: transparent ? 'none' : 'blur(20px)',
+        borderBottom: transparent ? 'none' : '1px solid rgba(17,17,17,0.06)',
+        boxShadow: transparent ? 'none' : scrolled ? '0 8px 28px rgba(17,17,17,0.07)' : 'none',
+        transition: 'all .25s ease',
         display: 'flex', alignItems: 'center',
       }}>
-        <div style={{ width: '100%', maxWidth: 1200, margin: '0 auto', padding: '0 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-
+        <div style={{
+          width: '100%', maxWidth: 1280, margin: '0 auto',
+          padding: '0 24px', display: 'flex', alignItems: 'center',
+          justifyContent: 'space-between', gap: 18,
+        }}>
           {/* Logo */}
-          <Link to="/" style={{ textDecoration: 'none', display: 'flex', alignItems: 'baseline', flexShrink: 0 }}>
-            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', fontWeight: 700, letterSpacing: '3px', color: '#1A1612', lineHeight: 1 }}>TOP</span>
-            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', fontWeight: 400, fontStyle: 'italic', color: '#B8833A', lineHeight: 1 }}>sy</span>
+          <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
+            <span style={{
+              fontFamily: 'Cormorant Garamond, serif', fontSize: '1.75rem',
+              fontWeight: 700, letterSpacing: '0.06em', lineHeight: 1,
+              color: transparent ? '#FFFFFF' : '#181512',
+              transition: 'color .25s ease',
+            }}>TOP</span>
+            <span style={{
+              fontFamily: 'Cormorant Garamond, serif', fontSize: '1.75rem',
+              fontWeight: 400, fontStyle: 'italic', lineHeight: 1,
+              color: transparent ? '#D4A055' : '#B57932',
+              transition: 'color .25s ease',
+            }}>sy</span>
           </Link>
 
-          {/* Desktop links */}
-          <div className="nav-desktop" style={{ display: 'flex', alignItems: 'center', gap: '1.8rem' }}>
-            <Link to="/search" className="nav-link" style={{ textDecoration: 'none', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: isActive('/search') ? '#B8833A' : 'rgba(26,22,18,0.45)', transition: 'color 0.2s' }}>Explorar</Link>
+          {/* Nav links centro */}
+          <div className="nav-desktop" style={{ display: 'flex', alignItems: 'center', gap: '1.6rem' }}>
+            <DesktopNavLink to="/search">Explorar</DesktopNavLink>
+
             {token && isProfessional() && <>
-              <Link to="/pro/dashboard"    className="nav-link" style={{ textDecoration: 'none', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: isActive('/pro/dashboard') ? '#B8833A' : 'rgba(26,22,18,0.45)', transition: 'color 0.2s' }}>Panel</Link>
-              <Link to="/pro/services"     className="nav-link" style={{ textDecoration: 'none', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: isActive('/pro/services') ? '#B8833A' : 'rgba(26,22,18,0.45)', transition: 'color 0.2s' }}>Servicios</Link>
-              <Link to="/pro/availability" className="nav-link" style={{ textDecoration: 'none', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: isActive('/pro/availability') ? '#B8833A' : 'rgba(26,22,18,0.45)', transition: 'color 0.2s' }}>Horarios</Link>
+              <DesktopNavLink to="/pro/dashboard">Panel</DesktopNavLink>
+              <DesktopNavLink to="/pro/services">Servicios</DesktopNavLink>
+              <DesktopNavLink to="/pro/availability">Horarios</DesktopNavLink>
+              <DesktopNavLink to="/pro/waitlist">Lista de espera</DesktopNavLink>
             </>}
+
             {token && !isProfessional() && !isAdmin && (
-              <Link to="/dashboard" className="nav-link" style={{ textDecoration: 'none', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 500, color: isActive('/dashboard') ? '#B8833A' : 'rgba(26,22,18,0.45)', transition: 'color 0.2s' }}>Mis citas</Link>
+              <DesktopNavLink to="/dashboard">Mis citas</DesktopNavLink>
             )}
+
             {isAdmin && (
-              <Link to="/admin" style={{ textDecoration: 'none', fontSize: 10, letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700, color: '#B8833A', background: 'rgba(184,131,58,0.1)', border: '1px solid rgba(184,131,58,0.25)', borderRadius: 100, padding: '4px 12px' }}>⚙️ Admin</Link>
+              <Link to="/admin" style={{
+                textDecoration: 'none', fontSize: 11, letterSpacing: '0.12em',
+                textTransform: 'uppercase', fontWeight: 700, color: '#B57932',
+                background: 'rgba(197,138,61,0.10)', border: '1px solid rgba(197,138,61,0.22)',
+                borderRadius: 999, padding: '7px 13px',
+              }}>Admin</Link>
             )}
           </div>
 
-          {/* Desktop auth */}
+          {/* Derecha */}
           <div className="nav-desktop" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             {token ? (
               <div ref={dropdownRef} style={{ position: 'relative' }}>
-                <button onClick={() => setDropdownOpen(!dropdownOpen)} style={{ background: dropdownOpen ? '#F7F5F2' : 'transparent', border: '1.5px solid rgba(0,0,0,0.08)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, padding: '5px 10px 5px 5px', borderRadius: 100, transition: 'all 0.2s' }}>
-                  <Avatar size={28} />
-                  <span style={{ fontSize: 13, color: '#1A1612', maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{user?.full_name?.split(' ')[0]}</span>
-                  <span style={{ fontSize: 8, color: 'rgba(26,22,18,0.3)', transition: 'transform 0.2s', transform: dropdownOpen ? 'rotate(180deg)' : 'none' }}>▼</span>
+                <button onClick={() => setDropdownOpen(!dropdownOpen)} style={{
+                  background: transparent
+                    ? dropdownOpen ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.1)'
+                    : dropdownOpen ? '#F8F5F0' : 'rgba(255,255,255,0.82)',
+                  border: transparent ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(17,17,17,0.08)',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 9,
+                  padding: '6px 10px 6px 6px', borderRadius: 999,
+                  transition: 'all .2s ease',
+                  boxShadow: dropdownOpen ? '0 10px 24px rgba(17,17,17,0.08)' : 'none',
+                }}>
+                  <Avatar size={30} />
+                  <span style={{
+                    fontSize: 13, fontWeight: 600,
+                    color: transparent ? '#FFFFFF' : '#181512',
+                    maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                    transition: 'color .25s ease',
+                  }}>
+                    {user?.full_name?.split(' ')[0]}
+                  </span>
+                  <span style={{
+                    fontSize: 9, transition: 'all .2s ease',
+                    color: transparent ? 'rgba(255,255,255,0.5)' : 'rgba(24,21,18,0.36)',
+                    transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0)',
+                  }}>▼</span>
                 </button>
 
                 {dropdownOpen && (
-                  <div style={{ position: 'absolute', top: 'calc(100% + 8px)', right: 0, background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 16, minWidth: 210, boxShadow: '0 8px 32px rgba(0,0,0,0.1)', overflow: 'hidden', zIndex: 200 }}>
-                    <div style={{ padding: '14px 16px', borderBottom: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', gap: 10 }}>
-                      <Avatar size={34} />
+                  <div style={{
+                    position: 'absolute', top: 'calc(100% + 10px)', right: 0,
+                    width: 230, background: '#FFFFFF',
+                    border: '1px solid rgba(17,17,17,0.07)', borderRadius: 20,
+                    boxShadow: '0 22px 48px rgba(17,17,17,0.12)',
+                    overflow: 'hidden', zIndex: 200,
+                  }}>
+                    <div style={{ padding: 16, borderBottom: '1px solid rgba(17,17,17,0.06)', display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <Avatar size={38} />
                       <div>
-                        <p style={{ fontSize: 13, fontWeight: 600, color: '#1A1612', margin: 0 }}>{user?.full_name}</p>
-                        <p style={{ fontSize: 10, color: '#A0917F', margin: '2px 0 0' }}>
-                          {isAdmin ? '⚙️ Admin' : isProfessional() ? '✂️ Profesional' : '👤 Cliente'}
+                        <p style={{ fontSize: 14, fontWeight: 700, color: '#181512', margin: 0 }}>{user?.full_name}</p>
+                        <p style={{ fontSize: 11, color: 'rgba(24,21,18,0.46)', margin: '3px 0 0' }}>
+                          {isAdmin ? 'Administrador' : isProfessional() ? 'Profesional' : 'Cliente'}
                         </p>
                       </div>
                     </div>
-                    <div style={{ padding: 6 }}>
-                      {isAdmin && <Link to="/admin" className="dd-item" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 9, textDecoration: 'none', color: '#B8833A', fontSize: 13, transition: 'background 0.15s' }}>⚙️ Panel admin</Link>}
-                      {isProfessional() && <>
-                        <Link to="/pro/dashboard"    className="dd-item" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 9, textDecoration: 'none', color: '#1A1612', fontSize: 13, transition: 'background 0.15s' }}>📊 Dashboard</Link>
-                        <Link to="/pro/services"     className="dd-item" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 9, textDecoration: 'none', color: '#1A1612', fontSize: 13, transition: 'background 0.15s' }}>✂️ Servicios</Link>
-                        <Link to="/pro/availability" className="dd-item" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 9, textDecoration: 'none', color: '#1A1612', fontSize: 13, transition: 'background 0.15s' }}>🕐 Horarios</Link>
-                        <Link to="/pro/profile"      className="dd-item" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 9, textDecoration: 'none', color: '#1A1612', fontSize: 13, transition: 'background 0.15s' }}>✏️ Mi perfil</Link>
-                      </>}
-                      {!isProfessional() && !isAdmin && <>
-                        <Link to="/dashboard" className="dd-item" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 9, textDecoration: 'none', color: '#1A1612', fontSize: 13, transition: 'background 0.15s' }}>📅 Mis citas</Link>
-                        <Link to="/profile"   className="dd-item" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 9, textDecoration: 'none', color: '#1A1612', fontSize: 13, transition: 'background 0.15s' }}>👤 Mi perfil</Link>
-                      </>}
-                      <Link to="/search" className="dd-item" onClick={() => setDropdownOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 9, textDecoration: 'none', color: '#1A1612', fontSize: 13, transition: 'background 0.15s' }}>🔍 Explorar</Link>
+
+                    <div style={{ padding: 8 }}>
+                      {isAdmin && (
+                        <Link to="/admin" className="dd-item" onClick={() => setDropdownOpen(false)} style={{ ...ddStyle, color: '#B57932' }}>⚙️ Panel admin</Link>
+                      )}
+                      {isProfessional() ? <>
+                        <Link to="/pro/dashboard"    className="dd-item" onClick={() => setDropdownOpen(false)} style={ddStyle}>📊 Dashboard</Link>
+                        <Link to="/pro/services"     className="dd-item" onClick={() => setDropdownOpen(false)} style={ddStyle}>✂️ Servicios</Link>
+                        <Link to="/pro/availability" className="dd-item" onClick={() => setDropdownOpen(false)} style={ddStyle}>🕐 Horarios</Link>
+                        <Link to="/pro/waitlist"     className="dd-item" onClick={() => setDropdownOpen(false)} style={ddStyle}>⏳ Lista de espera</Link>
+                        <Link to="/pro/profile"      className="dd-item" onClick={() => setDropdownOpen(false)} style={ddStyle}>👤 Mi perfil</Link>
+                      </> : !isAdmin ? <>
+                        <Link to="/dashboard" className="dd-item" onClick={() => setDropdownOpen(false)} style={ddStyle}>📅 Mis citas</Link>
+                        <Link to="/profile"   className="dd-item" onClick={() => setDropdownOpen(false)} style={ddStyle}>👤 Mi perfil</Link>
+                      </> : null}
+                      <Link to="/search" className="dd-item" onClick={() => setDropdownOpen(false)} style={ddStyle}>🔍 Explorar</Link>
                     </div>
-                    <div style={{ padding: 6, borderTop: '1px solid rgba(0,0,0,0.05)' }}>
-                      <button onClick={handleLogout} className="dd-item" style={{ width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 10, padding: '9px 12px', borderRadius: 9, background: 'transparent', border: 'none', color: '#ef4444', fontSize: 13, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'background 0.15s' }}>🚪 Cerrar sesión</button>
+
+                    <div style={{ padding: 8, borderTop: '1px solid rgba(17,17,17,0.05)' }}>
+                      <button onClick={handleLogout} className="dd-item" style={{
+                        width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center',
+                        gap: 10, padding: '10px 12px', borderRadius: 12,
+                        background: 'transparent', border: 'none', color: '#ef4444',
+                        fontSize: 14, cursor: 'pointer', fontFamily: 'Outfit, sans-serif',
+                      }}>🚪 Cerrar sesión</button>
                     </div>
                   </div>
                 )}
               </div>
             ) : (
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Link to="/login" style={{ textDecoration: 'none', fontSize: 12, color: 'rgba(26,22,18,0.5)', fontWeight: 500 }}>Entrar</Link>
-                <Link to="/register" style={{ textDecoration: 'none', fontSize: 12, fontWeight: 700, color: '#FFFFFF', background: 'linear-gradient(135deg,#B8833A,#D4A055)', padding: '8px 18px', borderRadius: 100, boxShadow: '0 2px 10px rgba(184,131,58,0.25)' }}>
-                  Registro
-                </Link>
+                <Link to="/login" style={{
+                  textDecoration: 'none', fontSize: 13, fontWeight: 600, padding: '8px 10px',
+                  color: transparent ? 'rgba(255,255,255,0.8)' : 'rgba(24,21,18,0.56)',
+                  transition: 'color .25s ease',
+                }}>Entrar</Link>
+                <Link to="/register" style={{
+                  textDecoration: 'none', fontSize: 13, fontWeight: 700, color: '#FFFFFF',
+                  background: 'linear-gradient(135deg,#B97830,#D19B52)',
+                  padding: '10px 18px', borderRadius: 999,
+                  boxShadow: '0 8px 20px rgba(197,138,61,0.3)',
+                }}>Registro</Link>
               </div>
             )}
           </div>
         </div>
       </nav>
 
-      {/* ── BOTTOM NAV MÓVIL ── */}
-      {!hideBottomNav && (
-        <>
-          {/* Profile sheet */}
-          {profileMenuOpen && (
-            <div onClick={() => setProfileMenuOpen(false)} style={{ position: 'fixed', inset: 0, zIndex: 88, background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(4px)' }}>
-              <div onClick={e => e.stopPropagation()} style={{ position: 'absolute', bottom: 74, left: 10, right: 10, background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 22, overflow: 'hidden', boxShadow: '0 -4px 40px rgba(0,0,0,0.12)' }}>
-                {/* User row */}
-                <div style={{ padding: '16px 18px', borderBottom: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <Avatar size={42} />
-                  <div>
-                    <p style={{ fontSize: 15, fontWeight: 600, color: '#1A1612', margin: 0 }}>{user?.full_name}</p>
-                    <p style={{ fontSize: 11, color: '#A0917F', margin: '2px 0 0' }}>
-                      {isAdmin ? '⚙️ Administrador' : isProfessional() ? '✂️ Profesional' : '👤 Cliente'}
-                    </p>
-                  </div>
-                </div>
-                <div style={{ padding: '8px 8px 4px' }}>
-                  {[
-                    { to: profileLink, icon: '👤', label: 'Mi perfil' },
-                    ...(isProfessional() ? [{ to: '/pro/dashboard', icon: '📊', label: 'Panel' }] : []),
-                    ...(isAdmin ? [{ to: '/admin', icon: '⚙️', label: 'Admin', gold: true }] : []),
-                    { to: '/search', icon: '🔍', label: 'Explorar' },
-                  ].map(({ to, icon, label, gold }) => (
-                    <Link key={to} to={to} onClick={() => setProfileMenuOpen(false)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 12px', borderRadius: 12, textDecoration: 'none', color: gold ? '#B8833A' : '#1A1612', fontSize: 15, marginBottom: 2 }}>
-                      <span>{icon}</span>{label}
-                    </Link>
-                  ))}
-                </div>
-                <div style={{ padding: '4px 8px 12px', borderTop: '1px solid rgba(0,0,0,0.05)', marginTop: 4 }}>
-                  <button onClick={() => { setProfileMenuOpen(false); handleLogout() }} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '12px 12px', borderRadius: 12, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)', color: '#ef4444', fontSize: 15, fontFamily: 'Outfit, sans-serif', cursor: 'pointer', textAlign: 'left', marginTop: 6 }}>
-                    <span>🚪</span> Cerrar sesión
-                  </button>
-                </div>
+      {/* ══ PROFILE MENU MÓVIL */}
+      {!hideBottomNav && profileMenuOpen && (
+        <div onClick={() => setProfileMenuOpen(false)} style={{
+          position: 'fixed', inset: 0, zIndex: 88,
+          background: 'rgba(0,0,0,0.3)', backdropFilter: 'blur(4px)',
+        }}>
+          <div onClick={e => e.stopPropagation()} style={{
+            position: 'absolute', bottom: 78, left: 10, right: 10,
+            background: '#FFFFFF', border: '1px solid rgba(17,17,17,0.08)',
+            borderRadius: 24, overflow: 'hidden',
+            boxShadow: '0 -8px 40px rgba(17,17,17,0.14)',
+          }}>
+            <div style={{ padding: 18, borderBottom: '1px solid rgba(17,17,17,0.06)', display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Avatar size={44} />
+              <div>
+                <p style={{ fontSize: 15, fontWeight: 700, color: '#181512', margin: 0 }}>{user?.full_name}</p>
+                <p style={{ fontSize: 12, color: 'rgba(24,21,18,0.46)', margin: '3px 0 0' }}>
+                  {isAdmin ? 'Administrador' : isProfessional() ? 'Profesional' : 'Cliente'}
+                </p>
               </div>
             </div>
-          )}
-
-          {/* Bottom bar */}
-          <div className="bottom-nav" style={{ display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0, background: 'rgba(255,255,255,0.95)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderTop: '1px solid rgba(0,0,0,0.06)', boxShadow: '0 -4px 24px rgba(0,0,0,0.08)', paddingBottom: 'env(safe-area-inset-bottom)', zIndex: 80, justifyContent: 'space-around', alignItems: 'flex-start', paddingTop: 4 }}>
-            {bottomNav.map(item => <NavItem key={item.to} item={item} />)}
+            <div style={{ padding: '8px 8px 4px' }}>
+              {[
+                { to: profileLink, icon: '👤', label: 'Mi perfil' },
+                ...(isProfessional() ? [
+                  { to: '/pro/dashboard',    icon: '📊', label: 'Panel' },
+                  { to: '/pro/services',     icon: '✂️', label: 'Servicios' },
+                  { to: '/pro/availability', icon: '🕐', label: 'Horarios' },
+                  { to: '/pro/waitlist',     icon: '⏳', label: 'Lista de espera' },
+                ] : []),
+                ...(isAdmin ? [{ to: '/admin', icon: '⚙️', label: 'Admin', gold: true }] : []),
+                { to: '/search', icon: '🔍', label: 'Explorar' },
+              ].map(({ to, icon, label, gold }) => (
+                <Link key={to} to={to} onClick={() => setProfileMenuOpen(false)} style={{
+                  display: 'flex', alignItems: 'center', gap: 12, padding: '13px 12px',
+                  borderRadius: 14, textDecoration: 'none',
+                  color: gold ? '#B57932' : '#181512', fontSize: 15, marginBottom: 2,
+                }}>
+                  <span>{icon}</span>{label}
+                </Link>
+              ))}
+            </div>
+            <div style={{ padding: '4px 8px 12px', borderTop: '1px solid rgba(17,17,17,0.05)', marginTop: 4 }}>
+              <button onClick={() => { setProfileMenuOpen(false); handleLogout() }} style={{
+                width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+                padding: '13px 12px', borderRadius: 14,
+                background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.12)',
+                color: '#ef4444', fontSize: 15, fontFamily: 'Outfit, sans-serif',
+                cursor: 'pointer', textAlign: 'left', marginTop: 6,
+              }}>
+                <span>🚪</span> Cerrar sesión
+              </button>
+            </div>
           </div>
-        </>
+        </div>
       )}
 
-      <main style={{ paddingTop: '60px', paddingBottom: hideBottomNav ? 0 : 'calc(60px + env(safe-area-inset-bottom))' }}>
+      {/* ══ BOTTOM NAV MÓVIL */}
+      {!hideBottomNav && (
+        <div className="bottom-nav" style={{
+          display: 'none', position: 'fixed', bottom: 0, left: 0, right: 0,
+          background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(20px)',
+          WebkitBackdropFilter: 'blur(20px)', borderTop: '1px solid rgba(17,17,17,0.06)',
+          boxShadow: '0 -6px 26px rgba(17,17,17,0.08)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+          zIndex: 80, justifyContent: 'space-around',
+          alignItems: 'flex-start', paddingTop: 5,
+        }}>
+          {bottomNav.map(item => <NavItem key={item.to} item={item} />)}
+        </div>
+      )}
+
+      {/* ══ MAIN CONTENT */}
+      <main style={{
+        paddingTop: isHome ? '0' : '68px',
+        paddingBottom: hideBottomNav ? 0 : 'calc(64px + env(safe-area-inset-bottom))',
+      }}>
         <Outlet />
 
-        {/* Mini footer */}
         {!hideBottomNav && (
-          <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 20, flexWrap: 'wrap' }}>
-            <Link to="/privacy" style={{ fontSize: 11, color: 'rgba(26,22,18,0.35)', textDecoration: 'none', fontFamily: 'Outfit, sans-serif', letterSpacing: '0.04em' }}>Política de Privacidad</Link>
-            <span style={{ fontSize: 11, color: 'rgba(26,22,18,0.2)' }}>·</span>
-            <span style={{ fontSize: 11, color: 'rgba(26,22,18,0.25)', fontFamily: 'Outfit, sans-serif' }}>© 2026 TopSy</span>
+          <div style={{
+            borderTop: '1px solid rgba(17,17,17,0.06)', padding: '18px 20px',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            gap: 18, flexWrap: 'wrap', background: '#FFFFFF',
+          }}>
+            <Link to="/privacy" style={{ fontSize: 11, color: 'rgba(24,21,18,0.38)', textDecoration: 'none', letterSpacing: '0.03em' }}>
+              Política de Privacidad
+            </Link>
+            <span style={{ fontSize: 11, color: 'rgba(24,21,18,0.18)' }}>·</span>
+            <span style={{ fontSize: 11, color: 'rgba(24,21,18,0.28)' }}>© 2026 TopSy</span>
           </div>
         )}
       </main>

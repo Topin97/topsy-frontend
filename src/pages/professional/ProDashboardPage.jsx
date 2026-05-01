@@ -9,17 +9,17 @@ import toast from 'react-hot-toast'
 import api from '../../services/api'
 
 const STATUS = {
-  pending:   { label: 'Pendiente',  color: '#d97706', bg: 'rgba(217,119,6,0.1)' },
-  confirmed: { label: 'Confirmada', color: '#16a34a', bg: 'rgba(22,163,74,0.1)' },
-  completed: { label: 'Completada', color: '#2563eb', bg: 'rgba(37,99,235,0.1)' },
-  cancelled: { label: 'Cancelada',  color: '#dc2626', bg: 'rgba(220,38,38,0.1)' },
+  pending:   { label: 'Pendiente',      color: '#d97706', bg: 'rgba(217,119,6,0.1)' },
+  confirmed: { label: 'Confirmada',     color: '#16a34a', bg: 'rgba(22,163,74,0.1)' },
+  completed: { label: 'Completada',     color: '#2563eb', bg: 'rgba(37,99,235,0.1)' },
+  cancelled: { label: 'Cancelada',      color: '#dc2626', bg: 'rgba(220,38,38,0.1)' },
+  no_show:   { label: 'No presentado',  color: '#6b7280', bg: 'rgba(107,114,128,0.1)' },
 }
 
-// ── Shared sheet ──────────────────────────────────────────────────────────────
 function Sheet({ onClose, children }) {
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: '#FFFFFF', borderRadius: '24px 24px 0 0', padding: '0 0 40px', width: '100%', maxWidth: 480, boxShadow: '0 -8px 40px rgba(0,0,0,0.15)', maxHeight: '92vh', overflowY: 'auto' }}>
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', width: '100%', maxWidth: '100%', overflowX: 'hidden' }}>
+      <div onClick={e => e.stopPropagation()} style={{ background: '#FFFFFF', borderRadius: '24px 24px 0 0', padding: '0 0 env(safe-area-inset-bottom, 24px)', width: '100%', maxWidth: 480, boxShadow: '0 -8px 40px rgba(0,0,0,0.15)', maxHeight: '92dvh', overflowY: 'auto', overflowX: 'hidden', boxSizing: 'border-box' }}>
         <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(0,0,0,0.08)', margin: '16px auto 0', position: 'sticky', top: 0 }} />
         {children}
       </div>
@@ -27,7 +27,117 @@ function Sheet({ onClose, children }) {
   )
 }
 
-// ── Notes modal ───────────────────────────────────────────────────────────────
+// ── Client Profile Sheet ──────────────────────────────────────────────────────
+function ClientSheet({ booking, onClose }) {
+  const clientId = booking.profiles?.id ?? booking.client_id
+
+  const { data: historyData, isLoading } = useQuery({
+    queryKey: ['client-history', clientId],
+    queryFn: () => api.get(`/bookings/professional?client_id=${clientId}`).then(r => r.data.data ?? []),
+    enabled: !!clientId,
+  })
+
+  const history = historyData ?? []
+  const totalSpent = history.filter(b => b.status === 'completed').reduce((acc, b) => acc + (b.total_price ?? 0), 0)
+  const totalVisits = history.filter(b => b.status === 'completed').length
+
+  const initials = booking.profiles?.full_name?.slice(0, 2).toUpperCase() ?? 'CL'
+
+  return (
+    <Sheet onClose={onClose}>
+      <div style={{ padding: '20px', overflowX: 'hidden', boxSizing: 'border-box' }}>
+        {/* Header cliente */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
+          <div style={{ width: 56, height: 56, borderRadius: '50%', overflow: 'hidden', background: 'linear-gradient(135deg,#1A0F05,#2C1810)', border: '2px solid rgba(184,131,58,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            {booking.profiles?.avatar_url
+              ? <img src={booking.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.4rem', color: '#D4A055', fontWeight: 700 }}>{initials}</span>
+            }
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <h2 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.1rem', fontWeight: 700, color: '#1A1612', margin: 0, marginBottom: 4 }}>{booking.profiles?.full_name}</h2>
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <span style={{ fontSize: 11, color: '#B8833A', background: 'rgba(184,131,58,0.1)', padding: '2px 8px', borderRadius: 999, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{totalVisits} visitas</span>
+              <span style={{ fontSize: 11, color: '#16a34a', background: 'rgba(22,163,74,0.08)', padding: '2px 8px', borderRadius: 999, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{totalSpent}€ gastados</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Datos de contacto */}
+        <div style={{ background: '#FAFAF9', borderRadius: 14, padding: '14px 16px', marginBottom: 16, border: '1px solid rgba(0,0,0,0.06)' }}>
+          <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(26,22,18,0.4)', marginBottom: 12, fontFamily: 'Outfit, sans-serif' }}>Contacto</p>
+          {booking.profiles?.phone && (
+            <>
+              <a href={`tel:${booking.profiles.phone}`} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8, textDecoration: 'none' }}>
+                <span style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(22,163,74,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0 }}>📞</span>
+                <div>
+                  <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.4)', margin: 0, fontFamily: 'Outfit, sans-serif' }}>Teléfono</p>
+                  <p style={{ fontSize: 14, color: '#1A1612', margin: 0, fontWeight: 600, fontFamily: 'Outfit, sans-serif' }}>{booking.profiles.phone}</p>
+                </div>
+                <span style={{ marginLeft: 'auto', fontSize: 11, color: '#16a34a', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Llamar →</span>
+              </a>
+              <a href={`https://wa.me/${booking.profiles.phone.replace(/\D/g,'')}`} target="_blank" rel="noopener noreferrer"
+                style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10, textDecoration: 'none', background: 'rgba(37,211,102,0.07)', borderRadius: 10, padding: '8px 10px' }}>
+                <span style={{ width: 32, height: 32, borderRadius: '50%', background: '#25D166', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                </span>
+                <div>
+                  <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.4)', margin: 0, fontFamily: 'Outfit, sans-serif' }}>WhatsApp</p>
+                  <p style={{ fontSize: 14, color: '#1A1612', margin: 0, fontWeight: 600, fontFamily: 'Outfit, sans-serif' }}>{booking.profiles.phone}</p>
+                </div>
+                <span style={{ marginLeft: 'auto', fontSize: 11, color: '#25D166', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Mensaje →</span>
+              </a>
+            </>
+          )}
+          {booking.profiles?.email && (
+            <a href={`mailto:${booking.profiles.email}`} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
+              <span style={{ width: 32, height: 32, borderRadius: '50%', background: 'rgba(184,131,58,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0 }}>✉️</span>
+              <div style={{ minWidth: 0 }}>
+                <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.4)', margin: 0, fontFamily: 'Outfit, sans-serif' }}>Email</p>
+                <p style={{ fontSize: 13, color: '#1A1612', margin: 0, fontWeight: 600, fontFamily: 'Outfit, sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{booking.profiles.email}</p>
+              </div>
+            </a>
+          )}
+          {!booking.profiles?.phone && !booking.profiles?.email && (
+            <p style={{ fontSize: 13, color: 'rgba(26,22,18,0.35)', fontFamily: 'Outfit, sans-serif' }}>Sin datos de contacto</p>
+          )}
+        </div>
+
+        {/* Historial */}
+        <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(26,22,18,0.4)', marginBottom: 10, fontFamily: 'Outfit, sans-serif' }}>Historial de citas</p>
+        {isLoading ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {[1,2,3].map(i => <div key={i} style={{ height: 56, borderRadius: 12, background: 'linear-gradient(90deg,#f0ede8 25%,#e8e4de 50%,#f0ede8 75%)', backgroundSize: '400px 100%', animation: 'shimmer 1.4s infinite' }} />)}
+          </div>
+        ) : history.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '20px 0', color: 'rgba(26,22,18,0.3)' }}>
+            <p style={{ fontSize: 24, marginBottom: 6 }}>📋</p>
+            <p style={{ fontSize: 13, fontFamily: 'Outfit, sans-serif' }}>Sin historial aún</p>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 280, overflowY: 'auto' }}>
+            {history.map(b => {
+              const st = STATUS[b.status] ?? STATUS.pending
+              return (
+                <div key={b.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#FAFAF9', borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}>
+                  <div>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: '#1A1612', margin: 0, fontFamily: 'Outfit, sans-serif' }}>{b.services?.name}</p>
+                    <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.4)', margin: 0, fontFamily: 'Outfit, sans-serif' }}>{format(new Date(b.starts_at), "d MMM yyyy · HH:mm", { locale: es })}</p>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
+                    <span style={{ fontSize: 10, padding: '2px 8px', borderRadius: 999, color: st.color, background: st.bg, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{st.label}</span>
+                    <span style={{ fontSize: 12, color: '#B8833A', fontFamily: 'Cormorant Garamond, serif', fontWeight: 600 }}>{b.total_price}€</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    </Sheet>
+  )
+}
+
 function NotesModal({ booking, onClose, onSend, isLoading }) {
   const [text, setText] = useState('')
   const parseNotes = (raw) => {
@@ -41,7 +151,7 @@ function NotesModal({ booking, onClose, onSend, isLoading }) {
   const messages = parseNotes(booking.notes)
   return (
     <Sheet onClose={onClose}>
-      <div style={{ padding: '20px 20px 0' }}>
+      <div style={{ padding: '20px' }}>
         <p style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#B8833A', marginBottom: 2, fontFamily: 'Outfit, sans-serif' }}>💬 Notas · {booking.profiles?.full_name}</p>
         <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.35)', marginBottom: 16, fontFamily: 'Outfit, sans-serif' }}>{booking.services?.name} · {format(new Date(booking.starts_at), "d MMM · HH:mm", { locale: es })}</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14, minHeight: 60, maxHeight: 240, overflowY: 'auto' }}>
@@ -59,20 +169,19 @@ function NotesModal({ booking, onClose, onSend, isLoading }) {
             </div>
           ))}
         </div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', width: '100%' }}>
           <textarea value={text} onChange={e => setText(e.target.value)} placeholder="Escribe una nota para el cliente..." maxLength={500} rows={2}
-            style={{ flex: 1, background: '#F7F5F2', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 14, padding: '11px 14px', fontSize: 14, fontFamily: 'Outfit, sans-serif', resize: 'none', outline: 'none', color: '#1A1612' }} />
+            style={{ flex: 1, minWidth: 0, background: '#F7F5F2', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 14, padding: '11px 14px', fontSize: 14, fontFamily: 'Outfit, sans-serif', resize: 'none', outline: 'none', color: '#1A1612', boxSizing: 'border-box' }} />
           <button onClick={() => { if (!text.trim()) return; onSend(text.trim()); setText('') }} disabled={isLoading || !text.trim()}
-            style={{ width: 46, height: 46, borderRadius: '50%', background: text.trim() ? 'linear-gradient(135deg,#B8833A,#D4A055)' : 'rgba(184,131,58,0.15)', border: 'none', color: '#FFFFFF', fontSize: 20, cursor: text.trim() ? 'pointer' : 'not-allowed', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>↑</button>
+            style={{ width: 46, height: 46, minWidth: 46, borderRadius: '50%', background: text.trim() ? 'linear-gradient(135deg,#B8833A,#D4A055)' : 'rgba(184,131,58,0.15)', border: 'none', color: '#FFFFFF', fontSize: 20, cursor: text.trim() ? 'pointer' : 'not-allowed', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>↑</button>
         </div>
       </div>
     </Sheet>
   )
 }
 
-// ── Reschedule modal ──────────────────────────────────────────────────────────
 function RescheduleModal({ booking, onClose, onConfirm, isLoading }) {
-  const [selectedDate, setSelectedDate] = useState(format(new Date(), 'yyyy-MM-dd'))
+  const [selectedDate, setSelectedDate] = useState(new Date().toLocaleDateString('sv-SE'))
   const [selectedSlot, setSelectedSlot] = useState(null)
 
   const { data: slotsData, isLoading: loadingSlots } = useQuery({
@@ -81,7 +190,6 @@ function RescheduleModal({ booking, onClose, onConfirm, isLoading }) {
     enabled: !!selectedDate,
   })
 
-  // Generate next 14 days
   const days = Array.from({ length: 14 }, (_, i) => {
     const d = addDays(new Date(), i)
     return { iso: format(d, 'yyyy-MM-dd'), label: format(d, 'EEE d', { locale: es }) }
@@ -91,14 +199,12 @@ function RescheduleModal({ booking, onClose, onConfirm, isLoading }) {
 
   return (
     <Sheet onClose={onClose}>
-      <div style={{ padding: '20px 20px 0' }}>
+      <div style={{ padding: '20px' }}>
         <p style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#B8833A', marginBottom: 2, fontFamily: 'Outfit, sans-serif' }}>🔄 Reprogramar cita</p>
         <p style={{ fontSize: 13, color: '#1A1612', fontWeight: 600, marginBottom: 2, fontFamily: 'Outfit, sans-serif' }}>{booking.profiles?.full_name} · {booking.services?.name}</p>
         <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.4)', marginBottom: 18, fontFamily: 'Outfit, sans-serif' }}>
           Actual: {format(new Date(booking.starts_at), "EEEE d MMM · HH:mm", { locale: es })}
         </p>
-
-        {/* Day picker - scroll horizontal */}
         <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(26,22,18,0.4)', marginBottom: 8, fontFamily: 'Outfit, sans-serif' }}>Selecciona día</p>
         <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8, marginBottom: 16 }}>
           {days.map(d => (
@@ -108,12 +214,9 @@ function RescheduleModal({ booking, onClose, onConfirm, isLoading }) {
             </button>
           ))}
         </div>
-
-        {/* Time slots */}
         <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(26,22,18,0.4)', marginBottom: 8, fontFamily: 'Outfit, sans-serif' }}>
-          Horas libres {loadingSlots && <span style={{ color: '#B8833A' }}>·  cargando...</span>}
+          Horas libres {loadingSlots && <span style={{ color: '#B8833A' }}>· cargando...</span>}
         </p>
-
         {!loadingSlots && freeSlots.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '20px 0', color: 'rgba(26,22,18,0.3)' }}>
             <p style={{ fontSize: 24, marginBottom: 6 }}>😔</p>
@@ -133,7 +236,6 @@ function RescheduleModal({ booking, onClose, onConfirm, isLoading }) {
             })}
           </div>
         )}
-
         {selectedSlot && (
           <div style={{ background: 'rgba(184,131,58,0.06)', border: '1.5px solid rgba(184,131,58,0.2)', borderRadius: 12, padding: '12px 16px', marginBottom: 16 }}>
             <p style={{ margin: 0, fontSize: 13, color: '#B8833A', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
@@ -141,7 +243,6 @@ function RescheduleModal({ booking, onClose, onConfirm, isLoading }) {
             </p>
           </div>
         )}
-
         <div style={{ display: 'flex', gap: 10 }}>
           <button onClick={onClose} style={{ flex: 1, background: '#F7F5F2', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 12, padding: '13px 0', color: 'rgba(26,22,18,0.4)', fontSize: 14, fontFamily: 'Outfit, sans-serif', cursor: 'pointer' }}>Cancelar</button>
           <button onClick={() => selectedSlot && onConfirm(selectedSlot.starts_at)} disabled={!selectedSlot || isLoading}
@@ -159,21 +260,32 @@ export default function ProDashboardPage() {
   const queryClient = useQueryClient()
   const [rescheduleBooking, setRescheduleBooking] = useState(null)
   const [notesBooking, setNotesBooking] = useState(null)
+  const [clientBooking, setClientBooking] = useState(null)
+
+  const today = new Date().toLocaleDateString('sv-SE')
 
   const { data: stats, isLoading: loadingStats } = useQuery({
     queryKey: ['pro-stats'],
     queryFn: () => profApi.getStats().then(r => r.data.data),
   })
 
-  const { data: bookingsToday, isLoading: loadingToday } = useQuery({
-    queryKey: ['pro-bookings-today'],
-    queryFn: () => bookingsApi.getProfessional({ date: format(new Date(), 'yyyy-MM-dd') }).then(r => r.data.data),
+  const { data: myReviews } = useQuery({
+    queryKey: ['pro-reviews'],
+    queryFn: () => api.get('/professionals/me/reviews').then(r => r.data.data),
   })
 
-  const { data: upcoming } = useQuery({
-    queryKey: ['pro-bookings-upcoming'],
-    queryFn: () => bookingsApi.getProfessional({ status: 'confirmed' }).then(r => r.data.data),
+  const { data: bookingsToday, isLoading: loadingToday } = useQuery({
+    queryKey: ['pro-bookings-today'],
+    queryFn: () => bookingsApi.getPro({ date: today }).then(r => r.data.data),
   })
+
+  const { data: upcomingRaw } = useQuery({
+    queryKey: ['pro-bookings-upcoming'],
+    queryFn: () => bookingsApi.getPro({ status: 'confirmed' }).then(r => r.data.data),
+  })
+  // Solo citas futuras (starts_at >= ahora)
+  const now = new Date()
+  const upcoming = upcomingRaw?.filter(b => new Date(b.starts_at) > now)
 
   const { mutate: cancelBooking } = useMutation({
     mutationFn: (id) => bookingsApi.cancel(id),
@@ -191,9 +303,21 @@ export default function ProDashboardPage() {
     onSuccess: () => {
       toast.success('Cita completada ✓')
       queryClient.invalidateQueries({ queryKey: ['pro-bookings-today'] })
+      queryClient.invalidateQueries({ queryKey: ['pro-bookings-upcoming'] })
       queryClient.invalidateQueries({ queryKey: ['pro-stats'] })
     },
     onError: () => toast.error('Error al completar'),
+  })
+
+  const { mutate: noShowBooking } = useMutation({
+    mutationFn: (id) => api.patch(`/bookings/${id}/no-show`),
+    onSuccess: () => {
+      toast.success('Marcado como no presentado')
+      queryClient.invalidateQueries({ queryKey: ['pro-bookings-today'] })
+      queryClient.invalidateQueries({ queryKey: ['pro-bookings-upcoming'] })
+      queryClient.invalidateQueries({ queryKey: ['pro-stats'] })
+    },
+    onError: () => toast.error('Error al actualizar'),
   })
 
   const { mutate: doReschedule, isPending: rescheduling } = useMutation({
@@ -233,8 +357,62 @@ export default function ProDashboardPage() {
     : []
   const maxCount = Math.max(...weekData.map(d => d.count), 1)
 
+  // Booking card — reutilizable para hoy y próximas
+  const BookingCard = ({ b, compact = false }) => {
+    const st = STATUS[b.status] ?? STATUS.pending
+    const isPast = new Date(b.ends_at) < new Date()
+    return (
+      <div className="booking-card" style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 14, padding: compact ? '12px 14px' : '14px 16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* Avatar — tap abre perfil cliente */}
+          <button onClick={() => setClientBooking(b)} style={{ width: compact ? 32 : 38, height: compact ? 32 : 38, borderRadius: '50%', overflow: 'hidden', background: 'rgba(184,131,58,0.08)', border: '1.5px solid rgba(184,131,58,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', padding: 0 }}>
+            {b.profiles?.avatar_url
+              ? <img src={b.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: compact ? '0.85rem' : '1rem', color: '#B8833A' }}>{b.profiles?.full_name?.[0]?.toUpperCase()}</span>
+            }
+          </button>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontWeight: 600, fontSize: 13, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1A1612', fontFamily: 'Outfit, sans-serif' }}>{b.services?.name}</p>
+            <button onClick={() => setClientBooking(b)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>
+              <p style={{ fontSize: 11, color: '#B8833A', fontFamily: 'Outfit, sans-serif', margin: 0, textDecoration: 'underline', textDecorationStyle: 'dotted' }}>
+                {b.profiles?.full_name} · {compact
+                  ? format(new Date(b.starts_at), "d MMM · HH:mm", { locale: es })
+                  : `${format(new Date(b.starts_at), 'HH:mm')}–${format(new Date(b.ends_at), 'HH:mm')}`
+                }
+              </p>
+            </button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+            <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 100, color: st.color, background: st.bg, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{st.label}</span>
+            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', color: '#B8833A' }}>{b.total_price}€</span>
+          </div>
+        </div>
+        {/* Nota del cliente al reservar */}
+        {b.notes && (() => {
+          // La primera línea sin timestamp es la nota original del cliente
+          const clientNote = b.notes.split('\n---\n')[0]?.replace(/^\[.*?\]\n/, '').trim()
+          return clientNote ? (
+            <div style={{ marginTop: 8, background: 'rgba(184,131,58,0.05)', border: '1px solid rgba(184,131,58,0.15)', borderRadius: 8, padding: '6px 10px', display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+              <span style={{ fontSize: 12, flexShrink: 0 }}>✏️</span>
+              <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.6)', margin: 0, fontFamily: 'Outfit, sans-serif', fontStyle: 'italic', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{clientNote}</p>
+            </div>
+          ) : null
+        })()}
+        {b.status === 'confirmed' && (
+          <div style={{ display: 'flex', gap: 6, marginTop: 10, paddingTop: 10, borderTop: '1px solid rgba(0,0,0,0.06)', flexWrap: 'wrap' }}>
+            {isPast && <button className="complete-btn" onClick={() => completeBooking(b.id)} style={{ flex: 1, minWidth: 70, background: 'rgba(37,99,235,0.06)', border: '1.5px solid rgba(37,99,235,0.2)', borderRadius: 8, padding: '7px 4px', fontSize: 12, color: '#2563eb', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', fontWeight: 600 }}>✓ OK</button>}
+            {isPast && <button className="noshow-btn" onClick={() => { if (confirm('¿Marcar como no presentado?')) noShowBooking(b.id) }} style={{ flex: 1, minWidth: 50, background: 'rgba(245,158,11,0.05)', border: '1.5px solid rgba(245,158,11,0.2)', borderRadius: 8, padding: '7px 4px', fontSize: 12, color: '#d97706', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', fontWeight: 600 }}>👻</button>}
+            <button onClick={() => setNotesBooking(b)} style={{ flex: 1, minWidth: 50, background: b.notes ? 'rgba(184,131,58,0.06)' : 'transparent', border: `1.5px solid ${b.notes ? 'rgba(184,131,58,0.2)' : 'rgba(0,0,0,0.1)'}`, borderRadius: 8, padding: '7px 4px', fontSize: 12, color: b.notes ? '#B8833A' : 'rgba(26,22,18,0.4)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>💬</button>
+            <button onClick={() => setRescheduleBooking(b)} style={{ flex: 1, minWidth: 50, background: 'rgba(184,131,58,0.04)', border: '1.5px solid rgba(184,131,58,0.18)', borderRadius: 8, padding: '7px 4px', fontSize: 12, color: '#B8833A', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>🔄</button>
+            <button className="cancel-btn" onClick={() => { if (confirm('¿Cancelar esta cita?')) cancelBooking(b.id) }} style={{ flex: 1, minWidth: 50, background: 'rgba(220,38,38,0.05)', border: '1.5px solid rgba(220,38,38,0.15)', borderRadius: 8, padding: '7px 4px', fontSize: 12, color: '#dc2626', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', fontWeight: 600 }}>✕</button>
+          </div>
+        )}
+      </div>
+    )
+  }
+
   return (
-    <div style={{ background: '#F7F5F2', minHeight: '100vh', paddingBottom: 60 }}>
+    <div style={{ background: '#F7F5F2', minHeight: '100vh', paddingBottom: 80 }}>
       <style>{`
         .nav-btn:hover { background: rgba(184,131,58,0.08) !important; border-color: rgba(184,131,58,0.3) !important; color: #B8833A !important; }
         .booking-card { transition: box-shadow 0.2s, border-color 0.2s; }
@@ -243,7 +421,9 @@ export default function ProDashboardPage() {
         .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.09) !important; }
         .complete-btn:hover { background: rgba(37,99,235,0.1) !important; border-color: rgba(37,99,235,0.3) !important; }
         .cancel-btn:hover { background: rgba(220,38,38,0.08) !important; border-color: rgba(220,38,38,0.3) !important; }
+        .noshow-btn:hover { background: rgba(245,158,11,0.1) !important; border-color: rgba(245,158,11,0.35) !important; }
         @keyframes spin { to { transform: rotate(360deg) } }
+        @keyframes shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
         @media (max-width: 768px) {
           .kpi-grid { grid-template-columns: 1fr 1fr !important; }
           .main-grid { grid-template-columns: 1fr !important; }
@@ -251,24 +431,9 @@ export default function ProDashboardPage() {
         }
       `}</style>
 
-      {/* ── Reschedule modal ── */}
-      {rescheduleBooking && (
-        <RescheduleModal
-          booking={rescheduleBooking}
-          onClose={() => setRescheduleBooking(null)}
-          onConfirm={(starts_at) => doReschedule({ id: rescheduleBooking.id, starts_at })}
-          isLoading={rescheduling}
-        />
-      )}
-      {/* ── Notes modal ── */}
-      {notesBooking && (
-        <NotesModal
-          booking={notesBooking}
-          onClose={() => setNotesBooking(null)}
-          onSend={(note) => sendNote({ id: notesBooking.id, note })}
-          isLoading={noteSending}
-        />
-      )}
+      {rescheduleBooking && <RescheduleModal booking={rescheduleBooking} onClose={() => setRescheduleBooking(null)} onConfirm={(starts_at) => doReschedule({ id: rescheduleBooking.id, starts_at })} isLoading={rescheduling} />}
+      {notesBooking && <NotesModal booking={notesBooking} onClose={() => setNotesBooking(null)} onSend={(note) => sendNote({ id: notesBooking.id, note })} isLoading={noteSending} />}
+      {clientBooking && <ClientSheet booking={clientBooking} onClose={() => setClientBooking(null)} />}
 
       {/* Header */}
       <div style={{ background: '#FFFFFF', borderBottom: '1px solid rgba(0,0,0,0.07)', padding: '28px 0 22px', boxShadow: '0 1px 8px rgba(0,0,0,0.04)' }}>
@@ -287,16 +452,33 @@ export default function ProDashboardPage() {
             </div>
             <div className="quick-nav" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {[
-                { to: '/pro/profile',      icon: '⚙️', label: 'Perfil' },
-                { to: '/pro/services',     icon: '✂️', label: 'Servicios' },
+                { to: '/pro/profile', icon: '⚙️', label: 'Perfil' },
+                { to: '/pro/services', icon: '✂️', label: 'Servicios' },
                 { to: '/pro/availability', icon: '🕐', label: 'Horarios' },
+                { to: '/pro/waitlist', icon: '⏳', label: 'Espera' },
               ].map(({ to, icon, label }) => (
-                <Link key={to} to={to} className="nav-btn" style={{
-                  textDecoration: 'none', fontSize: 12, padding: '9px 16px', borderRadius: 10,
-                  display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s',
-                  background: '#F7F5F2', border: '1.5px solid rgba(0,0,0,0.1)',
-                  color: 'rgba(26,22,18,0.55)', fontFamily: 'Outfit, sans-serif', fontWeight: 500,
-                }}>{icon} {label}</Link>
+                <Link
+                  key={to}
+                  to={to}
+                  className="nav-btn"
+                  style={{
+                    textDecoration: 'none',
+                    fontSize: 12,
+                    padding: '9px 16px',
+                    borderRadius: 10,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
+                    transition: 'all 0.2s',
+                    background: '#F7F5F2',
+                    border: '1.5px solid rgba(0,0,0,0.1)',
+                    color: 'rgba(26,22,18,0.55)',
+                    fontFamily: 'Outfit, sans-serif',
+                    fontWeight: 500
+                  }}
+                >
+                  {icon} {label}
+                </Link>
               ))}
             </div>
           </div>
@@ -304,7 +486,6 @@ export default function ProDashboardPage() {
       </div>
 
       <div className="container-app" style={{ padding: '24px 16px' }}>
-
         {/* KPIs */}
         {loadingStats ? (
           <div className="kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 24 }}>
@@ -313,17 +494,12 @@ export default function ProDashboardPage() {
         ) : stats && (
           <div className="kpi-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 24 }}>
             {[
-              { label: 'Ingresos mes',   value: `${stats.revenue_this_month ?? 0}€`, icon: '💶', accent: true, delta: 'este mes' },
-              { label: 'Próximas citas', value: stats.upcoming_bookings ?? 0,        icon: '📅', delta: 'confirmadas' },
-              { label: 'Completadas',    value: stats.completed ?? 0,                icon: '✅', delta: 'total' },
-              { label: 'Valoración',     value: stats.avg_rating || '—',             icon: '⭐', delta: `${stats.total_reviews ?? 0} reseñas` },
+              { label: 'Ingresos mes', value: `${stats.revenue_this_month ?? 0}€`, icon: '💶', accent: true, delta: 'este mes' },
+              { label: 'Próximas', value: stats.upcoming_bookings ?? 0, icon: '📅', delta: 'confirmadas' },
+              { label: 'Completadas', value: stats.completed ?? 0, icon: '✅', delta: 'total' },
+              { label: 'Valoración', value: stats.avg_rating || '—', icon: '⭐', delta: `${stats.total_reviews ?? 0} reseñas` },
             ].map((kpi, i) => (
-              <div key={i} className="kpi-card" style={{
-                background: kpi.accent ? 'linear-gradient(135deg, rgba(184,131,58,0.08), rgba(184,131,58,0.03))' : '#FFFFFF',
-                border: `1.5px solid ${kpi.accent ? 'rgba(184,131,58,0.2)' : 'rgba(0,0,0,0.07)'}`,
-                borderRadius: 18, padding: '18px 16px', position: 'relative', overflow: 'hidden',
-                boxShadow: '0 2px 10px rgba(0,0,0,0.04)',
-              }}>
+              <div key={i} className="kpi-card" style={{ background: kpi.accent ? 'linear-gradient(135deg, rgba(184,131,58,0.08), rgba(184,131,58,0.03))' : '#FFFFFF', border: `1.5px solid ${kpi.accent ? 'rgba(184,131,58,0.2)' : 'rgba(0,0,0,0.07)'}`, borderRadius: 18, padding: '18px 16px', position: 'relative', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
                 <div style={{ position: 'absolute', top: 14, right: 14, fontSize: '1.4rem', opacity: 0.15 }}>{kpi.icon}</div>
                 <p style={{ fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.35)', marginBottom: 8, fontFamily: 'Outfit, sans-serif' }}>{kpi.label}</p>
                 <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.6rem,3vw,2.4rem)', fontWeight: 300, color: kpi.accent ? '#B8833A' : '#1A1612', lineHeight: 1, marginBottom: 4 }}>{kpi.value}</p>
@@ -334,6 +510,35 @@ export default function ProDashboardPage() {
         )}
 
         {/* Mini chart */}
+        {/* Gráfico de ingresos por mes */}
+        {stats?.revenue_by_month?.length > 0 && (() => {
+          const maxRev = Math.max(...stats.revenue_by_month.map(m => m.revenue), 1)
+          return (
+            <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 18, padding: '20px 20px 16px', marginBottom: 24, boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#B8833A', display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', fontWeight: 600, margin: 0 }}>
+                  <span style={{ display: 'inline-block', width: 16, height: 1.5, background: '#B8833A' }} /> Ingresos últimos 6 meses
+                </p>
+                <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', color: '#B8833A', fontStyle: 'italic' }}>
+                  {stats.revenue_by_month.reduce((s, m) => s + m.revenue, 0).toFixed(0)}€ total
+                </span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 72 }}>
+                {stats.revenue_by_month.map((m, i) => (
+                  <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                    {m.revenue > 0 && (
+                      <span style={{ fontSize: 9, color: '#B8833A', fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>{m.revenue.toFixed(0)}€</span>
+                    )}
+                    <div style={{ width: '100%', background: m.revenue > 0 ? 'linear-gradient(180deg, #B8833A, rgba(184,131,58,0.25))' : '#EFEDE9', borderRadius: '5px 5px 0 0', height: `${Math.max((m.revenue / maxRev) * 52, m.revenue > 0 ? 10 : 4)}px`, transition: 'height 0.4s cubic-bezier(0.34,1.56,0.64,1)' }} />
+                    <span style={{ fontSize: 9, color: 'rgba(26,22,18,0.35)', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{m.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
+
+        {/* Mini chart de citas últimos 7 días */}
         {weekData.length > 0 && (
           <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 18, padding: '20px 20px 16px', marginBottom: 24, boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
             <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#B8833A', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
@@ -351,7 +556,6 @@ export default function ProDashboardPage() {
         )}
 
         <div className="main-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-
           {/* Citas hoy */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
@@ -360,7 +564,6 @@ export default function ProDashboardPage() {
               </p>
               <span style={{ fontSize: 11, color: 'rgba(26,22,18,0.3)', fontFamily: 'Outfit, sans-serif' }}>{format(new Date(), "d MMM", { locale: es })}</span>
             </div>
-
             {loadingToday ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 80, borderRadius: 14 }} />)}
@@ -372,50 +575,7 @@ export default function ProDashboardPage() {
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {bookingsToday.map(b => {
-                  const st = STATUS[b.status] ?? STATUS.pending
-                  const isPast = new Date(b.ends_at) < new Date()
-                  return (
-                    <div key={b.id} className="booking-card" style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 14, padding: '14px 16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <div style={{ width: 36, height: 36, borderRadius: '50%', overflow: 'hidden', background: 'rgba(184,131,58,0.08)', border: '1.5px solid rgba(184,131,58,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          {b.profiles?.avatar_url
-                            ? <img src={b.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', color: '#B8833A' }}>{b.profiles?.full_name?.[0]?.toUpperCase()}</span>
-                          }
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <p style={{ fontWeight: 600, fontSize: 13, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1A1612', fontFamily: 'Outfit, sans-serif' }}>{b.services?.name}</p>
-                          <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.4)', fontFamily: 'Outfit, sans-serif' }}>
-                            {b.profiles?.full_name} · {format(new Date(b.starts_at), 'HH:mm')}–{format(new Date(b.ends_at), 'HH:mm')}
-                          </p>
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
-                          <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 100, color: st.color, background: st.bg, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{st.label}</span>
-                          <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', color: '#B8833A' }}>{b.total_price}€</span>
-                        </div>
-                      </div>
-                      {b.status === 'confirmed' && (
-                        <div style={{ display: 'flex', gap: 8, marginTop: 10, paddingTop: 10, borderTop: '1px solid rgba(0,0,0,0.06)', flexWrap: 'wrap' }}>
-                          {isPast && (
-                            <button className="complete-btn" onClick={() => completeBooking(b.id)} style={{ flex: 1, background: 'rgba(37,99,235,0.06)', border: '1.5px solid rgba(37,99,235,0.2)', borderRadius: 8, padding: '7px', fontSize: 12, color: '#2563eb', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', fontWeight: 600 }}>
-                              ✓ Completar
-                            </button>
-                          )}
-                          <button onClick={() => setNotesBooking(b)} style={{ flex: 1, background: b.notes ? 'rgba(184,131,58,0.06)' : 'transparent', border: `1.5px solid ${b.notes ? 'rgba(184,131,58,0.2)' : 'rgba(0,0,0,0.1)'}`, borderRadius: 8, padding: '7px', fontSize: 12, color: b.notes ? '#B8833A' : 'rgba(26,22,18,0.4)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
-                            💬 {b.notes ? 'Notas' : 'Nota'}
-                          </button>
-                          <button onClick={() => setRescheduleBooking(b)} style={{ flex: 1, background: 'rgba(184,131,58,0.04)', border: '1.5px solid rgba(184,131,58,0.18)', borderRadius: 8, padding: '7px', fontSize: 12, color: '#B8833A', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
-                            🔄 Mover
-                          </button>
-                          <button className="cancel-btn" onClick={() => { if (confirm('¿Cancelar esta cita?')) cancelBooking(b.id) }} style={{ flex: 1, background: 'rgba(220,38,38,0.05)', border: '1.5px solid rgba(220,38,38,0.15)', borderRadius: 8, padding: '7px', fontSize: 12, color: '#dc2626', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', fontWeight: 600 }}>
-                            Cancelar
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
+                {bookingsToday.map(b => <BookingCard key={b.id} b={b} />)}
               </div>
             )}
           </div>
@@ -428,7 +588,6 @@ export default function ProDashboardPage() {
               </p>
               <span style={{ fontSize: 11, color: 'rgba(26,22,18,0.3)', fontFamily: 'Outfit, sans-serif' }}>{upcoming?.length ?? 0} confirmadas</span>
             </div>
-
             {!upcoming?.length ? (
               <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 16, padding: '36px 20px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
                 <p style={{ fontSize: '2rem', marginBottom: 8 }}>📭</p>
@@ -436,34 +595,46 @@ export default function ProDashboardPage() {
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {upcoming.slice(0, 8).map(b => (
-                  <div key={b.id} className="booking-card" style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 14, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12, boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
-                    <div style={{ width: 32, height: 32, borderRadius: '50%', overflow: 'hidden', background: 'rgba(184,131,58,0.08)', border: '1.5px solid rgba(184,131,58,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      {b.profiles?.avatar_url
-                        ? <img src={b.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                        : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '0.85rem', color: '#B8833A' }}>{b.profiles?.full_name?.[0]?.toUpperCase()}</span>
-                      }
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p style={{ fontWeight: 600, fontSize: 13, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1A1612', fontFamily: 'Outfit, sans-serif' }}>{b.services?.name}</p>
-                      <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.4)', fontFamily: 'Outfit, sans-serif' }}>
-                        {b.profiles?.full_name} · {format(new Date(b.starts_at), "d MMM · HH:mm", { locale: es })}
-                      </p>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-                      <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', color: '#B8833A' }}>{b.total_price}€</span>
-                      <button onClick={() => setNotesBooking(b)} style={{ background: b.notes ? 'rgba(184,131,58,0.08)' : 'transparent', border: `1.5px solid ${b.notes ? 'rgba(184,131,58,0.2)' : 'rgba(0,0,0,0.1)'}`, borderRadius: 8, padding: '5px 8px', fontSize: 11, color: b.notes ? '#B8833A' : 'rgba(26,22,18,0.3)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>💬</button>
-                      <button onClick={() => setRescheduleBooking(b)} style={{ background: 'rgba(184,131,58,0.04)', border: '1.5px solid rgba(184,131,58,0.18)', borderRadius: 8, padding: '5px 8px', fontSize: 11, color: '#B8833A', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>🔄</button>
-                      <button className="cancel-btn" onClick={() => { if (confirm('¿Cancelar esta cita?')) cancelBooking(b.id) }} style={{ background: 'rgba(220,38,38,0.05)', border: '1.5px solid rgba(220,38,38,0.15)', borderRadius: 8, padding: '5px 8px', fontSize: 11, color: '#dc2626', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', fontWeight: 600 }}>
-                        ✕
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                {upcoming.slice(0, 8).map(b => <BookingCard key={b.id} b={b} compact />)}
               </div>
             )}
           </div>
         </div>
+
+        {/* Reseñas */}
+        {myReviews?.length > 0 && (
+          <div style={{ marginTop: 28 }}>
+            <p style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#B8833A', display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', fontWeight: 600, marginBottom: 14 }}>
+              <span style={{ display: 'inline-block', width: 16, height: 1.5, background: '#B8833A' }} /> Reseñas de clientes
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {myReviews.map(r => (
+                <div key={r.id} style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 16, padding: '16px 18px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#1A0F05,#2C1810)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+                      {r.profiles?.avatar_url
+                        ? <img src={r.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', color: '#D4A055', fontWeight: 700 }}>{r.profiles?.full_name?.slice(0,2).toUpperCase() ?? 'CL'}</span>
+                      }
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 13, fontWeight: 700, color: '#1A1612', margin: 0, fontFamily: 'Outfit, sans-serif' }}>{r.profiles?.full_name ?? 'Cliente'}</p>
+                      <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.35)', margin: 0, fontFamily: 'Outfit, sans-serif' }}>{format(new Date(r.created_at), "d MMM yyyy", { locale: es })}</p>
+                    </div>
+                    <div style={{ display: 'flex', gap: 2 }}>
+                      {[1,2,3,4,5].map(i => (
+                        <span key={i} style={{ fontSize: 14, color: i <= r.rating ? '#F59E0B' : '#E5E7EB' }}>★</span>
+                      ))}
+                    </div>
+                  </div>
+                  {r.comment && (
+                    <p style={{ fontSize: 13, color: 'rgba(26,22,18,0.65)', margin: 0, fontFamily: 'Outfit, sans-serif', lineHeight: 1.5, fontStyle: 'italic' }}>"{r.comment}"</p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

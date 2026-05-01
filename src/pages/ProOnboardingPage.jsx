@@ -187,23 +187,23 @@ export default function ProOnboardingPage() {
 
   const inputStyle = {
     width: '100%', boxSizing: 'border-box',
-    background: 'rgba(0,0,0,0.07)',
-    border: '1px solid rgba(255,255,255,0.1)',
+    background: '#FAFAF9',
+    border: '1.5px solid rgba(0,0,0,0.12)',
     borderRadius: 12, padding: '12px 16px',
     color: '#1A1612', fontSize: 14,
     fontFamily: 'Outfit, sans-serif',
-    outline: 'none', transition: 'border 0.2s',
+    outline: 'none', transition: 'border-color 0.2s',
   }
 
   const labelStyle = {
     fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase',
-    color: 'rgba(201,150,90,0.6)', marginBottom: 8, display: 'block',
-    fontFamily: 'Outfit, sans-serif',
+    color: 'rgba(26,22,18,0.45)', marginBottom: 8, display: 'block',
+    fontFamily: 'Outfit, sans-serif', fontWeight: 600,
   }
 
   // ── Step 3: Success ───────────────────────────────────────────
   if (step === 3) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+    <div style={{ minHeight: '100dvh', background: '#F8F5F0', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
       <div style={{ textAlign: 'center', maxWidth: 420 }}>
         <div style={{ fontSize: 64, marginBottom: 24 }}>🎉</div>
         <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.5rem', fontWeight: 300, color: '#1A1612', marginBottom: 12 }}>
@@ -213,9 +213,8 @@ export default function ProOnboardingPage() {
           Tu perfil profesional ha sido creado. Ahora configura tus servicios y tu disponibilidad.
         </p>
         <button
-          onClick={() => navigate('/dashboard')}
-          className="btn-primary"
-          style={{ width: '100%', padding: '14px 0', fontSize: 15 }}
+          onClick={() => navigate('/pro/dashboard')}
+          style={{ width: '100%', padding: '16px 0', fontSize: 15, fontWeight: 700, fontFamily: 'Outfit, sans-serif', background: 'linear-gradient(135deg,#B8833A,#D4A055)', color: '#FFFFFF', border: 'none', borderRadius: 14, cursor: 'pointer', boxShadow: '0 6px 20px rgba(184,131,58,0.3)' }}
         >
           Ir al panel de control →
         </button>
@@ -224,18 +223,18 @@ export default function ProOnboardingPage() {
   )
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+    <div style={{ minHeight: '100dvh', background: '#F8F5F0', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '32px 20px' }}>
       <div style={{ width: '100%', maxWidth: 560 }}>
 
         {/* Header */}
         <div style={{ marginBottom: 32, textAlign: 'center' }}>
-          <p style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(201,150,90,0.6)', marginBottom: 12, fontFamily: 'Outfit, sans-serif' }}>
+          <p style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#B8833A', marginBottom: 12, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
             Paso {step} de 2
           </p>
           <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.2rem', fontWeight: 300, color: '#1A1612', margin: 0 }}>
             {step === 1 ? 'Crea tu perfil profesional' : 'Ubicación de tu negocio'}
           </h1>
-          <p style={{ color: 'rgba(26,22,18,0.36)', fontFamily: 'Outfit, sans-serif', marginTop: 8, fontSize: 14 }}>
+          <p style={{ color: 'rgba(26,22,18,0.45)', fontFamily: 'Outfit, sans-serif', marginTop: 8, fontSize: 14 }}>
             {step === 1 ? 'Información básica de tu negocio' : 'Los clientes te encontrarán cerca de ellos'}
           </p>
         </div>
@@ -245,7 +244,7 @@ export default function ProOnboardingPage() {
           <div style={{ height: '100%', width: step === 1 ? '50%' : '100%', background: 'linear-gradient(90deg,#B8833A,#D4A055)', borderRadius: 100, transition: 'width 0.4s' }} />
         </div>
 
-        <div style={{ background: 'rgba(0,0,0,0.07)', border: '1px solid rgba(201,150,90,0.12)', borderRadius: 20, padding: 32 }}>
+        <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 20, padding: 28, boxShadow: '0 4px 24px rgba(0,0,0,0.06)' }}>
 
           {/* ── STEP 1: Basic info ──────────────────────────────── */}
           {step === 1 && (
@@ -259,8 +258,8 @@ export default function ProOnboardingPage() {
                   onChange={e => set('business_name', e.target.value)}
                   placeholder="Ej: Studio Belén"
                   style={inputStyle}
-                  onFocus={e => e.target.style.borderColor = 'rgba(201,150,90,0.5)'}
-                  onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+                  onFocus={e => e.target.style.borderColor = '#B8833A'}
+                  onBlur={e => e.target.style.borderColor = 'rgba(0,0,0,0.12)'}
                 />
               </div>
 
@@ -275,9 +274,9 @@ export default function ProOnboardingPage() {
                       onClick={() => set('category', cat.value)}
                       style={{
                         padding: '10px 8px', borderRadius: 10, cursor: 'pointer',
-                        background: form.category === cat.value ? 'rgba(201,150,90,0.15)' : 'rgba(0,0,0,0.07)',
-                        border: form.category === cat.value ? '1px solid rgba(201,150,90,0.4)' : '1px solid rgba(0,0,0,0.1)',
-                        color: form.category === cat.value ? '#B8833A' : 'rgba(26,22,18,0.41)',
+                        background: form.category === cat.value ? 'rgba(184,131,58,0.08)' : '#FAFAF9',
+                        border: form.category === cat.value ? '1.5px solid #B8833A' : '1.5px solid rgba(0,0,0,0.1)',
+                        color: form.category === cat.value ? '#B8833A' : 'rgba(26,22,18,0.55)',
                         fontSize: 12, fontFamily: 'Outfit, sans-serif',
                         transition: 'all 0.15s', display: 'flex', flexDirection: 'column',
                         alignItems: 'center', gap: 4,
@@ -299,8 +298,8 @@ export default function ProOnboardingPage() {
                   placeholder="Cuéntanos sobre tu negocio, especialidades, experiencia..."
                   rows={3}
                   style={{ ...inputStyle, resize: 'vertical' }}
-                  onFocus={e => e.target.style.borderColor = 'rgba(201,150,90,0.5)'}
-                  onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+                  onFocus={e => e.target.style.borderColor = '#B8833A'}
+                  onBlur={e => e.target.style.borderColor = 'rgba(0,0,0,0.12)'}
                 />
               </div>
 
@@ -310,8 +309,7 @@ export default function ProOnboardingPage() {
                   if (!form.category) { toast.error('Selecciona una categoría'); return }
                   setStep(2)
                 }}
-                className="btn-primary"
-                style={{ width: '100%', padding: '14px 0', fontSize: 15, marginTop: 8 }}
+                style={{ width: '100%', padding: '15px 0', fontSize: 15, fontWeight: 700, fontFamily: 'Outfit, sans-serif', background: 'linear-gradient(135deg,#B8833A,#D4A055)', color: '#FFFFFF', border: 'none', borderRadius: 14, cursor: 'pointer', marginTop: 8, boxShadow: '0 6px 20px rgba(184,131,58,0.25)' }}
               >
                 Siguiente: Ubicación →
               </button>
@@ -348,7 +346,7 @@ export default function ProOnboardingPage() {
                     position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50,
                     background: '#FFFFFF', border: '1px solid rgba(201,150,90,0.2)',
                     borderRadius: 12, overflow: 'hidden', marginTop: 4,
-                    boxShadow: '0 16px 40px rgba(0,0,0,0.5)',
+                    boxShadow: '0 12px 32px rgba(0,0,0,0.12)',
                   }}>
                     {suggestions.map((s, i) => (
                       <button
@@ -379,9 +377,9 @@ export default function ProOnboardingPage() {
                   value={form.city}
                   onChange={e => set('city', e.target.value)}
                   placeholder="Se rellena automáticamente"
-                  style={{ ...inputStyle, background: form.city ? 'rgba(201,150,90,0.06)' : 'rgba(0,0,0,0.07)' }}
-                  onFocus={e => e.target.style.borderColor = 'rgba(201,150,90,0.5)'}
-                  onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.1)'}
+                  style={{ ...inputStyle, background: form.city ? 'rgba(184,131,58,0.05)' : '#FAFAF9', borderColor: form.city ? 'rgba(184,131,58,0.3)' : 'rgba(0,0,0,0.12)' }}
+                  onFocus={e => e.target.style.borderColor = '#B8833A'}
+                  onBlur={e => e.target.style.borderColor = 'rgba(0,0,0,0.12)'}
                 />
               </div>
 
@@ -426,8 +424,7 @@ export default function ProOnboardingPage() {
                 <button
                   onClick={handleSubmit}
                   disabled={isPending}
-                  className="btn-primary"
-                  style={{ flex: 2, padding: '13px 0', fontSize: 15 }}
+                  style={{ flex: 2, padding: '13px 0', fontSize: 15, fontWeight: 700, fontFamily: 'Outfit, sans-serif', background: isPending ? 'rgba(184,131,58,0.4)' : 'linear-gradient(135deg,#B8833A,#D4A055)', color: '#FFFFFF', border: 'none', borderRadius: 12, cursor: isPending ? 'not-allowed' : 'pointer', boxShadow: isPending ? 'none' : '0 6px 20px rgba(184,131,58,0.25)' }}
                 >
                   {isPending ? 'Creando perfil...' : 'Crear perfil ✓'}
                 </button>
