@@ -80,9 +80,24 @@ jobs:
             -exportPath $RUNNER_TEMP/ipa \
             | xcpretty
 
-      - name: Upload .ipa artifact
+- name: Upload .ipa artifact
         uses: actions/upload-artifact@v4
         with:
           name: TopSy-iOS
           path: ${{ runner.temp }}/ipa/*.ipa
           retention-days: 14
+
+      - name: Upload to App Store Connect
+        env:
+          APP_STORE_KEY_ID: ${{ secrets.APP_STORE_KEY_ID }}
+          APP_STORE_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER_ID }}
+          APP_STORE_PRIVATE_KEY: ${{ secrets.APP_STORE_PRIVATE_KEY }}
+        run: |
+          echo "$APP_STORE_PRIVATE_KEY" > $RUNNER_TEMP/AuthKey.p8
+
+          xcrun altool --upload-app \
+            --type ios \
+            --file $(ls $RUNNER_TEMP/ipa/*.ipa) \
+            --apiKey "$APP_STORE_KEY_ID" \
+            --apiIssuer "$APP_STORE_ISSUER_ID" \
+            --private-key-path $RUNNER_TEMP/AuthKey.p8
