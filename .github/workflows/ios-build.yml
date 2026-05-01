@@ -80,7 +80,7 @@ jobs:
             -exportPath $RUNNER_TEMP/ipa \
             | xcpretty
 
-- name: Upload .ipa artifact
+      - name: Upload .ipa artifact
         uses: actions/upload-artifact@v4
         with:
           name: TopSy-iOS
