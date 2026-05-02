@@ -4,7 +4,8 @@
   "webDir": "dist",
   "server": {
     "androidScheme": "https",
-    "iosScheme": "topsy"
+    "iosScheme": "topsy",
+    "hostname": "topsy.es"
   },
   "android": {
     "allowMixedContent": true,
