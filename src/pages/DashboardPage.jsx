@@ -154,8 +154,8 @@ function RescheduleModal({ booking, onClose, onConfirm, isLoading }) {
   const [loadingSlots, setLoadingSlots] = useState(false)
 
   const today = new Date().toISOString().split('T')[0]
-  const profId    = booking.professional_profiles?.id
-  const serviceId = booking.services?.id
+  const profId    = booking.professional_id ?? booking.professional_profiles?.id
+  const serviceId = booking.service_id ?? booking.services?.id
 
   const fetchSlots = async (date) => {
     if (!profId || !serviceId || !date) return
