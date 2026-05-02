@@ -50,25 +50,29 @@ export default function Layout() {
 
   useEffect(() => {
     const fn = () => {
-      const current = window.scrollY
+      const current = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0
       setScrollY(current)
       if (isHome) {
-        // En home: siempre visible (transparente arriba, oculto al bajar)
         if (current < 10) {
           setNavVisible(true)
         } else if (current > lastScrollRef.current + 8) {
-          setNavVisible(false) // scrolleando hacia abajo
+          setNavVisible(false)
         } else if (current < lastScrollRef.current - 8) {
-          setNavVisible(true)  // scrolleando hacia arriba
+          setNavVisible(true)
         }
       } else {
-        // En otras páginas: siempre visible
         setNavVisible(true)
       }
       lastScrollRef.current = current
     }
     window.addEventListener('scroll', fn, { passive: true })
-    return () => window.removeEventListener('scroll', fn)
+    document.addEventListener('scroll', fn, { passive: true })
+    document.documentElement.addEventListener('scroll', fn, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', fn)
+      document.removeEventListener('scroll', fn)
+      document.documentElement.removeEventListener('scroll', fn)
+    }
   }, [isHome])
 
   useEffect(() => {
