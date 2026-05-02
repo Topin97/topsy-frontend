@@ -153,7 +153,6 @@ function RescheduleModal({ booking, onClose, onConfirm, isLoading }) {
   const [slots, setSlots]               = useState([])
   const [loadingSlots, setLoadingSlots] = useState(false)
 
-  const today = new Date().toISOString().split('T')[0]
   const profId    = booking.professional_id ?? booking.professional_profiles?.id
   const serviceId = booking.service_id ?? booking.services?.id
 
@@ -168,21 +167,39 @@ function RescheduleModal({ booking, onClose, onConfirm, isLoading }) {
     finally { setLoadingSlots(false) }
   }
 
-  const handleDateChange = (e) => {
-    setSelectedDate(e.target.value)
-    fetchSlots(e.target.value)
-  }
+  const dayChips = Array.from({ length: 14 }, (_, i) => {
+    const d = new Date()
+    d.setDate(d.getDate() + i + 1)
+    const iso = d.toLocaleDateString('sv-SE')
+    const label = i === 0
+      ? 'Mañana'
+      : d.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' })
+    return { iso, label }
+  })
 
   return (
     <Sheet onClose={onClose}>
       <div style={{ padding: '24px 24px 0' }}>
         <p style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: '#B57932', marginBottom: 4, fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>Reagendar cita</p>
         <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', fontWeight: 600, color: '#181512', margin: '0 0 4px' }}>{booking.services?.name}</h3>
-        <p style={{ fontSize: 12, color: 'rgba(24,21,18,0.4)', marginBottom: 20, fontFamily: 'Outfit, sans-serif' }}>📅 Ahora: {format(new Date(booking.starts_at), "EEEE d MMM · HH:mm", { locale: es })}</p>
+        <p style={{ fontSize: 12, color: 'rgba(24,21,18,0.4)', marginBottom: 20, fontFamily: 'Outfit, sans-serif' }}>
+          📅 Ahora: {format(new Date(booking.starts_at), "EEEE d MMM · HH:mm", { locale: es })}
+        </p>
 
-        <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(24,21,18,0.4)', marginBottom: 8, fontFamily: 'Outfit, sans-serif', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Nueva fecha</p>
-        <input type="date" value={selectedDate} min={today} onChange={handleDateChange}
-          style={{ width: '100%', boxSizing: 'border-box', background: '#F8F5F0', border: '1.5px solid rgba(17,17,17,0.08)', borderRadius: 14, padding: '12px 14px', fontSize: 14, fontFamily: 'Outfit, sans-serif', outline: 'none', color: '#181512', marginBottom: 16 }} />
+        <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(24,21,18,0.4)', marginBottom: 10, fontFamily: 'Outfit, sans-serif', textTransform: 'uppercase', letterSpacing: '0.1em' }}>Nueva fecha</p>
+
+        {/* Chips de días */}
+        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8, marginBottom: 16 }}>
+          {dayChips.map(({ iso, label }) => {
+            const active = selectedDate === iso
+            return (
+              <button key={iso} onClick={() => { setSelectedDate(iso); fetchSlots(iso) }}
+                style={{ flexShrink: 0, padding: '8px 14px', borderRadius: 12, border: `1.5px solid ${active ? '#B8833A' : 'rgba(0,0,0,0.1)'}`, background: active ? 'linear-gradient(135deg,#B8833A,#D4A055)' : '#F8F5F0', color: active ? '#fff' : '#181512', fontSize: 12, fontFamily: 'Outfit, sans-serif', fontWeight: 600, cursor: 'pointer', textTransform: 'capitalize', whiteSpace: 'nowrap' }}>
+                {label}
+              </button>
+            )
+          })}
+        </div>
 
         {selectedDate && (
           loadingSlots ? (
@@ -249,20 +266,14 @@ function BookingCard({ booking, onCancel, onReview, onNotes, onReschedule }) {
       }}
     >
       <div style={{ display: 'flex' }}>
-        {/* Barra de estado lateral */}
         <div style={{ width: 4, flexShrink: 0, background: st.color, opacity: 0.7 }} />
-
-        {/* Imagen */}
         <div style={{ width: 88, flexShrink: 0, background: 'linear-gradient(135deg,#F4EEE6,#EDE4D4)', position: 'relative', overflow: 'hidden', minHeight: 88 }}>
           {coverUrl
             ? <img src={coverUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
             : <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>✂️</div>
           }
         </div>
-
-        {/* Info */}
         <div style={{ flex: 1, padding: '14px 16px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 5 }}>
-          {/* Header */}
           <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
             <div style={{ minWidth: 0 }}>
               <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', fontWeight: 700, color: '#181512', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{booking.services?.name}</p>
@@ -270,50 +281,39 @@ function BookingCard({ booking, onCancel, onReview, onNotes, onReschedule }) {
             </div>
             <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 999, background: st.bg, color: st.color, whiteSpace: 'nowrap', flexShrink: 0, fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>{st.label}</span>
           </div>
-
-          {/* Fecha */}
           <p style={{ fontSize: 12, color: 'rgba(24,21,18,0.38)', margin: 0, fontFamily: 'Outfit, sans-serif', display: 'flex', alignItems: 'center', gap: 3 }}>
             📅 {format(new Date(booking.starts_at), "EEEE d MMM · HH:mm", { locale: es })}
             <span style={{ opacity: 0.6 }}>· {booking.services?.duration_minutes} min</span>
           </p>
-
-          {/* Precio + acciones */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap', marginTop: 2 }}>
             <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.2rem', color: '#B57932', fontStyle: 'italic', fontWeight: 600 }}>{booking.total_price}€</span>
-
             {hasReview && (
               <span style={{ fontSize: 11, color: '#B57932', background: 'rgba(197,138,61,0.1)', padding: '3px 9px', borderRadius: 999, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
                 {'★'.repeat(booking.reviews[0].rating)} Valorada
               </span>
             )}
-
             {isActive && (
               <button onClick={() => onNotes(booking)} style={{ fontSize: 12, background: hasNotes ? 'rgba(197,138,61,0.08)' : 'transparent', border: `1.5px solid ${hasNotes ? 'rgba(197,138,61,0.25)' : 'rgba(17,17,17,0.1)'}`, borderRadius: 10, padding: '4px 11px', color: hasNotes ? '#B57932' : 'rgba(24,21,18,0.4)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.15s' }}>
                 💬 {hasNotes ? 'Notas' : 'Añadir nota'}
               </button>
             )}
-
             {canReview && (
               <button onClick={() => onReview(booking)} style={{ fontSize: 12, background: 'rgba(197,138,61,0.08)', border: '1.5px solid rgba(197,138,61,0.2)', borderRadius: 10, padding: '4px 12px', color: '#B57932', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
                 ★ Valorar
               </button>
             )}
-
             {isCompleted && booking.professional_profiles?.id && booking.services?.id && (
               <button
                 onClick={() => navigate(`/booking/${booking.professional_profiles.id}/${booking.services.id}`)}
-                style={{ fontSize: 12, background: 'rgba(184,131,58,0.08)', border: '1.5px solid rgba(184,131,58,0.25)', borderRadius: 10, padding: '4px 12px', color: '#B8833A', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}
-              >
+                style={{ fontSize: 12, background: 'rgba(184,131,58,0.08)', border: '1.5px solid rgba(184,131,58,0.25)', borderRadius: 10, padding: '4px 12px', color: '#B8833A', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
                 ↺ Repetir
               </button>
             )}
-
             {canCancel && (
               <button onClick={() => onReschedule(booking)} style={{ fontSize: 12, background: 'transparent', border: '1.5px solid rgba(34,197,94,0.3)', borderRadius: 10, padding: '4px 12px', color: '#16a34a', cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
                 📅 Cambiar
               </button>
             )}
-
             {canCancel && (
               <button onClick={() => onCancel(booking)} style={{ fontSize: 12, background: 'transparent', border: '1.5px solid rgba(220,38,38,0.2)', borderRadius: 10, padding: '4px 12px', color: '#dc2626', cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
                 Cancelar
@@ -359,9 +359,7 @@ function FavCard({ proId, onRemove }) {
     queryFn: () => profApi.getOne(proId).then(r => r.data.data),
     staleTime: 5 * 60_000,
   })
-  if (isLoading) return (
-    <div style={{ width: 120, flexShrink: 0, height: 120, background: '#f0ede8', borderRadius: 16, animation: 'pulse 1.5s infinite' }} />
-  )
+  if (isLoading) return <div style={{ width: 120, flexShrink: 0, height: 120, background: '#f0ede8', borderRadius: 16 }} />
   if (!prof) return null
   return (
     <Link to={`/professional/${proId}`} style={{ textDecoration: 'none', flexShrink: 0, width: 120 }}>
@@ -372,10 +370,8 @@ function FavCard({ proId, onRemove }) {
             : <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24 }}>✨</div>
           }
         </div>
-        <button
-          onClick={e => { e.preventDefault(); e.stopPropagation(); onRemove() }}
-          style={{ position: 'absolute', top: 5, right: 5, background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%', width: 22, height: 22, cursor: 'pointer', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-        >✕</button>
+        <button onClick={e => { e.preventDefault(); e.stopPropagation(); onRemove() }}
+          style={{ position: 'absolute', top: 5, right: 5, background: 'rgba(255,255,255,0.9)', border: 'none', borderRadius: '50%', width: 22, height: 22, cursor: 'pointer', fontSize: 11, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
         <div style={{ padding: '7px 8px' }}>
           <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '0.85rem', fontWeight: 700, color: '#181512', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{prof.business_name}</p>
           <p style={{ fontSize: 10, color: 'rgba(24,21,18,0.4)', margin: '2px 0 0', fontFamily: 'Outfit, sans-serif' }}>{prof.city}</p>
@@ -389,7 +385,6 @@ export default function DashboardPage() {
   const { user, isProfessional, updatePoints } = useAuthStore()
   const qc = useQueryClient()
 
-  // Sincronizar puntos del perfil con el store al cargar el dashboard
   useQuery({
     queryKey: ['my-profile-points'],
     queryFn: () => authApi.me().then(r => {
@@ -400,13 +395,14 @@ export default function DashboardPage() {
     enabled: !isProfessional(),
     staleTime: 30_000,
   })
+
   const [reviewBooking,     setReviewBooking]     = useState(null)
   const [cancelBooking,     setCancelBooking]     = useState(null)
   const [notesBooking,      setNotesBooking]      = useState(null)
   const [rescheduleBooking, setRescheduleBooking] = useState(null)
   const [activeTab, setActiveTab] = useState(0)
 
-  const { favs, toggle: toggleFav, isFav } = useFavorites()
+  const { favs, toggle: toggleFav } = useFavorites()
 
   const { data: myBookings, isLoading } = useQuery({
     queryKey: ['my-bookings'],
@@ -425,7 +421,6 @@ export default function DashboardPage() {
     queryFn: () => profApi.getStats().then(r => r.data.data),
     enabled: isProfessional(),
   })
-
   const { data: myWaitlists = [] } = useQuery({
     queryKey: ['my-waitlists'],
     queryFn: () => waitlistApi.getMine().then(r => r.data.data),
@@ -446,19 +441,16 @@ export default function DashboardPage() {
 
   const { mutate: doCancel, isPending: cancelling } = useMutation({
     mutationFn: ({ id, reason }) => bookingsApi.cancel(id, reason),
-    onSuccess: () => {
-      toast.success('Reserva cancelada')
-      setCancelBooking(null)
-      invalidate()
-      qc.invalidateQueries({ queryKey: ['slots'] })
-    },
+    onSuccess: () => { toast.success('Reserva cancelada'); setCancelBooking(null); invalidate(); qc.invalidateQueries({ queryKey: ['slots'] }) },
     onError: err => toast.error(err.response?.data?.error ?? 'Error al cancelar'),
   })
+
   const { mutate: submitReview, isPending: reviewLoading } = useMutation({
     mutationFn: ({ id, rating, comment }) => bookingsApi.review(id, { rating, comment }),
     onSuccess: () => { toast.success('¡Gracias por tu valoración! ★'); setReviewBooking(null); invalidate() },
     onError: err => toast.error(err.response?.data?.error ?? 'Error'),
   })
+
   const { mutate: sendNote, isPending: noteSending } = useMutation({
     mutationFn: ({ id, note }) => bookingsApi.addNote(id, note),
     onSuccess: (res) => {
@@ -468,8 +460,13 @@ export default function DashboardPage() {
     },
     onError: err => toast.error(err.response?.data?.error ?? 'Error'),
   })
+
   const { mutate: doReschedule, isPending: rescheduling } = useMutation({
-    mutationFn: ({ id, starts_at }) => bookingsApi.rescheduleClient(id, { starts_at }),
+    mutationFn: ({ id, starts_at }) => bookingsApi.rescheduleClient(id, {
+      starts_at,
+      professional_id: rescheduleBooking?.professional_id ?? rescheduleBooking?.professional_profiles?.id,
+      service_id: rescheduleBooking?.service_id ?? rescheduleBooking?.services?.id,
+    }),
     onSuccess: () => {
       toast.success('Cita reagendada ✓')
       setRescheduleBooking(null)
@@ -504,7 +501,6 @@ export default function DashboardPage() {
 
       <div style={{ maxWidth: 720, margin: '0 auto', padding: '28px 16px 100px', fontFamily: 'Outfit, sans-serif' }}>
 
-        {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
           <div>
             <p style={{ fontSize: 11, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'rgba(24,21,18,0.35)', margin: '0 0 4px', fontWeight: 600 }}>
@@ -522,27 +518,15 @@ export default function DashboardPage() {
             )}
           </div>
           {!isProfessional() && (
-            <Link to="/search" style={{
-              textDecoration: 'none', background: 'linear-gradient(135deg,#B97830,#D19B52)',
-              borderRadius: 14, padding: '11px 20px', color: '#fff',
-              fontWeight: 700, fontSize: 14, fontFamily: 'Outfit, sans-serif',
-              whiteSpace: 'nowrap', boxShadow: '0 6px 16px rgba(185,120,48,0.3)',
-            }}>+ Nueva cita</Link>
+            <Link to="/search" style={{ textDecoration: 'none', background: 'linear-gradient(135deg,#B97830,#D19B52)', borderRadius: 14, padding: '11px 20px', color: '#fff', fontWeight: 700, fontSize: 14, fontFamily: 'Outfit, sans-serif', whiteSpace: 'nowrap', boxShadow: '0 6px 16px rgba(185,120,48,0.3)' }}>+ Nueva cita</Link>
           )}
         </div>
 
-        {/* Stats del cliente */}
         {!isProfessional() && myBookings && myBookings.length > 0 && (() => {
           const completed = myBookings.filter(b => b.status === 'completed')
           const totalSpent = completed.reduce((s, b) => s + Number(b.total_price ?? 0), 0)
           const favPro = completed.length > 0
-            ? Object.entries(
-                completed.reduce((acc, b) => {
-                  const name = b.professional_profiles?.business_name ?? '—'
-                  acc[name] = (acc[name] ?? 0) + 1
-                  return acc
-                }, {})
-              ).sort((a, b) => b[1] - a[1])[0]?.[0]
+            ? Object.entries(completed.reduce((acc, b) => { const name = b.professional_profiles?.business_name ?? '—'; acc[name] = (acc[name] ?? 0) + 1; return acc }, {})).sort((a, b) => b[1] - a[1])[0]?.[0]
             : null
           return (
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 10, marginBottom: 24 }}>
@@ -561,21 +545,15 @@ export default function DashboardPage() {
           )
         })()}
 
-        {/* Favoritos del cliente */}
         {!isProfessional() && favs.length > 0 && (
           <div style={{ marginBottom: 24 }}>
-            <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#B57932', fontFamily: 'Outfit, sans-serif', fontWeight: 700, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-              ❤️ Guardados
-            </p>
+            <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#B57932', fontFamily: 'Outfit, sans-serif', fontWeight: 700, marginBottom: 12 }}>❤️ Guardados</p>
             <div style={{ display: 'flex', gap: 10, overflowX: 'auto', paddingBottom: 6 }}>
-              {favs.map(proId => (
-                <FavCard key={proId} proId={proId} onRemove={() => toggleFav(proId)} />
-              ))}
+              {favs.map(proId => <FavCard key={proId} proId={proId} onRemove={() => toggleFav(proId)} />)}
             </div>
           </div>
         )}
 
-        {/* KPIs profesional */}
         {isProfessional() && stats && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 12, marginBottom: 28 }}>
             <KpiCard icon="💶" label="Este mes"   value={`${stats.revenue_this_month}€`} />
@@ -585,7 +563,6 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Próxima cita destacada (solo clientes, tab 0) */}
         {!isProfessional() && activeTab === 0 && tabs[0]?.length > 0 && (() => {
           const next = tabs[0][0]
           const st = STATUS[next.status] ?? STATUS.pending
@@ -615,35 +592,26 @@ export default function DashboardPage() {
           )
         })()}
 
-        {/* Banner valoraciones pendientes */}
         {!isProfessional() && (() => {
           const pending = tabs[1]?.filter(b => b.status === 'completed' && !(b.reviews?.length > 0)) ?? []
           if (!pending.length) return null
           return (
-            <div
-              onClick={() => setActiveTab(1)}
-              style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'linear-gradient(135deg,rgba(184,131,58,0.1),rgba(184,131,58,0.06))', border: '1.5px solid rgba(184,131,58,0.25)', borderRadius: 14, padding: '12px 16px', marginBottom: 16, cursor: 'pointer' }}
-            >
+            <div onClick={() => setActiveTab(1)} style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'linear-gradient(135deg,rgba(184,131,58,0.1),rgba(184,131,58,0.06))', border: '1.5px solid rgba(184,131,58,0.25)', borderRadius: 14, padding: '12px 16px', marginBottom: 16, cursor: 'pointer' }}>
               <span style={{ fontSize: 22 }}>⭐</span>
               <div style={{ flex: 1 }}>
                 <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 700, color: '#B57932', margin: 0 }}>
                   {pending.length === 1 ? 'Tienes 1 cita sin valorar' : `Tienes ${pending.length} citas sin valorar`}
                 </p>
-                <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 11, color: 'rgba(24,21,18,0.45)', margin: '2px 0 0' }}>
-                  Tu opinión ayuda a otros clientes a elegir
-                </p>
+                <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 11, color: 'rgba(24,21,18,0.45)', margin: '2px 0 0' }}>Tu opinión ayuda a otros clientes a elegir</p>
               </div>
               <span style={{ fontSize: 16, color: 'rgba(184,131,58,0.5)' }}>→</span>
             </div>
           )
         })()}
 
-        {/* Listas de espera activas */}
         {!isProfessional() && myWaitlists.length > 0 && (
           <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 16, padding: '16px 18px', marginBottom: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
-            <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(24,21,18,0.35)', fontWeight: 700, margin: '0 0 12px' }}>
-              ⏳ En lista de espera
-            </p>
+            <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(24,21,18,0.35)', fontWeight: 700, margin: '0 0 12px' }}>⏳ En lista de espera</p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {myWaitlists.map(w => (
                 <div key={w.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: 'rgba(184,131,58,0.04)', border: '1px solid rgba(184,131,58,0.15)', borderRadius: 12 }}>
@@ -654,34 +622,22 @@ export default function DashboardPage() {
                     }
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 600, color: '#181512', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {w.professional_profiles?.business_name}
-                    </p>
+                    <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 600, color: '#181512', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{w.professional_profiles?.business_name}</p>
                     <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 11, color: 'rgba(24,21,18,0.45)', margin: '2px 0 0' }}>
                       {w.services?.name} · {new Date(w.date + 'T12:00:00').toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}
                     </p>
                   </div>
-                  <button
-                    onClick={() => { if (confirm('¿Salir de la lista de espera?')) leaveWaitlist({ professional_id: w.professional_profiles?.id, date: w.date }) }}
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'rgba(220,38,38,0.4)', padding: 4, flexShrink: 0 }}
-                  >✕</button>
+                  <button onClick={() => { if (confirm('¿Salir de la lista de espera?')) leaveWaitlist({ professional_id: w.professional_profiles?.id, date: w.date }) }}
+                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: 'rgba(220,38,38,0.4)', padding: 4, flexShrink: 0 }}>✕</button>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Tabs */}
         <div style={{ display: 'flex', gap: 0, marginBottom: 18, background: '#EFEDE9', borderRadius: 14, padding: 4 }}>
           {TABS.map((tab, i) => (
-            <button key={tab} onClick={() => setActiveTab(i)} style={{
-              flex: 1, padding: '10px 0', borderRadius: 11, border: 'none', cursor: 'pointer',
-              fontFamily: 'Outfit, sans-serif', fontSize: 13, transition: 'all 0.2s',
-              background: activeTab === i ? '#fff' : 'transparent',
-              color: activeTab === i ? '#181512' : 'rgba(24,21,18,0.4)',
-              fontWeight: activeTab === i ? 700 : 400,
-              boxShadow: activeTab === i ? '0 2px 8px rgba(17,17,17,0.08)' : 'none',
-            }}>
+            <button key={tab} onClick={() => setActiveTab(i)} style={{ flex: 1, padding: '10px 0', borderRadius: 11, border: 'none', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 13, transition: 'all 0.2s', background: activeTab === i ? '#fff' : 'transparent', color: activeTab === i ? '#181512' : 'rgba(24,21,18,0.4)', fontWeight: activeTab === i ? 700 : 400, boxShadow: activeTab === i ? '0 2px 8px rgba(17,17,17,0.08)' : 'none' }}>
               {tab}
               {tabs[i]?.length > 0 && (
                 <span style={{ marginLeft: 6, fontSize: 10, background: activeTab === i ? 'rgba(197,138,61,0.15)' : 'rgba(24,21,18,0.08)', color: activeTab === i ? '#B57932' : 'rgba(24,21,18,0.4)', borderRadius: 999, padding: '1px 6px' }}>
@@ -692,16 +648,13 @@ export default function DashboardPage() {
           ))}
         </div>
 
-        {/* Lista */}
         {isLoading ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {[1,2,3].map(i => <SkeletonCard key={i} />)}
           </div>
         ) : displayBookings.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '56px 0' }}>
-            <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#fff', border: '1.5px solid rgba(17,17,17,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, margin: '0 auto 20px', boxShadow: '0 4px 20px rgba(17,17,17,0.06)' }}>
-              📅
-            </div>
+            <div style={{ width: 80, height: 80, borderRadius: '50%', background: '#fff', border: '1.5px solid rgba(17,17,17,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, margin: '0 auto 20px', boxShadow: '0 4px 20px rgba(17,17,17,0.06)' }}>📅</div>
             <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.7rem', fontWeight: 600, color: '#181512', margin: '0 0 8px' }}>Sin citas</h3>
             <p style={{ fontSize: 14, color: 'rgba(24,21,18,0.4)', marginBottom: 24, lineHeight: 1.6 }}>
               {activeTab === 0 ? 'No tienes citas próximas.' : activeTab === 1 ? 'No tienes citas pasadas.' : 'No tienes citas canceladas.'}
