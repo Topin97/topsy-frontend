@@ -13,7 +13,9 @@
     "scrollEnabled": true
   },
   "ios": {
-    "scheme": "topsy"
+    "scheme": "topsy",
+    "scrollEnabled": true,
+    "keyboardResize": "body"
   },
   "plugins": {
     "SplashScreen": {
@@ -22,8 +24,18 @@
       "androidSplashResourceName": "splash",
       "showSpinner": false
     },
+    "StatusBar": {
+      "style": "dark",
+      "backgroundColor": "#1A0F05",
+      "overlaysWebView": false
+    },
     "CapacitorHttp": {
       "enabled": true
+    },
+    "Keyboard": {
+      "resize": "body",
+      "style": "dark",
+      "resizeOnFullScreen": true
     }
   }
 }
