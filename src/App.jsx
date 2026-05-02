@@ -146,7 +146,8 @@ function CapacitorDeepLinkHandler() {
   return null
 }
 
-export default function App() {
+// ── AppInner (dentro del BrowserRouter) ─────────────────────────────────────
+function AppInner() {
   const [showOnboarding, setShowOnboarding] = useState(
     !localStorage.getItem('topsy_onboarding_done')
   )
@@ -156,53 +157,61 @@ export default function App() {
   }
 
   return (
+    <>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: {
+            background: '#FFFFFF',
+            color: '#1A1612',
+            border: '1px solid rgba(184,131,58,0.25)',
+            fontFamily: 'Outfit, sans-serif',
+          },
+          success: { iconTheme: { primary: '#B8833A', secondary: '#FFFFFF' } },
+        }}
+      />
+      <Suspense fallback={<PageLoader />}>
+        <CapacitorDeepLinkHandler />
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<HomePage />} />
+            <Route path="search" element={<SearchPage />} />
+            <Route path="login" element={<PublicRoute><LoginPage /></PublicRoute>} />
+            <Route path="professional/:id" element={<ProfessionalPage />} />
+            <Route path="register"         element={<PublicRoute><RegisterPage /></PublicRoute>} />
+            <Route path="register/client"  element={<PublicRoute><RegisterClientPage /></PublicRoute>} />
+            <Route path="register/pro"     element={<PublicRoute><RegisterProPage /></PublicRoute>} />
+            <Route path="forgot-password"  element={<ForgotPasswordPage />} />
+            <Route path="reset-password"   element={<ResetPasswordPage />} />
+            <Route path="auth/callback"    element={<AuthCallbackPage />} />
+            <Route path="oauth/callback"   element={<OAuthCallbackPage />} />
+            <Route path="privacy"          element={<PrivacyPage />} />
+            <Route path="welcome"          element={<WelcomePage />} />
+            <Route path="complete-profile" element={<CompleteProfilePage />} />
+            <Route path="booking/:professionalId/:serviceId" element={<PrivateRoute><BookingPage /></PrivateRoute>} />
+            <Route path="dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
+            <Route path="profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
+            <Route path="review/:bookingId" element={<ReviewPage />} />
+            <Route path="pro/onboarding" element={<PrivateRoute><ProOnboardingPage /></PrivateRoute>} />
+            <Route path="pro/dashboard"    element={<ProRoute><ProDashboardPage /></ProRoute>} />
+            <Route path="pro/services"     element={<ProRoute><ProServicesPage /></ProRoute>} />
+            <Route path="pro/availability" element={<ProRoute><ProAvailabilityPage /></ProRoute>} />
+            <Route path="pro/profile"      element={<ProRoute><ProProfilePage /></ProRoute>} />
+            <Route path="pro/waitlist"     element={<ProRoute><ProWaitlistPage /></ProRoute>} />
+            <Route path="admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Route>
+        </Routes>
+      </Suspense>
+    </>
+  )
+}
+
+export default function App() {
+  return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: {
-              background: '#FFFFFF',
-              color: '#1A1612',
-              border: '1px solid rgba(184,131,58,0.25)',
-              fontFamily: 'Outfit, sans-serif',
-            },
-            success: { iconTheme: { primary: '#B8833A', secondary: '#FFFFFF' } },
-          }}
-        />
-        <Suspense fallback={<PageLoader />}>
-          <CapacitorDeepLinkHandler />
-          <Routes>
-            <Route path="/" element={<Layout />}>
-              <Route index element={<HomePage />} />
-              <Route path="search" element={<SearchPage />} />
-              <Route path="login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-              <Route path="professional/:id" element={<ProfessionalPage />} />
-              <Route path="register"         element={<PublicRoute><RegisterPage /></PublicRoute>} />
-              <Route path="register/client"  element={<PublicRoute><RegisterClientPage /></PublicRoute>} />
-              <Route path="register/pro"     element={<PublicRoute><RegisterProPage /></PublicRoute>} />
-              <Route path="forgot-password"  element={<ForgotPasswordPage />} />
-              <Route path="reset-password"   element={<ResetPasswordPage />} />
-              <Route path="auth/callback"    element={<AuthCallbackPage />} />
-              <Route path="oauth/callback"   element={<OAuthCallbackPage />} />
-              <Route path="privacy"          element={<PrivacyPage />} />
-              <Route path="welcome"          element={<WelcomePage />} />
-              <Route path="complete-profile" element={<CompleteProfilePage />} />
-              <Route path="booking/:professionalId/:serviceId" element={<PrivateRoute><BookingPage /></PrivateRoute>} />
-              <Route path="dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
-              <Route path="profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
-              <Route path="review/:bookingId" element={<ReviewPage />} />
-              <Route path="pro/onboarding" element={<PrivateRoute><ProOnboardingPage /></PrivateRoute>} />
-              <Route path="pro/dashboard"    element={<ProRoute><ProDashboardPage /></ProRoute>} />
-              <Route path="pro/services"     element={<ProRoute><ProServicesPage /></ProRoute>} />
-              <Route path="pro/availability" element={<ProRoute><ProAvailabilityPage /></ProRoute>} />
-              <Route path="pro/profile"      element={<ProRoute><ProProfilePage /></ProRoute>} />
-              <Route path="pro/waitlist"     element={<ProRoute><ProWaitlistPage /></ProRoute>} />
-              <Route path="admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Route>
-          </Routes>
-        </Suspense>
+        <AppInner />
       </BrowserRouter>
     </QueryClientProvider>
   )
