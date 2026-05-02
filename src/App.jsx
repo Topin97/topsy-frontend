@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query'
 import { authApi, profApi } from './services/api'
 import { Capacitor } from '@capacitor/core'
 import { App as CapApp } from '@capacitor/app'
+import { PushNotifications } from '@capacitor/push-notifications'
 import { createClient } from '@supabase/supabase-js'
 
 import Layout from './components/layout/Layout'
@@ -100,7 +101,7 @@ const AdminRoute = ({ children }) => {
   return children
 }
 
-// ── Deep link handler para Capacitor ────────────────────────────────────────
+// ── Deep link handler ────────────────────────────────────────
 function CapacitorDeepLinkHandler() {
   const navigate = useNavigate()
 
@@ -109,6 +110,7 @@ function CapacitorDeepLinkHandler() {
 
     const handleUrl = async ({ url }) => {
       console.log('[DeepLink] URL recibida:', url)
+
       if (url.includes('oauth/callback') || url.includes('topsy://')) {
         const hashIndex = url.indexOf('#')
         const queryIndex = url.indexOf('?')
@@ -146,7 +148,48 @@ function CapacitorDeepLinkHandler() {
   return null
 }
 
-// ── AppInner (dentro del BrowserRouter) ─────────────────────────────────────
+// 🔥 PUSH HANDLER
+function PushNotificationsHandler() {
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return
+
+    const initPush = async () => {
+      const permStatus = await PushNotifications.requestPermissions()
+
+      if (permStatus.receive === 'granted') {
+        await PushNotifications.register()
+      } else {
+        console.log('[Push] Permiso denegado')
+      }
+    }
+
+    PushNotifications.addListener('registration', (token) => {
+      console.log('[Push] Token:', token.value)
+    })
+
+    PushNotifications.addListener('registrationError', (error) => {
+      console.error('[Push] Error registro:', error)
+    })
+
+    PushNotifications.addListener('pushNotificationReceived', (notification) => {
+      console.log('[Push] Notificación recibida:', notification)
+    })
+
+    PushNotifications.addListener('pushNotificationActionPerformed', (notification) => {
+      console.log('[Push] Click notificación:', notification)
+    })
+
+    initPush()
+
+    return () => {
+      PushNotifications.removeAllListeners()
+    }
+  }, [])
+
+  return null
+}
+
+// ── AppInner ─────────────────────────────────────
 function AppInner() {
   const [showOnboarding, setShowOnboarding] = useState(
     !localStorage.getItem('topsy_onboarding_done')
@@ -170,34 +213,37 @@ function AppInner() {
           success: { iconTheme: { primary: '#B8833A', secondary: '#FFFFFF' } },
         }}
       />
+
       <Suspense fallback={<PageLoader />}>
         <CapacitorDeepLinkHandler />
+        <PushNotificationsHandler />
+
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<HomePage />} />
             <Route path="search" element={<SearchPage />} />
             <Route path="login" element={<PublicRoute><LoginPage /></PublicRoute>} />
             <Route path="professional/:id" element={<ProfessionalPage />} />
-            <Route path="register"         element={<PublicRoute><RegisterPage /></PublicRoute>} />
-            <Route path="register/client"  element={<PublicRoute><RegisterClientPage /></PublicRoute>} />
-            <Route path="register/pro"     element={<PublicRoute><RegisterProPage /></PublicRoute>} />
-            <Route path="forgot-password"  element={<ForgotPasswordPage />} />
-            <Route path="reset-password"   element={<ResetPasswordPage />} />
-            <Route path="auth/callback"    element={<AuthCallbackPage />} />
-            <Route path="oauth/callback"   element={<OAuthCallbackPage />} />
-            <Route path="privacy"          element={<PrivacyPage />} />
-            <Route path="welcome"          element={<WelcomePage />} />
+            <Route path="register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+            <Route path="register/client" element={<PublicRoute><RegisterClientPage /></PublicRoute>} />
+            <Route path="register/pro" element={<PublicRoute><RegisterProPage /></PublicRoute>} />
+            <Route path="forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="reset-password" element={<ResetPasswordPage />} />
+            <Route path="auth/callback" element={<AuthCallbackPage />} />
+            <Route path="oauth/callback" element={<OAuthCallbackPage />} />
+            <Route path="privacy" element={<PrivacyPage />} />
+            <Route path="welcome" element={<WelcomePage />} />
             <Route path="complete-profile" element={<CompleteProfilePage />} />
             <Route path="booking/:professionalId/:serviceId" element={<PrivateRoute><BookingPage /></PrivateRoute>} />
             <Route path="dashboard" element={<PrivateRoute><DashboardPage /></PrivateRoute>} />
             <Route path="profile" element={<PrivateRoute><ProfilePage /></PrivateRoute>} />
             <Route path="review/:bookingId" element={<ReviewPage />} />
             <Route path="pro/onboarding" element={<PrivateRoute><ProOnboardingPage /></PrivateRoute>} />
-            <Route path="pro/dashboard"    element={<ProRoute><ProDashboardPage /></ProRoute>} />
-            <Route path="pro/services"     element={<ProRoute><ProServicesPage /></ProRoute>} />
+            <Route path="pro/dashboard" element={<ProRoute><ProDashboardPage /></ProRoute>} />
+            <Route path="pro/services" element={<ProRoute><ProServicesPage /></ProRoute>} />
             <Route path="pro/availability" element={<ProRoute><ProAvailabilityPage /></ProRoute>} />
-            <Route path="pro/profile"      element={<ProRoute><ProProfilePage /></ProRoute>} />
-            <Route path="pro/waitlist"     element={<ProRoute><ProWaitlistPage /></ProRoute>} />
+            <Route path="pro/profile" element={<ProRoute><ProProfilePage /></ProRoute>} />
+            <Route path="pro/waitlist" element={<ProRoute><ProWaitlistPage /></ProRoute>} />
             <Route path="admin" element={<AdminRoute><AdminPage /></AdminRoute>} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>
