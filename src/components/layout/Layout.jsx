@@ -22,6 +22,8 @@ export default function Layout() {
   const location = useLocation()
 
   const [scrollY, setScrollY] = useState(0)
+  const [navVisible, setNavVisible] = useState(true)
+  const lastScrollRef = useRef(0)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const dropdownRef = useRef(null)
@@ -29,9 +31,6 @@ export default function Layout() {
   const isHome = location.pathname === '/'
   const scrolled = scrollY > 10
   const transparent = isHome && !scrolled
-
-  // Para la home: el header empieza transparente y al scrollear
-  // aparece con fondo oscuro premium (no blanco)
   const homeScrolled = isHome && scrollY > 60
 
   const { data: me } = useQuery({
@@ -50,10 +49,27 @@ export default function Layout() {
     location.pathname.startsWith('/professional/')
 
   useEffect(() => {
-    const fn = () => setScrollY(window.scrollY)
+    const fn = () => {
+      const current = window.scrollY
+      setScrollY(current)
+      if (isHome) {
+        // En home: siempre visible (transparente arriba, oculto al bajar)
+        if (current < 10) {
+          setNavVisible(true)
+        } else if (current > lastScrollRef.current + 8) {
+          setNavVisible(false) // scrolleando hacia abajo
+        } else if (current < lastScrollRef.current - 8) {
+          setNavVisible(true)  // scrolleando hacia arriba
+        }
+      } else {
+        // En otras páginas: siempre visible
+        setNavVisible(true)
+      }
+      lastScrollRef.current = current
+    }
     window.addEventListener('scroll', fn, { passive: true })
     return () => window.removeEventListener('scroll', fn)
-  }, [])
+  }, [isHome])
 
   useEffect(() => {
     setDropdownOpen(false)
@@ -232,6 +248,7 @@ export default function Layout() {
         borderBottom: navBorder,
         boxShadow: navShadow,
         transition: 'all .3s cubic-bezier(0.22,1,0.36,1)',
+        transform: navVisible ? 'translateY(0)' : 'translateY(-100%)',
         display: 'flex', alignItems: 'center',
       }}>
         <div style={{
