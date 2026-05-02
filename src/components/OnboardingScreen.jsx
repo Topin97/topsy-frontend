@@ -1,162 +1,199 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
+import ob1 from '../assets/onboarding1.jpg'
+import ob2 from '../assets/onboarding2.jpg'
+import ob3 from '../assets/onboarding3.jpg'
 
-import slide1 from '../assets/onboarding1.webp'
-import slide2 from '../assets/onboarding2.webp'
-import slide3 from '../assets/onboarding3.webp'
-
-const slides = [
+const SLIDES = [
   {
-    image: slide1,
-    title: 'Encuentra profesionales cerca de ti',
-    subtitle: 'Peluquerías, barberías, masajes, estética y mucho más. Todos verificados y con reseñas reales.',
+    img: ob1,
+    title: 'Descubre',
+    subtitle: 'el salón que siempre quisiste',
+    desc: 'Encuentra los mejores profesionales de belleza y bienestar cerca de ti.',
   },
   {
-    image: slide2,
-    title: 'Reserva en segundos, sin llamadas',
-    subtitle: 'Elige el servicio, el día y la hora. Confirmación instantánea directo en tu móvil.',
+    img: ob2,
+    title: 'Reserva',
+    subtitle: 'en segundos, sin llamadas',
+    desc: 'Elige tu servicio, selecciona horario y confirma tu cita al instante.',
   },
   {
-    image: slide3,
-    title: 'Gestiona tus citas desde un solo lugar',
-    subtitle: 'Consulta, cancela o reprograma cuando quieras. Todo el control en tu bolsillo.',
+    img: ob3,
+    title: 'Disfruta',
+    subtitle: 'la experiencia que mereces',
+    desc: 'Relájate y déjate cuidar. Tu bienestar, siempre a un toque de distancia.',
   },
 ]
 
 export default function OnboardingScreen({ onFinish }) {
   const [current, setCurrent] = useState(0)
-  const [animating, setAnimating] = useState(false)
-  const [direction, setDirection] = useState(1)
-
-  const goTo = (index) => {
-    if (animating || index === current) return
-    setDirection(index > current ? 1 : -1)
-    setAnimating(true)
-    setTimeout(() => {
-      setCurrent(index)
-      setAnimating(false)
-    }, 280)
-  }
+  const navigate = useNavigate()
+  const touchStartX = useRef(null)
 
   const next = () => {
-    if (current < slides.length - 1) goTo(current + 1)
-    else onFinish()
+    if (current < SLIDES.length - 1) {
+      setCurrent(current + 1)
+    } else {
+      finish()
+    }
   }
 
-  const slide = slides[current]
+  const finish = () => {
+    localStorage.setItem('topsy_onboarding_done', '1')
+    onFinish?.()
+  }
+
+  const handleTouchStart = (e) => {
+    touchStartX.current = e.touches[0].clientX
+  }
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return
+    const diff = touchStartX.current - e.changedTouches[0].clientX
+    if (diff > 50 && current < SLIDES.length - 1) setCurrent(current + 1)
+    if (diff < -50 && current > 0) setCurrent(current - 1)
+    touchStartX.current = null
+  }
+
+  const slide = SLIDES[current]
+  const isLast = current === SLIDES.length - 1
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0, zIndex: 9998,
-      background: '#1A0F05',
-      display: 'flex', flexDirection: 'column',
-      alignItems: 'center', justifyContent: 'space-between',
-      overflow: 'hidden',
-    }}>
+    <div
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      style={{
+        position: 'fixed', inset: 0, zIndex: 9999,
+        fontFamily: 'Outfit, sans-serif',
+        overflow: 'hidden',
+        background: '#1A0F05',
+      }}
+    >
       <style>{`
-        @keyframes fadeSlideIn {
-          from { opacity: 0; transform: translateX(${direction > 0 ? '40px' : '-40px'}) }
-          to   { opacity: 1; transform: none }
+        @keyframes fadeSlide {
+          from { opacity: 0; transform: translateX(30px); }
+          to   { opacity: 1; transform: translateX(0); }
         }
-        .onboarding-slide { animation: fadeSlideIn 0.28s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .ob-content { animation: fadeSlide 0.4s ease forwards; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
       `}</style>
 
-      {/* Imagen — ocupa la mitad superior */}
-      <div
-        key={current}
-        className="onboarding-slide"
-        style={{ width: '100%', flex: '0 0 58%', position: 'relative', overflow: 'hidden' }}
-      >
+      {/* Imagen de fondo */}
+      <div style={{ position: 'absolute', inset: 0 }}>
         <img
-          src={slide.image}
+          key={current}
+          src={slide.img}
           alt=""
-          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }}
+          style={{
+            width: '100%', height: '100%', objectFit: 'cover',
+            opacity: 0.45,
+            transition: 'opacity 0.4s ease',
+          }}
         />
-        {/* Degradado hacia abajo para fundir con el fondo */}
+        {/* Gradiente oscuro desde abajo */}
         <div style={{
-          position: 'absolute', bottom: 0, left: 0, right: 0, height: '50%',
-          background: 'linear-gradient(to bottom, transparent, #1A0F05)',
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(to bottom, rgba(26,15,5,0.2) 0%, rgba(26,15,5,0.6) 50%, rgba(26,15,5,0.97) 75%)',
         }} />
       </div>
 
-      {/* Contenido inferior */}
+      {/* Skip */}
+      {!isLast && (
+        <button
+          onClick={finish}
+          style={{
+            position: 'absolute', top: 'calc(16px + env(safe-area-inset-top))', right: 20,
+            background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: 999, padding: '6px 14px', color: 'rgba(255,255,255,0.6)',
+            fontSize: 13, fontFamily: 'Outfit, sans-serif', cursor: 'pointer',
+          }}
+        >
+          Saltar
+        </button>
+      )}
+
+      {/* Contenido */}
       <div
-        key={`text-${current}`}
-        className="onboarding-slide"
+        key={current}
+        className="ob-content"
         style={{
-          flex: 1, width: '100%',
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'space-between',
-          padding: '8px 32px 48px',
-          textAlign: 'center',
+          position: 'absolute', bottom: 0, left: 0, right: 0,
+          padding: '0 28px calc(48px + env(safe-area-inset-bottom)) 28px',
         }}
       >
-        {/* Texto */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-          {/* Logo pequeño */}
-          <div>
-            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', fontWeight: 700, letterSpacing: '3px', color: 'rgba(255,255,255,0.25)' }}>TOP</span>
-            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', fontWeight: 400, fontStyle: 'italic', color: 'rgba(184,131,58,0.4)' }}>sy</span>
-          </div>
-
-          <h2 style={{
-            fontFamily: 'Cormorant Garamond, serif',
-            fontSize: 'clamp(1.7rem, 6vw, 2.2rem)',
-            fontWeight: 600, lineHeight: 1.2,
-            color: '#FFFFFF', margin: 0,
-          }}>
-            {slide.title}
-          </h2>
-
-          <p style={{
-            fontFamily: 'Outfit, sans-serif',
-            fontSize: 15, lineHeight: 1.6,
-            color: 'rgba(255,255,255,0.5)',
-            margin: 0, maxWidth: 300,
-          }}>
-            {slide.subtitle}
-          </p>
+        {/* Logo */}
+        <div style={{ marginBottom: 32, textAlign: 'center' }}>
+          <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2rem', fontWeight: 700, color: '#F8F5F0', letterSpacing: '0.06em' }}>
+            TOP<span style={{ color: '#D4A055', fontStyle: 'italic', fontWeight: 400 }}>sy</span>
+          </span>
         </div>
 
-        {/* Bottom: dots + botón */}
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
+        {/* Texto */}
+        <h1 style={{
+          fontFamily: 'Cormorant Garamond, serif',
+          fontSize: '3rem', fontWeight: 600, lineHeight: 1,
+          color: '#F8F5F0', margin: '0 0 6px',
+        }}>
+          {slide.title}
+        </h1>
+        <h2 style={{
+          fontFamily: 'Cormorant Garamond, serif',
+          fontSize: '1.6rem', fontWeight: 400, fontStyle: 'italic',
+          color: '#D4A055', margin: '0 0 16px', lineHeight: 1.2,
+        }}>
+          {slide.subtitle}
+        </h2>
+        <p style={{
+          fontSize: 15, color: 'rgba(248,245,240,0.55)',
+          lineHeight: 1.65, margin: '0 0 40px',
+        }}>
+          {slide.desc}
+        </p>
 
-          {/* Dots */}
-          <div style={{ display: 'flex', gap: 8 }}>
-            {slides.map((_, i) => (
-              <button key={i} onClick={() => goTo(i)} style={{
-                width: i === current ? 24 : 8,
-                height: 8, borderRadius: 4,
-                background: i === current ? '#B8833A' : 'rgba(255,255,255,0.2)',
-                border: 'none', cursor: 'pointer', padding: 0,
+        {/* Dots */}
+        <div style={{ display: 'flex', gap: 8, marginBottom: 28, justifyContent: 'center' }}>
+          {SLIDES.map((_, i) => (
+            <div
+              key={i}
+              onClick={() => setCurrent(i)}
+              style={{
+                height: 6, borderRadius: 3, cursor: 'pointer',
+                width: i === current ? 28 : 6,
+                background: i === current ? '#D4A055' : 'rgba(255,255,255,0.2)',
                 transition: 'all 0.3s ease',
-              }} />
-            ))}
-          </div>
+              }}
+            />
+          ))}
+        </div>
 
-          {/* Botón */}
-          <button onClick={next} style={{
-            width: '100%', padding: '16px',
-            background: 'linear-gradient(135deg, #B8833A, #D4A055)',
+        {/* Botón */}
+        <button
+          onClick={next}
+          style={{
+            width: '100%', padding: '17px',
+            background: 'linear-gradient(135deg,#B97830,#D19B52)',
             border: 'none', borderRadius: 16,
             color: '#FFFFFF', fontSize: 16, fontWeight: 700,
             fontFamily: 'Outfit, sans-serif', cursor: 'pointer',
-            boxShadow: '0 8px 24px rgba(184,131,58,0.4)',
-            letterSpacing: '0.03em',
-          }}>
-            {current === slides.length - 1 ? 'Empezar →' : 'Siguiente →'}
-          </button>
+            boxShadow: '0 8px 28px rgba(185,120,48,0.4)',
+            letterSpacing: '0.02em',
+          }}
+        >
+          {isLast ? 'Empezar →' : 'Siguiente →'}
+        </button>
 
-          {/* Omitir */}
-          {current < slides.length - 1 && (
-            <button onClick={onFinish} style={{
-              background: 'none', border: 'none', cursor: 'pointer',
-              color: 'rgba(255,255,255,0.3)', fontSize: 13,
-              fontFamily: 'Outfit, sans-serif', padding: '4px 0',
-            }}>
-              Omitir
-            </button>
-          )}
-        </div>
+        {/* Login link en última slide */}
+        {isLast && (
+          <p style={{ textAlign: 'center', marginTop: 18, fontSize: 14, color: 'rgba(248,245,240,0.4)' }}>
+            ¿Ya tienes cuenta?{' '}
+            <span
+              onClick={() => { finish(); navigate('/login') }}
+              style={{ color: '#D4A055', fontWeight: 600, cursor: 'pointer' }}
+            >
+              Iniciar sesión
+            </span>
+          </p>
+        )}
       </div>
     </div>
   )

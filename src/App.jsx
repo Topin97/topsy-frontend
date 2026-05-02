@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Toaster } from 'react-hot-toast'
@@ -10,6 +10,7 @@ import { App as CapApp } from '@capacitor/app'
 import { createClient } from '@supabase/supabase-js'
 
 import Layout from './components/layout/Layout'
+import OnboardingScreen from './components/OnboardingScreen'
 
 // ── Carga inmediata ──────────────────────────────────────────────────────────
 import HomePage   from './pages/HomePage'
@@ -109,7 +110,6 @@ function CapacitorDeepLinkHandler() {
     const handleUrl = async ({ url }) => {
       console.log('[DeepLink] URL recibida:', url)
       if (url.includes('oauth/callback') || url.includes('topsy://')) {
-        // Extraer tokens del hash o query params
         const hashIndex = url.indexOf('#')
         const queryIndex = url.indexOf('?')
 
@@ -147,6 +147,14 @@ function CapacitorDeepLinkHandler() {
 }
 
 export default function App() {
+  const [showOnboarding, setShowOnboarding] = useState(
+    !localStorage.getItem('topsy_onboarding_done')
+  )
+
+  if (showOnboarding) {
+    return <OnboardingScreen onFinish={() => setShowOnboarding(false)} />
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
