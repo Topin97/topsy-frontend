@@ -108,7 +108,7 @@ function CapacitorDeepLinkHandler() {
 
     const handleUrl = async ({ url }) => {
       console.log('[DeepLink] URL recibida:', url)
-      if (url.includes('oauth/callback') || url.includes('es.topsy.app')) {
+      if (url.includes('oauth/callback') || url.includes('topsy://')) {
         // Extraer tokens del hash o query params
         const hashIndex = url.indexOf('#')
         const queryIndex = url.indexOf('?')

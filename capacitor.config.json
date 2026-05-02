@@ -3,13 +3,17 @@
   "appName": "TopSy",
   "webDir": "dist",
   "server": {
-    "androidScheme": "https"
+    "androidScheme": "https",
+    "iosScheme": "topsy"
   },
   "android": {
     "allowMixedContent": true,
     "captureInput": true,
     "webContentsDebuggingEnabled": false,
     "scrollEnabled": true
+  },
+  "ios": {
+    "scheme": "topsy"
   },
   "plugins": {
     "SplashScreen": {

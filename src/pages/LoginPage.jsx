@@ -67,20 +67,26 @@ export default function LoginPage() {
     },
   })
 
-  const handleApple = async () => {
-    try {
-      const { createClient } = await import('@supabase/supabase-js')
-      const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY)
-      sessionStorage.setItem('oauth_role', 'client')
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'apple',
-        options: { redirectTo: `${window.location.origin}/oauth/callback` },
-      })
-      if (error) toast.error('Error al conectar con Apple')
-    } catch {
-      toast.error('Error inesperado con Apple')
-    }
+const handleApple = async () => {
+  try {
+    const { createClient } = await import('@supabase/supabase-js')
+    const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY)
+    sessionStorage.setItem('oauth_role', 'client')
+    
+    const isNative = window.Capacitor?.isNativePlatform?.()
+    const redirectTo = isNative 
+      ? 'topsy://oauth/callback'
+      : `${window.location.origin}/oauth/callback`
+    
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'apple',
+      options: { redirectTo },
+    })
+    if (error) toast.error('Error al conectar con Apple')
+  } catch {
+    toast.error('Error inesperado con Apple')
   }
+}
 
   return (
     <div style={{ minHeight: '100dvh', background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>

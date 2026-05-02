@@ -24,9 +24,8 @@ export function useGoogleAuth() {
 
       const isNative = Capacitor.isNativePlatform()
       const redirectTo = isNative
-        ? 'es.topsy.app://oauth/callback'
+        ? 'topsy://oauth/callback'
         : `${window.location.origin}/oauth/callback`
-
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
