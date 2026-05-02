@@ -49,8 +49,9 @@ export default function Layout() {
     location.pathname.startsWith('/professional/')
 
   useEffect(() => {
-    const fn = () => {
-      const current = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop || 0
+    const fn = (e) => {
+      const target = e?.target
+      const current = target?.scrollTop || window.scrollY || 0
       setScrollY(current)
       if (isHome) {
         if (current < 10) {
@@ -65,13 +66,14 @@ export default function Layout() {
       }
       lastScrollRef.current = current
     }
+    const mainEl = document.querySelector('main')
     window.addEventListener('scroll', fn, { passive: true })
-    document.addEventListener('scroll', fn, { passive: true })
-    document.documentElement.addEventListener('scroll', fn, { passive: true })
+    document.addEventListener('scroll', fn, { passive: true, capture: true })
+    mainEl?.addEventListener('scroll', fn, { passive: true })
     return () => {
       window.removeEventListener('scroll', fn)
-      document.removeEventListener('scroll', fn)
-      document.documentElement.removeEventListener('scroll', fn)
+      document.removeEventListener('scroll', fn, { capture: true })
+      mainEl?.removeEventListener('scroll', fn)
     }
   }, [isHome])
 
