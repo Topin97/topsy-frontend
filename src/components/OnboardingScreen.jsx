@@ -27,12 +27,24 @@ const SLIDES = [
 
 export default function OnboardingScreen({ onFinish }) {
   const [current, setCurrent] = useState(0)
+  const [animating, setAnimating] = useState(false)
+  const [direction, setDirection] = useState('next') // 'next' | 'prev'
   const navigate = useNavigate()
   const touchStartX = useRef(null)
 
+  const goTo = (index, dir = 'next') => {
+    if (animating) return
+    setDirection(dir)
+    setAnimating(true)
+    setTimeout(() => {
+      setCurrent(index)
+      setAnimating(false)
+    }, 350)
+  }
+
   const next = () => {
     if (current < SLIDES.length - 1) {
-      setCurrent(current + 1)
+      goTo(current + 1, 'next')
     } else {
       finish()
     }
@@ -50,8 +62,8 @@ export default function OnboardingScreen({ onFinish }) {
   const handleTouchEnd = (e) => {
     if (touchStartX.current === null) return
     const diff = touchStartX.current - e.changedTouches[0].clientX
-    if (diff > 50 && current < SLIDES.length - 1) setCurrent(current + 1)
-    if (diff < -50 && current > 0) setCurrent(current - 1)
+    if (diff > 50 && current < SLIDES.length - 1) goTo(current + 1, 'next')
+    if (diff < -50 && current > 0) goTo(current - 1, 'prev')
     touchStartX.current = null
   }
 
@@ -70,27 +82,35 @@ export default function OnboardingScreen({ onFinish }) {
       }}
     >
       <style>{`
-        @keyframes fadeSlide {
-          from { opacity: 0; transform: translateX(30px); }
+        @keyframes slideInFromRight {
+          from { opacity: 0; transform: translateX(60px); }
           to   { opacity: 1; transform: translateX(0); }
         }
-        .ob-content { animation: fadeSlide 0.4s ease forwards; }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+        @keyframes slideInFromLeft {
+          from { opacity: 0; transform: translateX(-60px); }
+          to   { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to   { opacity: 1; }
+        }
+        .ob-next { animation: slideInFromRight 0.35s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .ob-prev { animation: slideInFromLeft 0.35s cubic-bezier(0.22,1,0.36,1) forwards; }
+        .ob-img  { animation: fadeIn 0.4s ease forwards; }
       `}</style>
 
       {/* Imagen de fondo */}
       <div style={{ position: 'absolute', inset: 0 }}>
         <img
-          key={current}
+          key={`img-${current}`}
           src={slide.img}
           alt=""
+          className="ob-img"
           style={{
             width: '100%', height: '100%', objectFit: 'cover',
             opacity: 0.45,
-            transition: 'opacity 0.4s ease',
           }}
         />
-        {/* Gradiente oscuro desde abajo */}
         <div style={{
           position: 'absolute', inset: 0,
           background: 'linear-gradient(to bottom, rgba(26,15,5,0.2) 0%, rgba(26,15,5,0.6) 50%, rgba(26,15,5,0.97) 75%)',
@@ -112,10 +132,10 @@ export default function OnboardingScreen({ onFinish }) {
         </button>
       )}
 
-      {/* Contenido */}
+      {/* Contenido animado */}
       <div
-        key={current}
-        className="ob-content"
+        key={`content-${current}`}
+        className={direction === 'next' ? 'ob-next' : 'ob-prev'}
         style={{
           position: 'absolute', bottom: 0, left: 0, right: 0,
           padding: '0 28px calc(48px + env(safe-area-inset-bottom)) 28px',
@@ -155,7 +175,7 @@ export default function OnboardingScreen({ onFinish }) {
           {SLIDES.map((_, i) => (
             <div
               key={i}
-              onClick={() => setCurrent(i)}
+              onClick={() => goTo(i, i > current ? 'next' : 'prev')}
               style={{
                 height: 6, borderRadius: 3, cursor: 'pointer',
                 width: i === current ? 28 : 6,
