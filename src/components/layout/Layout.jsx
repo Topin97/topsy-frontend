@@ -21,13 +21,18 @@ export default function Layout() {
   const qc = useQueryClient()
   const location = useLocation()
 
-  const [scrolled, setScrolled] = useState(false)
+  const [scrollY, setScrollY] = useState(0)
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const dropdownRef = useRef(null)
 
   const isHome = location.pathname === '/'
+  const scrolled = scrollY > 10
   const transparent = isHome && !scrolled
+
+  // Para la home: el header empieza transparente y al scrollear
+  // aparece con fondo oscuro premium (no blanco)
+  const homeScrolled = isHome && scrollY > 60
 
   const { data: me } = useQuery({
     queryKey: ['me'],
@@ -45,7 +50,7 @@ export default function Layout() {
     location.pathname.startsWith('/professional/')
 
   useEffect(() => {
-    const fn = () => setScrolled(window.scrollY > 10)
+    const fn = () => setScrollY(window.scrollY)
     window.addEventListener('scroll', fn, { passive: true })
     return () => window.removeEventListener('scroll', fn)
   }, [])
@@ -92,6 +97,28 @@ export default function Layout() {
 
   const bottomNav = token && isProfessional() ? proNav : clientNav
 
+  // Colores del navbar según estado
+  const navBg = (() => {
+    if (transparent) return 'transparent'
+    if (homeScrolled) return 'rgba(20,10,3,0.92)' // oscuro premium en home scrolleada
+    return 'rgba(255,255,255,0.94)' // blanco en otras páginas
+  })()
+
+  const navBorder = (() => {
+    if (transparent) return 'none'
+    if (homeScrolled) return '1px solid rgba(197,138,61,0.15)'
+    return '1px solid rgba(17,17,17,0.06)'
+  })()
+
+  const navShadow = (() => {
+    if (transparent) return 'none'
+    if (homeScrolled) return '0 8px 32px rgba(0,0,0,0.3)'
+    return '0 4px 20px rgba(17,17,17,0.07)'
+  })()
+
+  const logoColor = (transparent || homeScrolled) ? '#FFFFFF' : '#181512'
+  const logoAccent = (transparent || homeScrolled) ? '#D4A055' : '#B57932'
+
   const Avatar = ({ size = 32 }) => (
     <div style={{
       width: size, height: size, borderRadius: '50%', overflow: 'hidden',
@@ -114,7 +141,7 @@ export default function Layout() {
         textDecoration: 'none', fontSize: 12,
         letterSpacing: '0.14em', textTransform: 'uppercase',
         fontWeight: active ? 700 : 600,
-        color: transparent
+        color: (transparent || homeScrolled)
           ? active ? '#D4A055' : 'rgba(255,255,255,0.75)'
           : active ? '#B57932' : 'rgba(24,21,18,0.50)',
         transition: 'color .18s ease',
@@ -181,18 +208,30 @@ export default function Layout() {
         }
         .dd-item:hover { background: #F8F5F0 !important; }
         .nav-link-hover:hover { opacity: 1 !important; }
+
+        /* Línea dorada decorativa bajo el logo cuando está scrolleado en home */
+        .logo-line {
+          display: block;
+          width: 0;
+          height: 1.5px;
+          background: linear-gradient(90deg, #B97830, #D4A055);
+          transition: width 0.4s ease;
+          border-radius: 2px;
+          margin-top: 2px;
+        }
+        .logo-line.visible { width: 100%; }
       `}</style>
 
       {/* ══ NAVBAR */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
         height: scrolled ? 60 : 68,
-        background: transparent ? 'transparent' : scrolled ? 'rgba(255,255,255,0.94)' : 'rgba(255,255,255,0.85)',
+        background: navBg,
         backdropFilter: transparent ? 'none' : 'blur(20px)',
         WebkitBackdropFilter: transparent ? 'none' : 'blur(20px)',
-        borderBottom: transparent ? 'none' : '1px solid rgba(17,17,17,0.06)',
-        boxShadow: transparent ? 'none' : scrolled ? '0 8px 28px rgba(17,17,17,0.07)' : 'none',
-        transition: 'all .25s ease',
+        borderBottom: navBorder,
+        boxShadow: navShadow,
+        transition: 'all .3s cubic-bezier(0.22,1,0.36,1)',
         display: 'flex', alignItems: 'center',
       }}>
         <div style={{
@@ -201,19 +240,23 @@ export default function Layout() {
           justifyContent: 'space-between', gap: 18,
         }}>
           {/* Logo */}
-          <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
-            <span style={{
-              fontFamily: 'Cormorant Garamond, serif', fontSize: '1.75rem',
-              fontWeight: 700, letterSpacing: '0.06em', lineHeight: 1,
-              color: transparent ? '#FFFFFF' : '#181512',
-              transition: 'color .25s ease',
-            }}>TOP</span>
-            <span style={{
-              fontFamily: 'Cormorant Garamond, serif', fontSize: '1.75rem',
-              fontWeight: 400, fontStyle: 'italic', lineHeight: 1,
-              color: transparent ? '#D4A055' : '#B57932',
-              transition: 'color .25s ease',
-            }}>sy</span>
+          <Link to="/" style={{ textDecoration: 'none', display: 'inline-flex', flexDirection: 'column', alignItems: 'flex-start', flexShrink: 0 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <span style={{
+                fontFamily: 'Cormorant Garamond, serif', fontSize: '1.75rem',
+                fontWeight: 700, letterSpacing: '0.06em', lineHeight: 1,
+                color: logoColor,
+                transition: 'color .3s ease',
+              }}>TOP</span>
+              <span style={{
+                fontFamily: 'Cormorant Garamond, serif', fontSize: '1.75rem',
+                fontWeight: 400, fontStyle: 'italic', lineHeight: 1,
+                color: logoAccent,
+                transition: 'color .3s ease',
+              }}>sy</span>
+            </div>
+            {/* Línea dorada decorativa — solo visible al scrollear en home */}
+            <span className={`logo-line ${homeScrolled ? 'visible' : ''}`} />
           </Link>
 
           {/* Nav links centro */}
@@ -246,10 +289,10 @@ export default function Layout() {
             {token ? (
               <div ref={dropdownRef} style={{ position: 'relative' }}>
                 <button onClick={() => setDropdownOpen(!dropdownOpen)} style={{
-                  background: transparent
+                  background: (transparent || homeScrolled)
                     ? dropdownOpen ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.1)'
                     : dropdownOpen ? '#F8F5F0' : 'rgba(255,255,255,0.82)',
-                  border: transparent ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(17,17,17,0.08)',
+                  border: (transparent || homeScrolled) ? '1px solid rgba(255,255,255,0.2)' : '1px solid rgba(17,17,17,0.08)',
                   cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 9,
                   padding: '6px 10px 6px 6px', borderRadius: 999,
                   transition: 'all .2s ease',
@@ -258,7 +301,7 @@ export default function Layout() {
                   <Avatar size={30} />
                   <span style={{
                     fontSize: 13, fontWeight: 600,
-                    color: transparent ? '#FFFFFF' : '#181512',
+                    color: (transparent || homeScrolled) ? '#FFFFFF' : '#181512',
                     maxWidth: 100, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                     transition: 'color .25s ease',
                   }}>
@@ -266,7 +309,7 @@ export default function Layout() {
                   </span>
                   <span style={{
                     fontSize: 9, transition: 'all .2s ease',
-                    color: transparent ? 'rgba(255,255,255,0.5)' : 'rgba(24,21,18,0.36)',
+                    color: (transparent || homeScrolled) ? 'rgba(255,255,255,0.5)' : 'rgba(24,21,18,0.36)',
                     transform: dropdownOpen ? 'rotate(180deg)' : 'rotate(0)',
                   }}>▼</span>
                 </button>
@@ -321,7 +364,7 @@ export default function Layout() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Link to="/login" style={{
                   textDecoration: 'none', fontSize: 13, fontWeight: 600, padding: '8px 10px',
-                  color: transparent ? 'rgba(255,255,255,0.8)' : 'rgba(24,21,18,0.56)',
+                  color: (transparent || homeScrolled) ? 'rgba(255,255,255,0.8)' : 'rgba(24,21,18,0.56)',
                   transition: 'color .25s ease',
                 }}>Entrar</Link>
                 <Link to="/register" style={{
