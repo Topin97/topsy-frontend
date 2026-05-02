@@ -175,7 +175,12 @@ export default function BookingPage() {
   })
 
   // Incluir slots con client_conflict para mostrarlos en dorado
-  const freeSlots = slotsData?.filter(s => s.available || s.client_conflict) ?? []
+  const now = new Date()
+const freeSlots = (slotsData?.filter(s => s.available || s.client_conflict) ?? [])
+  .filter(slot => {
+    if (!selectedDate || !isToday(selectedDate)) return true
+    return new Date(slot.starts_at) > now
+  })
   const selectedDateKey = selectedDate ? format(selectedDate, 'yyyy-MM-dd') : null
   const selectedDayInfo = selectedDateKey ? daysData[selectedDateKey] : null
   const isDayFull = selectedDayInfo != null && selectedDayInfo.available === 0 && selectedDayInfo.total > 0

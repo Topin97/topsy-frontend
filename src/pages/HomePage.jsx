@@ -372,6 +372,7 @@ export default function HomePage() {
       </section>
 
       {/* ¿Eres profesional? */}
+      {!token && (
       <section style={{ padding: '0 20px 40px', background: '#fff' }}>
         <div style={{ maxWidth: 680, margin: '0 auto' }}>
           <div style={{
@@ -413,6 +414,7 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      )}
 
       {/* CTA */}
       {!token && (
