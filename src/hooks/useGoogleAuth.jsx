@@ -30,7 +30,7 @@ export function useGoogleAuth() {
         provider: 'google',
         options: {
           redirectTo,
-          queryParams: { access_type: 'offline', prompt: 'select_account' },
+          queryParams: { access_type: 'offline' },
           skipBrowserRedirect: isNative,
         },
       })
