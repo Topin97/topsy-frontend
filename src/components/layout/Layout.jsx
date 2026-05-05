@@ -247,7 +247,8 @@ export default function Layout() {
       {/* ══ NAVBAR */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        height: scrolled ? 60 : 68,
+        height: `calc(${scrolled ? '60px' : '68px'} + env(safe-area-inset-top))`,
+paddingTop: 'env(safe-area-inset-top)',
         background: navBg,
         backdropFilter: transparent ? 'none' : 'blur(20px)',
         WebkitBackdropFilter: transparent ? 'none' : 'blur(20px)',
@@ -476,7 +477,7 @@ export default function Layout() {
 
       {/* ══ MAIN CONTENT */}
       <main style={{
-        paddingTop: isHome ? '0' : '68px',
+        paddingTop: isHome ? '0' : 'calc(68px + env(safe-area-inset-top))',
         paddingBottom: hideBottomNav ? 0 : 'calc(64px + env(safe-area-inset-bottom))',
       }}>
         <Outlet />
