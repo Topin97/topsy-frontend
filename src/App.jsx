@@ -191,10 +191,9 @@ function PushNotificationsHandler() {
 
 // ── AppInner ─────────────────────────────────────
 function AppInner() {
-  const [showOnboarding, setShowOnboarding] = useState(
-    !localStorage.getItem('topsy_onboarding_done')
-  )
-
+const [showOnboarding, setShowOnboarding] = useState(
+  Capacitor.isNativePlatform() && !localStorage.getItem('topsy_onboarding_done')
+)
   if (showOnboarding) {
     return <OnboardingScreen onFinish={() => setShowOnboarding(false)} />
   }
