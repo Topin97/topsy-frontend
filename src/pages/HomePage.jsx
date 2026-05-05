@@ -240,7 +240,7 @@ export default function HomePage() {
 
         {/* Contenido */}
         {/* FIX: padding top reducido en móvil (56px → antes 88px), más compacto */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', maxWidth: 780, margin: '0 auto', width: '100%', position: 'relative', zIndex: 1, padding: '64px 20px 28px' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', maxWidth: 780, margin: '0 auto', width: '100%', position: 'relative', zIndex: 1, padding: 'calc(64px + env(safe-area-inset-top)) 20px 28px' }}>
           {token && firstName && (
             <div className={`hr d1 ${mounted ? 'show' : ''}`} style={{ fontSize: 14, color: 'rgba(248,245,240,0.5)', marginBottom: 8 }}>
               Hola de nuevo, <span style={{ color: '#D4A055', fontWeight: 600 }}>{firstName}</span> 👋
