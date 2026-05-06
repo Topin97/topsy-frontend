@@ -21,20 +21,55 @@ export default function OAuthCallbackPage() {
     let timeout = null
 
     const setup = async () => {
-      // Primero intentamos obtener la sesión directamente — puede que Supabase
-      // ya procesó el hash de la URL antes de que este componente se montara
-      // (race condition con lazy loading + Suspense).
+      // Manejar el código en la URL (Apple usa query params, Google usa hash)
+      const url = new URL(window.location.href)
+      const code = url.searchParams.get('code')
+      const hashParams = new URLSearchParams(window.location.hash.substring(1))
+      const accessToken = hashParams.get('access_token')
+
+      // Si hay código de Apple en la URL, dejar que Supabase lo procese
+      if (code) {
+        try {
+          const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+          if (data?.session) {
+            handleCallback(data.session)
+            return
+          }
+          if (error) {
+            console.error('[OAuthCallback] exchangeCodeForSession error:', error)
+            navigate('/login')
+            return
+          }
+        } catch (err) {
+          console.error('[OAuthCallback] exchange error:', err)
+          navigate('/login')
+          return
+        }
+      }
+
+      // Si hay access_token en el hash (Google)
+      if (accessToken) {
+        try {
+          const { data: { session } } = await supabase.auth.getSession()
+          if (session) {
+            handleCallback(session)
+            return
+          }
+        } catch (_) {}
+      }
+
+      // Intentar obtener sesión existente
       try {
         const { data: { session } } = await supabase.auth.getSession()
         if (session) {
           handleCallback(session)
           return
         }
-      } catch (_) { /* continúa con el listener */ }
+      } catch (_) {}
 
-      // Si no hay sesión aún, esperamos el evento
+      // Esperar evento de auth state change
       const { data } = supabase.auth.onAuthStateChange((event, session) => {
-        if (event === 'SIGNED_IN' && session) {
+        if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
           clearTimeout(timeout)
           data.subscription.unsubscribe()
           handleCallback(session)
@@ -44,16 +79,17 @@ export default function OAuthCallbackPage() {
           navigate('/login')
         }
       })
+
       subscription = data.subscription
 
+      // 20 segundos para Apple que tarda más
       timeout = setTimeout(() => {
         subscription?.unsubscribe()
         navigate('/login')
-      }, 10000)
+      }, 20000)
     }
 
     setup()
-
     return () => { clearTimeout(timeout); subscription?.unsubscribe() }
   }, []) // eslint-disable-line
 
