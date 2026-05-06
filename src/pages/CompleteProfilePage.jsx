@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
-import { authApi } from '../services/api'
+import { authApi, storageApi } from '../services/api'
 import api from '../services/api'
 import toast from 'react-hot-toast'
 
@@ -35,19 +35,21 @@ function OtpInput({ value, onChange, length = 6 }) {
 
 export default function CompleteProfilePage() {
   const navigate = useNavigate()
-  const { setAuth } = useAuthStore()
+  const { setAuth, user } = useAuthStore()
+  const fileRef = useRef(null)
 
-  // Recuperar datos pendientes del sessionStorage
   const pendingUser = JSON.parse(sessionStorage.getItem('pending_user') ?? '{}')
   const pendingAccessToken = sessionStorage.getItem('pending_access_token')
   const pendingRefreshToken = sessionStorage.getItem('pending_refresh_token')
 
-  const [step, setStep] = useState(1) // 1: datos, 2: SMS
+  const [step, setStep] = useState(1)
   const [form, setForm] = useState({
     full_name: pendingUser?.full_name || '',
     phone: '',
     city: '',
   })
+  const [avatarPreview, setAvatarPreview] = useState(pendingUser?.avatar_url || null)
+  const [avatarFile, setAvatarFile] = useState(null)
   const [otp, setOtp] = useState('')
   const [resendTimer, setResendTimer] = useState(0)
   const [loading, setLoading] = useState(false)
@@ -67,13 +69,20 @@ export default function CompleteProfilePage() {
     }, 1000)
   }
 
-  // Step 1: Validar datos y enviar SMS
+  const handleAvatarChange = (e) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setAvatarFile(file)
+    const reader = new FileReader()
+    reader.onload = ev => setAvatarPreview(ev.target.result)
+    reader.readAsDataURL(file)
+  }
+
   const handleDataContinue = async () => {
     const errs = {}
     if (!form.full_name.trim()) errs.full_name = 'Nombre requerido'
     if (!form.phone.trim()) errs.phone = 'Teléfono requerido'
     else if (!/^[0-9+\s\-()]{9,15}$/.test(form.phone)) errs.phone = 'Teléfono inválido'
-    if (!form.city.trim()) errs.city = 'Ciudad requerida'
     if (Object.keys(errs).length) { setErrors(errs); return }
     setErrors({})
     setLoading(true)
@@ -88,7 +97,6 @@ export default function CompleteProfilePage() {
     }
   }
 
-  // Step 2: Verificar SMS y guardar perfil
   const handleOtpVerify = async () => {
     if (otp.length < 6) { toast.error('Introduce el código completo'); return }
     setLoading(true)
@@ -96,28 +104,38 @@ export default function CompleteProfilePage() {
       // Verificar SMS
       await api.post('/auth/phone/verify', { phone: normalizePhone(form.phone), code: otp })
 
-      // Actualizar perfil con nombre, teléfono y ciudad
-await api.put('/auth/profile', {
-  full_name: form.full_name,
-  phone: normalizePhone(form.phone),
-  city: form.city,
-}, { headers: { Authorization: `Bearer ${pendingAccessToken}` } })
+      // Subir avatar si hay uno
+      let avatarUrl = pendingUser?.avatar_url ?? null
+      if (avatarFile) {
+        try {
+          avatarUrl = await storageApi.uploadAvatar(avatarFile, pendingUser?.id)
+        } catch {
+          // No bloquear si falla la foto
+        }
+      }
 
-      // Limpiar sessionStorage
+      // Actualizar perfil
+      await api.put('/auth/profile', {
+        full_name: form.full_name.trim(),
+        phone: normalizePhone(form.phone),
+        city: form.city.trim() || null,
+        ...(avatarUrl ? { avatar_url: avatarUrl } : {}),
+      }, { headers: { Authorization: `Bearer ${pendingAccessToken}` } })
+
       sessionStorage.removeItem('pending_user')
       sessionStorage.removeItem('pending_access_token')
       sessionStorage.removeItem('pending_refresh_token')
 
-      // Actualizar store con datos completos
       const updatedUser = {
         ...pendingUser,
-        full_name: form.full_name,
+        full_name: form.full_name.trim(),
         phone: normalizePhone(form.phone),
-        city: form.city,
+        city: form.city.trim() || null,
+        avatar_url: avatarUrl,
       }
       setAuth(updatedUser, pendingAccessToken, pendingRefreshToken)
 
-      toast.success('¡Perfil completado! ✨')
+      toast.success(`¡Bienvenido, ${form.full_name.split(' ')[0]}! ✨`)
       navigate(updatedUser?.role === 'professional' ? '/pro/onboarding' : '/')
     } catch (err) {
       toast.error(err.response?.data?.error ?? 'Error al verificar')
@@ -140,6 +158,8 @@ await api.put('/auth/profile', {
     }
   }
 
+  const initials = form.full_name?.slice(0, 2).toUpperCase() || '?'
+
   return (
     <div style={{ minHeight: '100dvh', background: '#FFFFFF', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
       <style>{`
@@ -151,7 +171,6 @@ await api.put('/auth/profile', {
       `}</style>
 
       <div style={{ width: '100%', maxWidth: 440 }}>
-        {/* Logo */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.8rem', fontWeight: 700, letterSpacing: '3px', color: '#1A1612' }}>
             TOP<span style={{ color: '#B8833A', fontStyle: 'italic' }}>sy</span>
@@ -163,19 +182,36 @@ await api.put('/auth/profile', {
           <div style={{ height: '100%', background: '#1A1612', width: step === 1 ? '50%' : '100%', transition: 'width 0.3s ease', borderRadius: 2 }} />
         </div>
 
-        {/* Step 1: Datos */}
+        {/* Step 1: Datos + foto */}
         {step === 1 && (
           <div className="fade-up">
             <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.6rem', fontWeight: 700, color: '#1A1612', marginBottom: 8 }}>
               Completa tu perfil
             </h1>
-            <p style={{ color: 'rgba(26,22,18,0.45)', fontSize: 14, fontFamily: 'Outfit, sans-serif', marginBottom: 28 }}>
-              Necesitamos unos datos más para terminar de configurar tu cuenta.
+            <p style={{ color: 'rgba(26,22,18,0.45)', fontSize: 14, fontFamily: 'Outfit, sans-serif', marginBottom: 28, lineHeight: 1.6 }}>
+              Solo necesitamos unos datos más para configurar tu cuenta.
             </p>
+
+            {/* Avatar */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
+              <div style={{ position: 'relative' }}>
+                <div onClick={() => fileRef.current?.click()} style={{ width: 88, height: 88, borderRadius: '50%', overflow: 'hidden', background: avatarPreview ? 'transparent' : 'linear-gradient(135deg,#1A0F05,#2C1810)', border: '2px solid rgba(197,138,61,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }}>
+                  {avatarPreview
+                    ? <img src={avatarPreview} alt="avatar" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.8rem', color: '#D4A055', fontWeight: 700 }}>{initials}</span>
+                  }
+                </div>
+                <button onClick={() => fileRef.current?.click()} style={{ position: 'absolute', bottom: 0, right: 0, width: 28, height: 28, borderRadius: '50%', background: '#1A1612', border: '2px solid #FFFFFF', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 13 }}>
+                  📷
+                </button>
+                <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarChange} />
+              </div>
+            </div>
+            <p style={{ textAlign: 'center', fontSize: 12, color: 'rgba(26,22,18,0.35)', fontFamily: 'Outfit, sans-serif', marginTop: -20, marginBottom: 24 }}>Foto de perfil (opcional)</p>
 
             {/* Nombre */}
             <div style={{ marginBottom: 12 }}>
-              <input type="text" placeholder="Nombre y apellidos" value={form.full_name}
+              <input type="text" placeholder="Nombre y apellidos *" value={form.full_name}
                 onChange={e => { set('full_name', e.target.value); setErrors(p => ({ ...p, full_name: null })) }}
                 style={{ width: '100%', padding: '14px 16px', border: `1.5px solid ${errors.full_name ? '#f87171' : 'rgba(0,0,0,0.15)'}`, borderRadius: 10, fontSize: 15, fontFamily: 'Outfit, sans-serif', color: '#1A1612', background: '#FAFAF9', outline: 'none', boxSizing: 'border-box' }}
               />
@@ -188,7 +224,7 @@ await api.put('/auth/profile', {
                 <div style={{ padding: '14px 12px', borderRight: '1px solid rgba(0,0,0,0.1)', fontSize: 15, color: '#1A1612', fontFamily: 'Outfit, sans-serif', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
                   🇪🇸 +34
                 </div>
-                <input type="tel" placeholder="Número de teléfono" value={form.phone}
+                <input type="tel" placeholder="Número de teléfono *" value={form.phone}
                   onChange={e => { set('phone', e.target.value); setErrors(p => ({ ...p, phone: null })) }}
                   style={{ flex: 1, padding: '14px 12px', border: 'none', fontSize: 15, fontFamily: 'Outfit, sans-serif', color: '#1A1612', background: 'transparent', outline: 'none' }}
                 />
@@ -199,18 +235,17 @@ await api.put('/auth/profile', {
 
             {/* Ciudad */}
             <div style={{ marginBottom: 28 }}>
-              <input type="text" placeholder="Ciudad" value={form.city}
-                onChange={e => { set('city', e.target.value); setErrors(p => ({ ...p, city: null })) }}
-                style={{ width: '100%', padding: '14px 16px', border: `1.5px solid ${errors.city ? '#f87171' : 'rgba(0,0,0,0.15)'}`, borderRadius: 10, fontSize: 15, fontFamily: 'Outfit, sans-serif', color: '#1A1612', background: '#FAFAF9', outline: 'none', boxSizing: 'border-box' }}
+              <input type="text" placeholder="Ciudad (opcional)" value={form.city}
+                onChange={e => set('city', e.target.value)}
+                style={{ width: '100%', padding: '14px 16px', border: '1.5px solid rgba(0,0,0,0.15)', borderRadius: 10, fontSize: 15, fontFamily: 'Outfit, sans-serif', color: '#1A1612', background: '#FAFAF9', outline: 'none', boxSizing: 'border-box' }}
               />
-              {errors.city && <p style={{ color: '#f87171', fontSize: 12, marginTop: 4, fontFamily: 'Outfit, sans-serif' }}>{errors.city}</p>}
             </div>
 
             <button onClick={handleDataContinue} disabled={loading}
               style={{ width: '100%', padding: '15px', background: '#1A1612', color: '#FFFFFF', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, fontFamily: 'Outfit, sans-serif', cursor: loading ? 'not-allowed' : 'pointer', opacity: loading ? 0.7 : 1 }}>
               {loading
                 ? <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><span style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />Enviando código...</span>
-                : 'Continuar'}
+                : 'Continuar →'}
             </button>
           </div>
         )}
@@ -234,7 +269,7 @@ await api.put('/auth/profile', {
               style={{ width: '100%', padding: '15px', background: otp.length < 6 ? 'rgba(26,22,18,0.12)' : '#1A1612', color: otp.length < 6 ? 'rgba(26,22,18,0.3)' : '#FFFFFF', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, fontFamily: 'Outfit, sans-serif', cursor: otp.length < 6 ? 'not-allowed' : 'pointer', marginBottom: 16 }}>
               {loading
                 ? <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><span style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />Verificando...</span>
-                : 'Confirmar'}
+                : 'Confirmar →'}
             </button>
 
             <div style={{ display: 'flex', justifyContent: 'center', gap: 12 }}>
