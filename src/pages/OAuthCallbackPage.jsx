@@ -21,44 +21,35 @@ export default function OAuthCallbackPage() {
     let timeout = null
 
     const setup = async () => {
-      // Manejar el código en la URL (Apple usa query params, Google usa hash)
-      const url = new URL(window.location.href)
-      const code = url.searchParams.get('code')
-      const hashParams = new URLSearchParams(window.location.hash.substring(1))
-      const accessToken = hashParams.get('access_token')
+      const urlParams = new URLSearchParams(window.location.search)
+      const code = urlParams.get('code')
+      const error = urlParams.get('error')
 
-      // Si hay código de Apple en la URL, dejar que Supabase lo procese
+      // Si Apple devuelve error directo
+      if (error) {
+        navigate('/login')
+        return
+      }
+
+      // Flujo PKCE con código (Apple)
       if (code) {
         try {
-          const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+          const { data, error: exchErr } = await supabase.auth.exchangeCodeForSession(code)
           if (data?.session) {
             handleCallback(data.session)
             return
           }
-          if (error) {
-            console.error('[OAuthCallback] exchangeCodeForSession error:', error)
+          if (exchErr) {
             navigate('/login')
             return
           }
-        } catch (err) {
-          console.error('[OAuthCallback] exchange error:', err)
+        } catch {
           navigate('/login')
           return
         }
       }
 
-      // Si hay access_token en el hash (Google)
-      if (accessToken) {
-        try {
-          const { data: { session } } = await supabase.auth.getSession()
-          if (session) {
-            handleCallback(session)
-            return
-          }
-        } catch (_) {}
-      }
-
-      // Intentar obtener sesión existente
+      // Flujo hash (Google)
       try {
         const { data: { session } } = await supabase.auth.getSession()
         if (session) {
@@ -67,7 +58,7 @@ export default function OAuthCallbackPage() {
         }
       } catch (_) {}
 
-      // Esperar evento de auth state change
+      // Esperar evento de Supabase
       const { data } = supabase.auth.onAuthStateChange((event, session) => {
         if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
           clearTimeout(timeout)
@@ -81,8 +72,6 @@ export default function OAuthCallbackPage() {
       })
 
       subscription = data.subscription
-
-      // 20 segundos para Apple que tarda más
       timeout = setTimeout(() => {
         subscription?.unsubscribe()
         navigate('/login')
