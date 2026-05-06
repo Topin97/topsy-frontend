@@ -106,7 +106,8 @@ export function useGoogleAuth() {
         role
       )
 
-      if (data.needs_phone_verification) {
+      // Usuario sin nombre (típico de Apple) → completar perfil
+      if (data.needs_complete_profile || data.needs_phone_verification) {
         sessionStorage.setItem('pending_access_token', data.access_token)
         sessionStorage.setItem('pending_refresh_token', data.refresh_token)
         sessionStorage.setItem('pending_user', JSON.stringify(data.user))
