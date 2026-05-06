@@ -21,11 +21,11 @@ export function useGoogleAuth() {
     setLoading(true)
     try {
       sessionStorage.setItem('oauth_role', role)
-
       const isNative = Capacitor.isNativePlatform()
       const redirectTo = isNative
         ? 'topsy://oauth/callback'
         : `${window.location.origin}/oauth/callback`
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
@@ -41,11 +41,9 @@ export function useGoogleAuth() {
         return
       }
 
-      // En nativo abrimos con el in-app browser
       if (isNative && data?.url) {
         await Browser.open({ url: data.url, windowName: '_self' })
       }
-
     } catch (err) {
       console.error('[Google OAuth]', err)
       toast.error('Error inesperado con Google')
@@ -53,8 +51,40 @@ export function useGoogleAuth() {
     }
   }
 
+  const loginWithApple = async (role = 'client') => {
+    setLoading(true)
+    try {
+      sessionStorage.setItem('oauth_role', role)
+      const isNative = Capacitor.isNativePlatform()
+      const redirectTo = isNative
+        ? 'topsy://oauth/callback'
+        : `${window.location.origin}/oauth/callback`
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo,
+          skipBrowserRedirect: isNative,
+        },
+      })
+
+      if (error) {
+        toast.error('Error al conectar con Apple')
+        setLoading(false)
+        return
+      }
+
+      if (isNative && data?.url) {
+        await Browser.open({ url: data.url, windowName: '_self' })
+      }
+    } catch (err) {
+      console.error('[Apple OAuth]', err)
+      toast.error('Error inesperado con Apple')
+      setLoading(false)
+    }
+  }
+
   const handleCallback = async (session) => {
-    // Cerrar el in-app browser si estamos en nativo
     if (Capacitor.isNativePlatform()) {
       await Browser.close()
     }
@@ -109,5 +139,5 @@ export function useGoogleAuth() {
     }
   }
 
-  return { loginWithGoogle, handleCallback, loading }
+  return { loginWithGoogle, loginWithApple, handleCallback, loading }
 }

@@ -35,16 +35,14 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [emailStep, setEmailStep] = useState(false)
   const { register, handleSubmit, formState: { errors } } = useForm()
-  const { loginWithGoogle, loading: googleLoading } = useGoogleAuth()
+  const { loginWithGoogle, loginWithApple, loading: oauthLoading } = useGoogleAuth()
 
-  // Destino tras login: ?next= param (más fiable con OAuth) → state → default
   const getRedirect = (role) => {
     const next = searchParams.get('next') || location.state?.from
     if (next && next !== '/login' && !next.startsWith('/login')) return next
     return role === 'professional' ? '/pro/dashboard' : '/'
   }
 
-  // Guardar ?next= en sessionStorage para recuperarlo tras redirect OAuth
   const nextParam = searchParams.get('next')
   if (nextParam) sessionStorage.setItem('login_redirect', nextParam)
 
@@ -67,27 +65,6 @@ export default function LoginPage() {
     },
   })
 
-const handleApple = async () => {
-  try {
-    const { createClient } = await import('@supabase/supabase-js')
-    const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_SUPABASE_ANON_KEY)
-    sessionStorage.setItem('oauth_role', 'client')
-    
-    const isNative = window.Capacitor?.isNativePlatform?.()
-    const redirectTo = isNative 
-      ? 'topsy://oauth/callback'
-      : `${window.location.origin}/oauth/callback`
-    
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'apple',
-      options: { redirectTo },
-    })
-    if (error) toast.error('Error al conectar con Apple')
-  } catch {
-    toast.error('Error inesperado con Apple')
-  }
-}
-
   return (
     <div style={{ minHeight: '100dvh', background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
       <style>{`
@@ -99,7 +76,6 @@ const handleApple = async () => {
         input:focus{border-color:#1A1612 !important}
       `}</style>
 
-      {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
         <button onClick={() => emailStep ? setEmailStep(false) : navigate('/')}
           style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(26,22,18,0.5)', fontSize: 20, padding: 4 }}>
@@ -120,7 +96,6 @@ const handleApple = async () => {
               <p style={{ color: 'rgba(26,22,18,0.45)', fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>Accede a tu cuenta de TopSy</p>
             </div>
 
-            {/* Email input */}
             <div style={{ marginBottom: 16 }}>
               <input
                 type="email" placeholder="Email" value={email}
@@ -142,12 +117,12 @@ const handleApple = async () => {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <button onClick={() => loginWithGoogle('client')} disabled={googleLoading} className="social-btn"
+              <button onClick={() => loginWithGoogle('client')} disabled={oauthLoading} className="social-btn"
                 style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '14px', background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.15)', borderRadius: 10, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 600, color: '#1A1612', transition: 'background 0.15s' }}>
-                {googleLoading ? <span style={{ width: 20, height: 20, border: '2px solid rgba(0,0,0,0.1)', borderTopColor: '#1A1612', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} /> : <GoogleIcon />}
+                {oauthLoading ? <span style={{ width: 20, height: 20, border: '2px solid rgba(0,0,0,0.1)', borderTopColor: '#1A1612', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} /> : <GoogleIcon />}
                 Continuar con Google
               </button>
-              <button onClick={handleApple} className="social-btn"
+              <button onClick={() => loginWithApple('client')} disabled={oauthLoading} className="social-btn"
                 style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '14px', background: '#1A1612', border: 'none', borderRadius: 10, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 600, color: '#FFFFFF', transition: 'opacity 0.15s' }}>
                 <AppleIcon />
                 Continuar con Apple
@@ -167,7 +142,6 @@ const handleApple = async () => {
             </div>
 
             <form onSubmit={handleSubmit(d => mutate({ email, password: d.password }))} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', border: `1.5px solid ${errors.password ? '#f87171' : 'rgba(0,0,0,0.15)'}`, borderRadius: 10, background: '#FAFAF9', overflow: 'hidden', transition: 'border-color 0.2s' }}>
                   <input
