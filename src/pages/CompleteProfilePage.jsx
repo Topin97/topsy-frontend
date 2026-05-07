@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
 import { authApi, storageApi } from '../services/api'
+import { useQueryClient } from '@tanstack/react-query'
 import api from '../services/api'
 import toast from 'react-hot-toast'
 
@@ -35,7 +36,8 @@ function OtpInput({ value, onChange, length = 6 }) {
 
 export default function CompleteProfilePage() {
   const navigate = useNavigate()
-  const { setAuth, user } = useAuthStore()
+  const { setAuth } = useAuthStore()
+  const qc = useQueryClient()
   const fileRef = useRef(null)
 
   const pendingUser = JSON.parse(sessionStorage.getItem('pending_user') ?? '{}')
@@ -108,9 +110,9 @@ export default function CompleteProfilePage() {
       let avatarUrl = pendingUser?.avatar_url ?? null
       if (avatarFile) {
         try {
-          avatarUrl = await storageApi.uploadAvatar(avatarFile, pendingUser?.id)
-        } catch {
-          // No bloquear si falla la foto
+          avatarUrl = await storageApi.uploadAvatar(avatarFile, pendingUser?.id, pendingAccessToken)
+        } catch (e) {
+          console.error('[CompleteProfile] avatar upload error:', e)
         }
       }
 
@@ -133,10 +135,12 @@ export default function CompleteProfilePage() {
         city: form.city.trim() || null,
         avatar_url: avatarUrl,
       }
+
       setAuth(updatedUser, pendingAccessToken, pendingRefreshToken)
+      qc.invalidateQueries({ queryKey: ['me'] })
 
       toast.success(`¡Bienvenido, ${form.full_name.split(' ')[0]}! ✨`)
-      navigate(updatedUser?.role === 'professional' ? '/pro/onboarding' : '/')
+      navigate(updatedUser?.role === 'professional' ? '/pro/onboarding' : '/profile')
     } catch (err) {
       toast.error(err.response?.data?.error ?? 'Error al verificar')
     } finally {
@@ -193,7 +197,7 @@ export default function CompleteProfilePage() {
             </p>
 
             {/* Avatar */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
               <div style={{ position: 'relative' }}>
                 <div onClick={() => fileRef.current?.click()} style={{ width: 88, height: 88, borderRadius: '50%', overflow: 'hidden', background: avatarPreview ? 'transparent' : 'linear-gradient(135deg,#1A0F05,#2C1810)', border: '2px solid rgba(197,138,61,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }}>
                   {avatarPreview
@@ -207,7 +211,7 @@ export default function CompleteProfilePage() {
                 <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarChange} />
               </div>
             </div>
-            <p style={{ textAlign: 'center', fontSize: 12, color: 'rgba(26,22,18,0.35)', fontFamily: 'Outfit, sans-serif', marginTop: -20, marginBottom: 24 }}>Foto de perfil (opcional)</p>
+            <p style={{ textAlign: 'center', fontSize: 12, color: 'rgba(26,22,18,0.35)', fontFamily: 'Outfit, sans-serif', marginBottom: 24 }}>Foto de perfil (opcional)</p>
 
             {/* Nombre */}
             <div style={{ marginBottom: 12 }}>
