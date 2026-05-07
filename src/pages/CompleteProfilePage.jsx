@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
-import { authApi, storageApi } from '../services/api'
+import { storageApi } from '../services/api'
 import { useQueryClient } from '@tanstack/react-query'
 import api from '../services/api'
 import toast from 'react-hot-toast'
@@ -36,7 +36,7 @@ function OtpInput({ value, onChange, length = 6 }) {
 
 export default function CompleteProfilePage() {
   const navigate = useNavigate()
-  const { setAuth } = useAuthStore()
+  const { setAuth, setUser } = useAuthStore()
   const qc = useQueryClient()
   const fileRef = useRef(null)
 
@@ -117,7 +117,7 @@ export default function CompleteProfilePage() {
       }
 
       // Actualizar perfil
-      await api.put('/auth/profile', {
+      const { data: profileData } = await api.put('/auth/profile', {
         full_name: form.full_name.trim(),
         phone: normalizePhone(form.phone),
         city: form.city.trim() || null,
@@ -130,17 +130,23 @@ export default function CompleteProfilePage() {
 
       const updatedUser = {
         ...pendingUser,
+        ...(profileData?.user ?? {}),
         full_name: form.full_name.trim(),
         phone: normalizePhone(form.phone),
         city: form.city.trim() || null,
         avatar_url: avatarUrl,
       }
 
+      // Actualizar store y queries
       setAuth(updatedUser, pendingAccessToken, pendingRefreshToken)
-      qc.invalidateQueries({ queryKey: ['me'] })
+      await qc.invalidateQueries({ queryKey: ['me'] })
+      await qc.refetchQueries({ queryKey: ['me'] })
 
       toast.success(`¡Bienvenido, ${form.full_name.split(' ')[0]}! ✨`)
-      navigate(updatedUser?.role === 'professional' ? '/pro/onboarding' : '/profile')
+      setTimeout(() => {
+        navigate('/profile')
+        window.scrollTo(0, 0)
+      }, 200)
     } catch (err) {
       toast.error(err.response?.data?.error ?? 'Error al verificar')
     } finally {
@@ -181,12 +187,10 @@ export default function CompleteProfilePage() {
           </p>
         </div>
 
-        {/* Progress */}
         <div style={{ height: 3, background: 'rgba(0,0,0,0.06)', borderRadius: 2, marginBottom: 32 }}>
           <div style={{ height: '100%', background: '#1A1612', width: step === 1 ? '50%' : '100%', transition: 'width 0.3s ease', borderRadius: 2 }} />
         </div>
 
-        {/* Step 1: Datos + foto */}
         {step === 1 && (
           <div className="fade-up">
             <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.6rem', fontWeight: 700, color: '#1A1612', marginBottom: 8 }}>
@@ -213,7 +217,6 @@ export default function CompleteProfilePage() {
             </div>
             <p style={{ textAlign: 'center', fontSize: 12, color: 'rgba(26,22,18,0.35)', fontFamily: 'Outfit, sans-serif', marginBottom: 24 }}>Foto de perfil (opcional)</p>
 
-            {/* Nombre */}
             <div style={{ marginBottom: 12 }}>
               <input type="text" placeholder="Nombre y apellidos *" value={form.full_name}
                 onChange={e => { set('full_name', e.target.value); setErrors(p => ({ ...p, full_name: null })) }}
@@ -222,7 +225,6 @@ export default function CompleteProfilePage() {
               {errors.full_name && <p style={{ color: '#f87171', fontSize: 12, marginTop: 4, fontFamily: 'Outfit, sans-serif' }}>{errors.full_name}</p>}
             </div>
 
-            {/* Teléfono */}
             <div style={{ marginBottom: 12 }}>
               <div style={{ display: 'flex', alignItems: 'center', border: `1.5px solid ${errors.phone ? '#f87171' : 'rgba(0,0,0,0.15)'}`, borderRadius: 10, background: '#FAFAF9', overflow: 'hidden' }}>
                 <div style={{ padding: '14px 12px', borderRight: '1px solid rgba(0,0,0,0.1)', fontSize: 15, color: '#1A1612', fontFamily: 'Outfit, sans-serif', display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
@@ -237,7 +239,6 @@ export default function CompleteProfilePage() {
               {errors.phone && <p style={{ color: '#f87171', fontSize: 12, marginTop: 2, fontFamily: 'Outfit, sans-serif' }}>{errors.phone}</p>}
             </div>
 
-            {/* Ciudad */}
             <div style={{ marginBottom: 28 }}>
               <input type="text" placeholder="Ciudad (opcional)" value={form.city}
                 onChange={e => set('city', e.target.value)}
@@ -254,7 +255,6 @@ export default function CompleteProfilePage() {
           </div>
         )}
 
-        {/* Step 2: SMS */}
         {step === 2 && (
           <div className="fade-up">
             <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.6rem', fontWeight: 700, color: '#1A1612', marginBottom: 8, textAlign: 'center' }}>
