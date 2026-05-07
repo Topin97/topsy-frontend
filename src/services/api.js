@@ -43,20 +43,16 @@ export const authApi = {
   register:        (data)  => api.post('/auth/register', data),
   login:           (data)  => api.post('/auth/login', data),
   logout:          ()      => api.post('/auth/logout'),
-  me:              ()      => api.get('/auth/me', {
-    params: {
-      _t: Date.now(),
-    },
-  }),
+  me:              ()      => api.get('/auth/me', { params: { _t: Date.now() } }),
   refresh:         (rt)    => api.post('/auth/refresh', { refresh_token: rt }),
   forgotPassword:  (email) => api.post('/auth/forgot-password', { email }),
   updateProfile:   (data)  => api.put('/auth/profile', data),
   oauthGoogle:     (access_token, refresh_token, role) =>
     api.post('/auth/oauth', { access_token, refresh_token, role }),
-  sendPhoneCode:        (phone) => api.post('/auth/phone/send', { phone }),
-  sendPhoneCodeOAuth:   (phone) => api.post('/auth/phone/send-any', { phone }),
+  sendPhoneCode:        (phone)       => api.post('/auth/phone/send', { phone }),
+  sendPhoneCodeOAuth:   (phone)       => api.post('/auth/phone/send-any', { phone }),
   verifyPhoneCode:      (phone, code) => api.post('/auth/phone/verify', { phone, code }),
-  resendVerification:   (email) => api.post('/auth/resend-verification', { email }),
+  resendVerification:   (email)       => api.post('/auth/resend-verification', { email }),
 }
 
 // ── Professionals ─────────────────────────────────────────────
@@ -77,10 +73,10 @@ export const profApi = {
 
 // ── Waitlist ──────────────────────────────────────────────────
 export const waitlistApi = {
-  join:    (data)                => api.post('/waitlist', data),
+  join:    (data)                  => api.post('/waitlist', data),
   leave:   (professional_id, date) => api.delete('/waitlist', { data: { professional_id, date } }),
-  check:   (params)              => api.get('/waitlist/check', { params }),
-  getMine: ()                    => api.get('/waitlist/mine'),
+  check:   (params)                => api.get('/waitlist/check', { params }),
+  getMine: ()                      => api.get('/waitlist/mine'),
 }
 
 // ── Bookings ──────────────────────────────────────────────────
@@ -99,21 +95,24 @@ export const bookingsApi = {
 
 // ── Google Calendar ───────────────────────────────────────────
 export const calendarApi = {
-  getConnectUrl: ()  => api.get('/calendar/connect'),
-  getStatus:     ()  => api.get('/calendar/status'),
-  disconnect:    ()  => api.delete('/calendar/disconnect'),
+  getConnectUrl: () => api.get('/calendar/connect'),
+  getStatus:     () => api.get('/calendar/status'),
+  disconnect:    () => api.delete('/calendar/disconnect'),
 }
 
 // ── Storage (Supabase direct) ─────────────────────────────────
 export const storageApi = {
-  uploadAvatar: async (file, userId) => {
+  uploadAvatar: async (file, userId, accessToken = null) => {
     const { createClient } = await import('@supabase/supabase-js')
     const supabase = createClient(
       import.meta.env.VITE_SUPABASE_URL,
       import.meta.env.VITE_SUPABASE_ANON_KEY
     )
+    if (accessToken) {
+      await supabase.auth.setSession({ access_token: accessToken, refresh_token: '' })
+    }
     const ext  = file.name.split('.').pop()
-    const path = `avatars/${userId}.${ext}`
+    const path = `${userId}.${ext}`
     const { error } = await supabase.storage
       .from('avatars')
       .upload(path, file, { upsert: true })
