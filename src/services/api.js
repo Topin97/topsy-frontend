@@ -115,10 +115,10 @@ export const storageApi = {
     const ext  = file.name.split('.').pop()
     const path = `avatars/${userId}.${ext}`
     const { error } = await supabase.storage
-      .from('topsy-public')
+      .from('avatars')
       .upload(path, file, { upsert: true })
     if (error) throw error
-    const { data } = supabase.storage.from('topsy-public').getPublicUrl(path)
+    const { data } = supabase.storage.from('avatars').getPublicUrl(path)
     return data.publicUrl
   },
 }
