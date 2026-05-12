@@ -108,7 +108,9 @@ function Field({ icon, label, error, focused, children, delay = 0 }) {
 
 const inputStyle = { width: '100%', background: 'none', border: 'none', outline: 'none', color: '#1A1612', fontSize: 15, fontFamily: 'Outfit, sans-serif', padding: 0 }
 
-// ═══════════════════ ESTILOS COMPARTIDOS ═══════════════════
+// ════════════════════════════════════════════════════════════════
+// ESTILOS COMPARTIDOS
+// ════════════════════════════════════════════════════════════════
 const sharedStyles = `
   input::placeholder { color: rgba(26,22,18,0.35) !important; }
 
@@ -236,10 +238,42 @@ const sharedStyles = `
     .stat-card, .pwd-toggle, .step-circle, .step-bar, .field-wrap, .field-icon, .login-link::after {
       transition: none !important;
     }
-    /* Mantener partículas y orbs visibles pero estáticos */
     .gold-particle { opacity: 0.4 !important; }
   }
 `
+
+// ────────────────────────────────────────────────────────────────
+// Helper para aplicar errores del backend a los campos del form.
+// Maneja A) { error, field } y B) { error, fields: [{field,message}] }
+// Devuelve { applied, step1Affected } para que el caller decida si
+// volver al step 1 cuando el error es de email/teléfono/password/nombre.
+// ────────────────────────────────────────────────────────────────
+const STEP_1_FIELDS = new Set(['email', 'password', 'full_name', 'phone'])
+const VALID_FIELDS = new Set([...STEP_1_FIELDS, 'role', 'business_name', 'city', 'category'])
+
+function applyBackendErrors(setError, data) {
+  if (!data) return { applied: false, step1Affected: false }
+  let applied = false
+  let step1Affected = false
+
+  const apply = (field, message) => {
+    if (field && VALID_FIELDS.has(field) && message) {
+      setError(field, { type: 'server', message })
+      applied = true
+      if (STEP_1_FIELDS.has(field)) step1Affected = true
+    }
+  }
+
+  // Formato A
+  if (data.field && data.error) apply(data.field, data.error)
+
+  // Formato B
+  if (Array.isArray(data.fields)) {
+    for (const f of data.fields) apply(f.field, f.message)
+  }
+
+  return { applied, step1Affected }
+}
 
 export default function RegisterProPage() {
   const navigate = useNavigate()
@@ -250,7 +284,7 @@ export default function RegisterProPage() {
   const [selectedCategory, setSelectedCategory] = useState('')
   const [step, setStep] = useState(1)
   const [focused, setFocused] = useState(null)
-  const { register, handleSubmit, trigger, formState: { errors } } = useForm()
+  const { register, handleSubmit, trigger, setError, clearErrors, formState: { errors } } = useForm()
   const { loginWithGoogle, loading: googleLoading } = useGoogleAuth()
   const { executeRecaptcha } = useGoogleReCaptcha()
 
@@ -266,7 +300,28 @@ export default function RegisterProPage() {
         setEmailSent(true)
       }
     },
-    onError: (err) => toast.error(err.response?.data?.error ?? 'Error al registrarse'),
+    onError: (err) => {
+      const data = err.response?.data
+      const status = err.response?.status
+
+      if (status === 429) {
+        toast.error(data?.error ?? 'Demasiados intentos. Espera unos minutos.')
+        return
+      }
+
+      const { applied, step1Affected } = applyBackendErrors(setError, data)
+
+      // Si el error es de un campo del paso 1 y estamos en el 2, volver al 1
+      if (step1Affected && step === 2) {
+        setStep(1)
+      }
+
+      if (applied) {
+        toast.error(data?.error ?? 'Revisa el formulario')
+      } else {
+        toast.error(data?.error ?? 'Error al registrarse')
+      }
+    },
   })
 
   const goToStep2 = async () => {
@@ -283,6 +338,13 @@ export default function RegisterProPage() {
     const phone = data.phone?.replace(/\s/g, '') || ''
     const fullPhone = phone.startsWith('+') ? phone : `+34${phone}`
     mutate({ ...data, phone: fullPhone, category: selectedCategory, recaptcha_token: token ?? 'bypass' })
+  }
+
+  // Limpia el error del servidor cuando el usuario edita el campo
+  const handleFieldChange = (fieldName) => () => {
+    if (errors[fieldName]?.type === 'server') {
+      clearErrors(fieldName)
+    }
   }
 
   // ═══════════════════ PANTALLA EMAIL ENVIADO ═══════════════════
@@ -385,7 +447,6 @@ export default function RegisterProPage() {
               { n: 1, label: 'Cuenta' },
               { n: 2, label: 'Negocio' },
             ].map(({ n, label }, i) => {
-              // El step 1 es clickable cuando estás en el step 2 (UX wizard)
               const clickable = step > n
               return (
                 <div key={n} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -457,24 +518,67 @@ export default function RegisterProPage() {
               {/* Form fields */}
               <form onSubmit={(e) => e.preventDefault()}>
                 <Field icon="👤" label="Nombre completo" error={errors.full_name?.message} focused={focused === 'name'} delay={0.66}>
-                  <input {...register('full_name', { required: 'Requerido' })} placeholder="Nombre y apellidos" onFocus={() => setFocused('name')} onBlur={() => setFocused(null)} style={inputStyle} autoComplete="name" />
+                  <input
+                    {...register('full_name', { required: 'Requerido', onChange: handleFieldChange('full_name') })}
+                    placeholder="Nombre y apellidos"
+                    onFocus={() => setFocused('name')}
+                    onBlur={() => setFocused(null)}
+                    style={inputStyle}
+                    autoComplete="name"
+                  />
                 </Field>
 
                 <Field icon="📧" label="Email" error={errors.email?.message} focused={focused === 'email'} delay={0.74}>
-                  <input {...register('email', { required: 'Requerido', pattern: { value: /\S+@\S+\.\S+/, message: 'Email inválido' } })} type="email" placeholder="tu@email.com" onFocus={() => setFocused('email')} onBlur={() => setFocused(null)} style={inputStyle} autoComplete="email" />
+                  <input
+                    {...register('email', {
+                      required: 'Requerido',
+                      pattern: { value: /\S+@\S+\.\S+/, message: 'Email inválido' },
+                      onChange: handleFieldChange('email'),
+                    })}
+                    type="email"
+                    placeholder="tu@email.com"
+                    onFocus={() => setFocused('email')}
+                    onBlur={() => setFocused(null)}
+                    style={inputStyle}
+                    autoComplete="email"
+                  />
                 </Field>
 
                 <Field icon="📱" label="Teléfono" error={errors.phone?.message} focused={focused === 'phone'} delay={0.82}>
                   <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: 8 }}>
                     <span style={{ fontSize: 15, color: '#1A1612', fontFamily: 'Outfit, sans-serif', fontWeight: 500, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4 }}>🇪🇸 +34</span>
                     <div style={{ width: 1, height: 18, background: 'rgba(0,0,0,0.1)', flexShrink: 0 }} />
-                    <input {...register('phone', { required: 'Requerido', pattern: { value: /^[0-9\s]{9,12}$/, message: 'Teléfono inválido' } })} type="tel" placeholder="600 000 000" onFocus={() => setFocused('phone')} onBlur={() => setFocused(null)} style={{ ...inputStyle, flex: 1 }} autoComplete="tel" />
+                    <input
+                      {...register('phone', {
+                        required: 'Requerido',
+                        pattern: { value: /^[0-9\s]{9,12}$/, message: 'Teléfono inválido' },
+                        onChange: handleFieldChange('phone'),
+                      })}
+                      type="tel"
+                      placeholder="600 000 000"
+                      onFocus={() => setFocused('phone')}
+                      onBlur={() => setFocused(null)}
+                      style={{ ...inputStyle, flex: 1 }}
+                      autoComplete="tel"
+                    />
                   </div>
                 </Field>
 
                 <Field icon="🔒" label="Contraseña" error={errors.password?.message} focused={focused === 'password'} delay={0.9}>
                   <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <input {...register('password', { required: 'Requerido', minLength: { value: 8, message: 'Mínimo 8 caracteres' } })} type={showPassword ? 'text' : 'password'} placeholder="Mínimo 8 caracteres" onFocus={() => setFocused('password')} onBlur={() => setFocused(null)} style={{ ...inputStyle, flex: 1 }} autoComplete="new-password" />
+                    <input
+                      {...register('password', {
+                        required: 'Requerido',
+                        minLength: { value: 8, message: 'Mínimo 8 caracteres' },
+                        onChange: handleFieldChange('password'),
+                      })}
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Mínimo 8 caracteres"
+                      onFocus={() => setFocused('password')}
+                      onBlur={() => setFocused(null)}
+                      style={{ ...inputStyle, flex: 1 }}
+                      autoComplete="new-password"
+                    />
                     <button type="button" onClick={() => setShowPassword(!showPassword)} className="pwd-toggle"
                       style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(26,22,18,0.35)', fontSize: 16, padding: 0 }}
                       aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}>

@@ -132,6 +132,39 @@ const sharedStyles = `
   }
 `
 
+// ────────────────────────────────────────────────────────────────
+// Helper: aplica errores del backend a los campos del formulario.
+// Maneja DOS formatos:
+//   A) { error: 'msg', field: 'email' }                       — auth.controller
+//   B) { error: 'Datos inválidos', fields: [{field,message}] } — validator
+// Devuelve true si aplicó al menos un error a un campo concreto.
+// Si devuelve false, conviene mostrar un toast genérico.
+// ────────────────────────────────────────────────────────────────
+const VALID_FIELDS = new Set(['email', 'password', 'full_name', 'phone', 'role'])
+
+function applyBackendErrors(setError, data) {
+  if (!data) return false
+  let applied = false
+
+  // Formato A: campo único
+  if (data.field && VALID_FIELDS.has(data.field) && data.error) {
+    setError(data.field, { type: 'server', message: data.error })
+    applied = true
+  }
+
+  // Formato B: array de campos
+  if (Array.isArray(data.fields)) {
+    for (const f of data.fields) {
+      if (f.field && VALID_FIELDS.has(f.field) && f.message) {
+        setError(f.field, { type: 'server', message: f.message })
+        applied = true
+      }
+    }
+  }
+
+  return applied
+}
+
 export default function RegisterClientPage() {
   const navigate = useNavigate()
   const { setAuth } = useAuthStore()
@@ -139,7 +172,7 @@ export default function RegisterClientPage() {
   const [sentTo, setSentTo] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [focused, setFocused] = useState(null)
-  const { register, handleSubmit, formState: { errors } } = useForm()
+  const { register, handleSubmit, setError, clearErrors, formState: { errors } } = useForm()
   const { loginWithGoogle, loading: googleLoading } = useGoogleAuth()
   const { executeRecaptcha } = useGoogleReCaptcha()
 
@@ -155,7 +188,27 @@ export default function RegisterClientPage() {
         setEmailSent(true)
       }
     },
-    onError: (err) => toast.error(err.response?.data?.error ?? 'Error al registrarse'),
+    onError: (err) => {
+      const data = err.response?.data
+      const status = err.response?.status
+
+      // Caso especial: 429 rate limit → solo toast, no marca campos
+      if (status === 429) {
+        toast.error(data?.error ?? 'Demasiados intentos. Espera unos minutos.')
+        return
+      }
+
+      // Intentamos marcar el campo concreto
+      const handled = applyBackendErrors(setError, data)
+
+      if (handled) {
+        // Si marcamos el campo, mostramos toast más sutil para confirmar
+        toast.error(data?.error ?? 'Revisa el formulario')
+      } else {
+        // Error sin campo identificado → toast genérico
+        toast.error(data?.error ?? 'Error al registrarse')
+      }
+    },
   })
 
   const onSubmit = async (data) => {
@@ -169,6 +222,13 @@ export default function RegisterClientPage() {
       ? (rawPhone.startsWith('+') ? rawPhone : `+34${rawPhone}`)
       : ''
     mutate({ ...data, phone: fullPhone, recaptcha_token: token ?? 'bypass' })
+  }
+
+  // Limpia el error del backend cuando el usuario corrige el campo
+  const handleFieldChange = (fieldName) => () => {
+    if (errors[fieldName]?.type === 'server') {
+      clearErrors(fieldName)
+    }
   }
 
   // ═══════════════════ PANTALLA EMAIL ENVIADO ═══════════════════
@@ -325,11 +385,30 @@ export default function RegisterClientPage() {
 
           <form onSubmit={handleSubmit(onSubmit)}>
             <Field icon="👤" label="Nombre completo" error={errors.full_name?.message} focused={focused === 'name'} delay={0.38}>
-              <input {...register('full_name', { required: 'Nombre requerido' })} placeholder="Nombre y apellidos" onFocus={() => setFocused('name')} onBlur={() => setFocused(null)} style={inputStyle} autoComplete="name" />
+              <input
+                {...register('full_name', { required: 'Nombre requerido', onChange: handleFieldChange('full_name') })}
+                placeholder="Nombre y apellidos"
+                onFocus={() => setFocused('name')}
+                onBlur={() => setFocused(null)}
+                style={inputStyle}
+                autoComplete="name"
+              />
             </Field>
 
             <Field icon="📧" label="Email" error={errors.email?.message} focused={focused === 'email'} delay={0.46}>
-              <input {...register('email', { required: 'Email requerido', pattern: { value: /\S+@\S+\.\S+/, message: 'Email inválido' } })} type="email" placeholder="tu@email.com" onFocus={() => setFocused('email')} onBlur={() => setFocused(null)} style={inputStyle} autoComplete="email" />
+              <input
+                {...register('email', {
+                  required: 'Email requerido',
+                  pattern: { value: /\S+@\S+\.\S+/, message: 'Email inválido' },
+                  onChange: handleFieldChange('email'),
+                })}
+                type="email"
+                placeholder="tu@email.com"
+                onFocus={() => setFocused('email')}
+                onBlur={() => setFocused(null)}
+                style={inputStyle}
+                autoComplete="email"
+              />
             </Field>
 
             {/* TELÉFONO con prefijo +34 fijo */}
@@ -340,6 +419,7 @@ export default function RegisterClientPage() {
                 <input
                   {...register('phone', {
                     pattern: { value: /^[0-9\s]{9,12}$/, message: 'Teléfono inválido (9 dígitos)' },
+                    onChange: handleFieldChange('phone'),
                   })}
                   type="tel"
                   inputMode="numeric"
@@ -354,7 +434,19 @@ export default function RegisterClientPage() {
 
             <Field icon="🔒" label="Contraseña" error={errors.password?.message} focused={focused === 'password'} delay={0.62}>
               <div style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                <input {...register('password', { required: 'Contraseña requerida', minLength: { value: 8, message: 'Mínimo 8 caracteres' } })} type={showPassword ? 'text' : 'password'} placeholder="Mínimo 8 caracteres" onFocus={() => setFocused('password')} onBlur={() => setFocused(null)} style={{ ...inputStyle, flex: 1 }} autoComplete="new-password" />
+                <input
+                  {...register('password', {
+                    required: 'Contraseña requerida',
+                    minLength: { value: 8, message: 'Mínimo 8 caracteres' },
+                    onChange: handleFieldChange('password'),
+                  })}
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Mínimo 8 caracteres"
+                  onFocus={() => setFocused('password')}
+                  onBlur={() => setFocused(null)}
+                  style={{ ...inputStyle, flex: 1 }}
+                  autoComplete="new-password"
+                />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="pwd-toggle"
                   style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(26,22,18,0.3)', fontSize: 16, padding: 0, lineHeight: 1 }}
                   aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}>
