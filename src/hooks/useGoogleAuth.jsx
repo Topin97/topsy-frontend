@@ -30,7 +30,10 @@ export function useGoogleAuth() {
         provider: 'google',
         options: {
           redirectTo,
-          queryParams: { access_type: 'offline' },
+          // Pedimos explícitamente openid+email+profile para asegurar que Google
+          // devuelve el nombre y la foto del usuario en user_metadata
+          scopes: 'openid email profile',
+          queryParams: { access_type: 'offline', prompt: 'consent' },
           skipBrowserRedirect: isNative,
         },
       })
@@ -64,6 +67,10 @@ export function useGoogleAuth() {
         provider: 'apple',
         options: {
           redirectTo,
+          // CRÍTICO: sin 'name' Apple NO envía el nombre del usuario.
+          // Apple solo envía el nombre la PRIMERA vez que un usuario autoriza
+          // la app; los logins posteriores solo traen el email.
+          scopes: 'name email',
           skipBrowserRedirect: isNative,
         },
       })
