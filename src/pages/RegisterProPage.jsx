@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
-import { useEffect, useState, useRef } from 'react'
+import { useState } from 'react'
 import { authApi } from '../services/api'
 import { useAuthStore } from '../store/authStore'
 import { useGoogleAuth } from '../hooks/useGoogleAuth'
@@ -66,23 +66,6 @@ function GoldParticles() {
       ))}
     </div>
   )
-}
-
-// Counter animado
-function AnimatedCounter({ target, duration = 1500 }) {
-  const [count, setCount] = useState(0)
-  useEffect(() => {
-    const start = Date.now()
-    const tick = () => {
-      const elapsed = Date.now() - start
-      const progress = Math.min(elapsed / duration, 1)
-      const eased = 1 - Math.pow(1 - progress, 3)
-      setCount(Math.floor(eased * target))
-      if (progress < 1) requestAnimationFrame(tick)
-    }
-    tick()
-  }, [target, duration])
-  return <>{count.toLocaleString('es-ES')}</>
 }
 
 function Field({ icon, label, error, focused, children }) {
@@ -205,13 +188,15 @@ export default function RegisterProPage() {
         .success-icon{animation:successPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both}
 
         .shimmer-text{
-          background:linear-gradient(90deg, #D4A055 0%, #FFE4B5 25%, #D4A055 50%, #FFE4B5 75%, #D4A055 100%);
+          background:linear-gradient(90deg, #B8833A 0%, #D4A055 25%, #FFE4B5 50%, #D4A055 75%, #B8833A 100%);
           background-size:200% auto;
           -webkit-background-clip:text;
           background-clip:text;
           -webkit-text-fill-color:transparent;
+          color:transparent;
           animation:shimmer 4s linear infinite;
           font-style:italic;
+          display:inline-block;
         }
 
         .cat-btn{position:relative;transform-style:preserve-3d;perspective:1000px}
@@ -296,19 +281,16 @@ export default function RegisterProPage() {
 
           {step === 1 && (
             <>
-              {/* Stats live */}
+              {/* Features */}
               <div className="fade-up-d1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 18 }}>
                 {[
-                  { num: 1247, label: 'Profesionales', icon: '✨' },
-                  { num: 28543, label: 'Citas reservadas', icon: '📅' },
-                  { num: 4.9, label: 'Valoración media', icon: '⭐', isDecimal: true },
+                  { icon: '📅', label: 'Reservas 24/7' },
+                  { icon: '🔔', label: 'Recordatorios automáticos' },
+                  { icon: '📊', label: 'Estadísticas en vivo' },
                 ].map((s, i) => (
-                  <div key={i} className="stat-card" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(184,131,58,0.12)', borderRadius: 14, padding: '12px 8px', textAlign: 'center', backdropFilter: 'blur(10px)' }}>
-                    <div style={{ fontSize: 16, marginBottom: 4 }}>{s.icon}</div>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: '#D4A055', fontFamily: 'Outfit, sans-serif', lineHeight: 1 }}>
-                      {s.isDecimal ? s.num : <AnimatedCounter target={s.num} />}
-                    </div>
-                    <p style={{ margin: '4px 0 0', fontSize: 9.5, color: 'rgba(255,255,255,0.5)', fontFamily: 'Outfit, sans-serif', fontWeight: 500, lineHeight: 1.2 }}>{s.label}</p>
+                  <div key={i} className="stat-card" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(184,131,58,0.12)', borderRadius: 14, padding: '14px 8px', textAlign: 'center', backdropFilter: 'blur(10px)' }}>
+                    <div style={{ fontSize: 22, marginBottom: 6 }}>{s.icon}</div>
+                    <p style={{ margin: 0, fontSize: 10, color: 'rgba(255,255,255,0.75)', fontFamily: 'Outfit, sans-serif', fontWeight: 600, lineHeight: 1.3 }}>{s.label}</p>
                   </div>
                 ))}
               </div>
