@@ -36,7 +36,7 @@ function OtpInput({ value, onChange, length = 6 }) {
 
 export default function CompleteProfilePage() {
   const navigate = useNavigate()
-  const { setAuth, setUser } = useAuthStore()
+  const { setAuth } = useAuthStore()
   const qc = useQueryClient()
   const fileRef = useRef(null)
 
@@ -56,6 +56,8 @@ export default function CompleteProfilePage() {
   const [resendTimer, setResendTimer] = useState(0)
   const [loading, setLoading] = useState(false)
   const [errors, setErrors] = useState({})
+  const [transitioning, setTransitioning] = useState(false)
+  const [welcomeName, setWelcomeName] = useState('')
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
@@ -103,10 +105,8 @@ export default function CompleteProfilePage() {
     if (otp.length < 6) { toast.error('Introduce el código completo'); return }
     setLoading(true)
     try {
-      // Verificar SMS
       await api.post('/auth/phone/verify', { phone: normalizePhone(form.phone), code: otp })
 
-      // Subir avatar si hay uno
       let avatarUrl = pendingUser?.avatar_url ?? null
       if (avatarFile) {
         try {
@@ -116,7 +116,6 @@ export default function CompleteProfilePage() {
         }
       }
 
-      // Actualizar perfil
       const { data: profileData } = await api.put('/auth/profile', {
         full_name: form.full_name.trim(),
         phone: normalizePhone(form.phone),
@@ -137,19 +136,21 @@ export default function CompleteProfilePage() {
         avatar_url: avatarUrl,
       }
 
-      // Actualizar store y queries
       setAuth(updatedUser, pendingAccessToken, pendingRefreshToken)
       await qc.invalidateQueries({ queryKey: ['me'] })
       await qc.refetchQueries({ queryKey: ['me'] })
 
-      toast.success(`¡Bienvenido, ${form.full_name.split(' ')[0]}! ✨`)
+      // Transición cinematográfica
+      const name = form.full_name.split(' ')[0]
+      const target = updatedUser?.role === 'professional' ? '/pro/onboarding' : '/profile'
+      setWelcomeName(name)
+      setTransitioning(true)
       setTimeout(() => {
-        navigate('/profile')
+        navigate(target)
         window.scrollTo(0, 0)
-      }, 200)
+      }, 1500)
     } catch (err) {
       toast.error(err.response?.data?.error ?? 'Error al verificar')
-    } finally {
       setLoading(false)
     }
   }
@@ -169,6 +170,111 @@ export default function CompleteProfilePage() {
   }
 
   const initials = form.full_name?.slice(0, 2).toUpperCase() || '?'
+
+  // Pantalla de transición cinematográfica
+  if (transitioning) {
+    return (
+      <div style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'linear-gradient(180deg,#1A1612 0%,#2C1810 100%)' }}>
+        <style>{`
+          @keyframes flashIn{0%{opacity:0}30%{opacity:1}100%{opacity:1}}
+          @keyframes logoReveal{
+            0%{transform:translate(-50%,-50%) scale(0.5);opacity:0;filter:blur(20px)}
+            40%{transform:translate(-50%,-50%) scale(1);opacity:1;filter:blur(0px)}
+            70%{transform:translate(-50%,-50%) scale(1.05);opacity:1}
+            100%{transform:translate(-50%,-50%) scale(1.1);opacity:1;filter:blur(0px)}
+          }
+          @keyframes welcomeFade{
+            0%{opacity:0;transform:translateX(-50%) translateY(20px)}
+            30%{opacity:1;transform:translateX(-50%) translateY(0)}
+            100%{opacity:1;transform:translateX(-50%) translateY(0)}
+          }
+          @keyframes subtitleFade{
+            0%,30%{opacity:0;transform:translateX(-50%) translateY(15px)}
+            60%,100%{opacity:1;transform:translateX(-50%) translateY(0)}
+          }
+          @keyframes sparkleUp{
+            0%{transform:translateY(100vh) scale(0);opacity:0}
+            50%{opacity:1}
+            100%{transform:translateY(-20vh) scale(1.2);opacity:0}
+          }
+          @keyframes ringPulse{
+            0%{transform:translate(-50%,-50%) scale(0.5);opacity:0.8;border-width:3px}
+            100%{transform:translate(-50%,-50%) scale(3);opacity:0;border-width:1px}
+          }
+        `}</style>
+
+        {/* Pulse rings */}
+        {[0, 0.3, 0.6].map((delay, i) => (
+          <div key={i} style={{
+            position: 'absolute', top: '50%', left: '50%',
+            width: 200, height: 200, borderRadius: '50%',
+            border: '3px solid rgba(212,160,85,0.4)',
+            animation: `ringPulse 2s ease ${delay}s infinite`,
+          }} />
+        ))}
+
+        {/* Logo TOPsy */}
+        <div style={{
+          position: 'absolute', top: '50%', left: '50%',
+          fontFamily: 'Cormorant Garamond, serif',
+          fontWeight: 700, letterSpacing: '4px',
+          fontSize: 'clamp(60px, 12vw, 100px)',
+          whiteSpace: 'nowrap', color: '#FFFFFF',
+          filter: 'drop-shadow(0 0 40px rgba(212,160,85,0.9))',
+          animation: 'logoReveal 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        }}>
+          TOP<span style={{ color: '#D4A055', fontStyle: 'italic' }}>sy</span>
+        </div>
+
+        {/* Mensaje de bienvenida */}
+        <div style={{
+          position: 'absolute',
+          top: 'calc(50% + 100px)',
+          left: '50%',
+          fontFamily: 'Outfit, sans-serif',
+          fontSize: 22, fontWeight: 600,
+          color: '#FFFFFF',
+          letterSpacing: '0.02em',
+          animation: 'welcomeFade 1s ease 0.3s forwards',
+          opacity: 0,
+          whiteSpace: 'nowrap',
+        }}>
+          ¡Bienvenido, <span style={{ color: '#D4A055', fontWeight: 700 }}>{welcomeName}</span>!
+        </div>
+
+        {/* Subtítulo */}
+        <div style={{
+          position: 'absolute',
+          top: 'calc(50% + 140px)',
+          left: '50%',
+          fontFamily: 'Outfit, sans-serif',
+          fontSize: 14, fontWeight: 400,
+          color: 'rgba(255,255,255,0.6)',
+          letterSpacing: '0.05em',
+          animation: 'subtitleFade 1.4s ease forwards',
+          opacity: 0,
+        }}>
+          Tu cuenta está lista ✨
+        </div>
+
+        {/* Partículas */}
+        {Array.from({ length: 40 }).map((_, i) => (
+          <div key={i}
+            style={{
+              position: 'absolute',
+              width: 6, height: 6,
+              background: 'radial-gradient(circle, #D4A055 0%, transparent 70%)',
+              borderRadius: '50%',
+              boxShadow: '0 0 10px #D4A055',
+              left: `${Math.random() * 100}%`,
+              top: `${50 + Math.random() * 40}%`,
+              animation: `sparkleUp ${1 + Math.random() * 0.5}s ease ${Math.random() * 0.6}s forwards`,
+            }}
+          />
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div style={{ minHeight: '100dvh', background: '#FFFFFF', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px' }}>
@@ -200,7 +306,6 @@ export default function CompleteProfilePage() {
               Solo necesitamos unos datos más para configurar tu cuenta.
             </p>
 
-            {/* Avatar */}
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}>
               <div style={{ position: 'relative' }}>
                 <div onClick={() => fileRef.current?.click()} style={{ width: 88, height: 88, borderRadius: '50%', overflow: 'hidden', background: avatarPreview ? 'transparent' : 'linear-gradient(135deg,#1A0F05,#2C1810)', border: '2px solid rgba(197,138,61,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }}>
