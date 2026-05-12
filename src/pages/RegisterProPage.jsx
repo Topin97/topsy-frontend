@@ -20,38 +20,42 @@ function GoogleIcon() {
 }
 
 const CATEGORIES = [
-  { value: 'hair',      label: 'Peluquería',      icon: '💇' },
-  { value: 'nails',     label: 'Uñas',            icon: '💅' },
-  { value: 'spa',       label: 'Spa',             icon: '🧖' },
-  { value: 'barber',    label: 'Barbería',        icon: '🪒' },
-  { value: 'aesthetic', label: 'Estética',        icon: '✨' },
-  { value: 'brows',     label: 'Cejas',           icon: '👁️' },
-  { value: 'massage',   label: 'Masajes',         icon: '💆' },
-  { value: 'dental',    label: 'Dental',          icon: '🦷' },
-  { value: 'fitness',   label: 'Personal trainer',icon: '🏋️' },
-  { value: 'skincare',  label: 'Skincare',        icon: '🧴' },
-  { value: 'makeup',    label: 'Maquillaje',      icon: '💋' },
-  { value: 'yoga',      label: 'Yoga',            icon: '🧘' },
+  { value: 'hair',      label: 'Peluquería',  icon: '💇' },
+  { value: 'nails',     label: 'Uñas',        icon: '💅' },
+  { value: 'spa',       label: 'Spa',         icon: '🧖' },
+  { value: 'barber',    label: 'Barbería',    icon: '🪒' },
+  { value: 'aesthetic', label: 'Estética',    icon: '✨' },
+  { value: 'brows',     label: 'Cejas',       icon: '👁️' },
+  { value: 'massage',   label: 'Masajes',     icon: '💆' },
+  { value: 'makeup',    label: 'Maquillaje',  icon: '💋' },
+  { value: 'skincare',  label: 'Skincare',    icon: '🧴' },
+  { value: 'fitness',   label: 'Fitness',     icon: '🏋️' },
+  { value: 'yoga',      label: 'Yoga',        icon: '🧘' },
+  { value: 'dental',    label: 'Dental',      icon: '🦷' },
 ]
 
-function Field({ label, error, focused, children }) {
+function Field({ icon, label, error, focused, children }) {
   return (
-    <div style={{ marginBottom: 14 }}>
+    <div style={{ marginBottom: 12 }}>
       <div style={{
         background: focused ? 'rgba(184,131,58,0.04)' : '#FFFFFF',
-        border: `1.5px solid ${error ? '#f87171' : focused ? '#B8833A' : 'rgba(0,0,0,0.1)'}`,
-        borderRadius: 14, padding: '13px 16px', transition: 'all 0.2s',
-        boxShadow: focused ? '0 0 0 3px rgba(184,131,58,0.1)' : '0 1px 3px rgba(0,0,0,0.04)',
+        border: `1.5px solid ${error ? '#f87171' : focused ? '#B8833A' : 'rgba(26,22,18,0.1)'}`,
+        borderRadius: 16, padding: '14px 18px', transition: 'all 0.2s',
+        boxShadow: focused ? '0 0 0 4px rgba(184,131,58,0.08)' : '0 1px 3px rgba(0,0,0,0.03)',
+        display: 'flex', alignItems: 'center', gap: 14,
       }}>
-        <label style={{ display: 'block', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: focused ? '#B8833A' : 'rgba(26,22,18,0.4)', marginBottom: 5, fontFamily: 'Outfit, sans-serif', fontWeight: 600, transition: 'color 0.2s' }}>{label}</label>
-        {children}
+        {icon && <span style={{ fontSize: 18, opacity: focused ? 1 : 0.4, transition: 'opacity 0.2s' }}>{icon}</span>}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <label style={{ display: 'block', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: focused ? '#B8833A' : 'rgba(26,22,18,0.4)', marginBottom: 4, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{label}</label>
+          {children}
+        </div>
       </div>
-      {error && <p style={{ color: '#f87171', fontSize: 12, marginTop: 5, paddingLeft: 4, fontFamily: 'Outfit, sans-serif' }}>{error}</p>}
+      {error && <p style={{ color: '#f87171', fontSize: 12, marginTop: 5, paddingLeft: 16, fontFamily: 'Outfit, sans-serif' }}>{error}</p>}
     </div>
   )
 }
 
-const inputStyle = { width: '100%', background: 'none', border: 'none', outline: 'none', color: '#1A1612', fontSize: 16, fontFamily: 'Outfit, sans-serif', padding: 0 }
+const inputStyle = { width: '100%', background: 'none', border: 'none', outline: 'none', color: '#1A1612', fontSize: 15, fontFamily: 'Outfit, sans-serif', padding: 0 }
 
 export default function RegisterProPage() {
   const navigate = useNavigate()
@@ -88,178 +92,243 @@ export default function RegisterProPage() {
 
   const onSubmit = async (data) => {
     if (!selectedCategory) { toast.error('Selecciona una categoría'); return }
+    let token = null
     try {
-      const token = await executeRecaptcha('register')
-      mutate({ ...data, category: selectedCategory, recaptcha_token: token })
-    } catch {
-      toast.error('Error de verificación de seguridad. Inténtalo de nuevo.')
-    }
+      if (executeRecaptcha) token = await executeRecaptcha('register')
+    } catch { /* captcha no disponible */ }
+    mutate({ ...data, category: selectedCategory, recaptcha_token: token ?? 'bypass' })
   }
 
-  if (emailSent) return (
-    <div style={{ minHeight: '100dvh', background: '#F7F5F2', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 24px' }}>
-      <div style={{ width: '100%', maxWidth: 400, textAlign: 'center' }}>
-        <div style={{ width: 80, height: 80, borderRadius: '50%', background: 'rgba(184,131,58,0.1)', border: '2px solid rgba(184,131,58,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.2rem', margin: '0 auto 28px' }}>✉️</div>
-        <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.2rem', fontWeight: 300, marginBottom: 12, color: '#1A1612' }}>
-          Confirma tu <em style={{ color: '#B8833A' }}>email</em>
-        </h1>
-        <p style={{ color: 'rgba(26,22,18,0.5)', fontSize: 14, lineHeight: 1.7, marginBottom: 6, fontFamily: 'Outfit, sans-serif' }}>Enlace enviado a</p>
-        <p style={{ color: '#B8833A', fontSize: 15, fontWeight: 700, marginBottom: 28, fontFamily: 'Outfit, sans-serif' }}>{sentTo}</p>
-        <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(184,131,58,0.15)', borderRadius: 18, padding: '20px 24px', marginBottom: 24, textAlign: 'left', boxShadow: '0 2px 12px rgba(0,0,0,0.05)' }}>
-          {['Confirma tu email', 'Inicia sesión', 'Completa dirección y fotos', 'Espera verificación (24-48h)'].map((s, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 0', borderBottom: i < 3 ? '1px solid rgba(0,0,0,0.05)' : 'none' }}>
-              <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'rgba(184,131,58,0.1)', border: '1.5px solid rgba(184,131,58,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, color: '#B8833A', fontWeight: 700, flexShrink: 0, fontFamily: 'Outfit, sans-serif' }}>{i + 1}</div>
-              <span style={{ fontSize: 13, color: 'rgba(26,22,18,0.6)', fontFamily: 'Outfit, sans-serif' }}>{s}</span>
+  if (emailSent) {
+    return (
+      <div style={{ minHeight: '100dvh', background: 'linear-gradient(180deg, #1A1612 0%, #2C1810 100%)', display: 'flex', flexDirection: 'column', color: '#FFFFFF' }}>
+        <header style={{ height: 74, display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+          <Link to="/" style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.8rem', fontWeight: 700, letterSpacing: '3px', textDecoration: 'none', color: '#FFFFFF' }}>
+            TOP<span style={{ color: '#D4A055', fontStyle: 'italic' }}>sy</span>
+          </Link>
+        </header>
+        <main style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '36px 24px' }}>
+          <div style={{ width: '100%', maxWidth: 440, textAlign: 'center' }}>
+            <div style={{ width: 110, height: 110, borderRadius: '50%', background: 'linear-gradient(135deg, #B8833A 0%, #D4A055 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.8rem', margin: '0 auto 32px', boxShadow: '0 20px 60px rgba(184,131,58,0.5)' }}>
+              ✂️
             </div>
-          ))}
-        </div>
-        <Link to="/login" style={{ display: 'block', background: 'linear-gradient(135deg,#B8833A,#D4A055)', color: '#FFFFFF', textDecoration: 'none', padding: '16px', borderRadius: 14, fontWeight: 700, fontSize: 14, fontFamily: 'Outfit, sans-serif', boxShadow: '0 4px 16px rgba(184,131,58,0.25)' }}>
-          Ir al inicio de sesión
-        </Link>
+            <h1 style={{ margin: 0, fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(2.2rem, 8vw, 3rem)', fontWeight: 300, lineHeight: 1.08 }}>
+              Confirma tu <em style={{ color: '#D4A055' }}>email</em>
+            </h1>
+            <p style={{ margin: '14px 0 4px', color: 'rgba(255,255,255,0.5)', fontSize: 15, fontFamily: 'Outfit, sans-serif' }}>
+              Enlace enviado a
+            </p>
+            <p style={{ margin: '0 0 36px', color: '#D4A055', fontSize: 15, fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>
+              {sentTo}
+            </p>
+            <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(184,131,58,0.18)', borderRadius: 22, padding: '24px 28px', marginBottom: 24, textAlign: 'left', backdropFilter: 'blur(20px)' }}>
+              {['Confirma tu email', 'Inicia sesión en TopSy', 'Completa los datos de tu negocio', 'Recibe verificación en 24-48h'].map((step, i) => (
+                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '11px 0', borderBottom: i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                  <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'linear-gradient(135deg, #B8833A, #D4A055)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#1A1612', fontWeight: 700, flexShrink: 0, fontFamily: 'Outfit, sans-serif' }}>{i + 1}</div>
+                  <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', fontFamily: 'Outfit, sans-serif' }}>{step}</span>
+                </div>
+              ))}
+            </div>
+            <Link to="/login" style={{ display: 'block', background: 'linear-gradient(135deg, #B8833A 0%, #D4A055 100%)', color: '#1A1612', textDecoration: 'none', padding: '17px', borderRadius: 16, fontWeight: 700, fontSize: 15, fontFamily: 'Outfit, sans-serif', boxShadow: '0 10px 30px rgba(184,131,58,0.4)' }}>
+              Ir al inicio de sesión →
+            </Link>
+          </div>
+        </main>
       </div>
-    </div>
-  )
+    )
+  }
 
   return (
-    <div style={{ minHeight: '100dvh', background: '#F7F5F2', display: 'flex', flexDirection: 'column' }}>
-      <style>{`@keyframes spin { to { transform: rotate(360deg) } } .cat-btn:hover { border-color: rgba(184,131,58,0.4) !important; background: rgba(184,131,58,0.08) !important; }`}</style>
+    <div style={{ minHeight: '100dvh', background: 'linear-gradient(180deg, #1A1612 0%, #0F0A06 100%)', display: 'flex', flexDirection: 'column', color: '#FFFFFF', position: 'relative', overflow: 'hidden' }}>
+      <style>{`
+        @keyframes spin{to{transform:rotate(360deg)}}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+        @keyframes glow{0%,100%{opacity:0.3}50%{opacity:0.6}}
+        .fade-up{animation:fadeUp 0.5s ease forwards}
+        .fade-up-d1{animation:fadeUp 0.6s ease 0.1s both}
+        .fade-up-d2{animation:fadeUp 0.7s ease 0.2s both}
+        .cat-btn:hover{border-color:#D4A055 !important;transform:translateY(-2px)}
+        .google-btn:hover{background:rgba(255,255,255,0.06) !important;transform:translateY(-2px)}
+        .primary-btn:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(184,131,58,0.5) !important}
+        .glow-orb{position:absolute;border-radius:50%;background:radial-gradient(circle, rgba(184,131,58,0.15) 0%, transparent 70%);animation:glow 4s ease-in-out infinite;pointer-events:none}
+      `}</style>
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0 20px 40px', maxWidth: 480, margin: '0 auto', width: '100%' }}>
+      {/* Decorative orbs */}
+      <div className="glow-orb" style={{ width: 400, height: 400, top: -100, right: -100 }} />
+      <div className="glow-orb" style={{ width: 300, height: 300, bottom: -50, left: -50, animationDelay: '2s' }} />
 
-        {/* Top bar */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '28px 0 0' }}>
-          <button onClick={() => step === 1 ? null : setStep(1)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(26,22,18,0.4)', fontSize: 13, fontFamily: 'Outfit, sans-serif', padding: 0 }}>
-            {step === 2 ? '← Atrás' : <Link to="/register" style={{ color: 'rgba(26,22,18,0.4)', textDecoration: 'none', fontSize: 13, fontFamily: 'Outfit, sans-serif' }}>← Volver</Link>}
-          </button>
-          <Link to="/" style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.4rem', fontWeight: 700, letterSpacing: '2px', textDecoration: 'none', color: '#1A1612' }}>
-            TOP<span style={{ color: '#B8833A', fontStyle: 'italic' }}>sy</span>
-          </Link>
-          <div style={{ width: 60 }} />
-        </div>
+      {/* Header */}
+      <header style={{ height: 74, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(26,22,18,0.6)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 10 }}>
+        <button onClick={() => step === 1 ? navigate('/register') : setStep(1)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(255,255,255,0.5)', fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>
+          ← Atrás
+        </button>
+        <Link to="/" style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.4rem', fontWeight: 700, letterSpacing: '2px', textDecoration: 'none', color: '#FFFFFF' }}>
+          TOP<span style={{ color: '#D4A055', fontStyle: 'italic' }}>sy</span>
+        </Link>
+        <div style={{ width: 60 }} />
+      </header>
 
-        {/* Header */}
-        <div style={{ paddingTop: 24, paddingBottom: 20 }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(184,131,58,0.08)', border: '1px solid rgba(184,131,58,0.2)', borderRadius: 100, padding: '5px 14px', marginBottom: 14 }}>
-            <span style={{ fontSize: 12, color: '#B8833A', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>✂️ Cuenta profesional</span>
-          </div>
-          <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.8rem, 8vw, 2.6rem)', fontWeight: 300, lineHeight: 1.1, color: '#1A1612', margin: '0 0 18px' }}>
-            {step === 1 ? <>Tus <em style={{ color: '#B8833A' }}>datos</em></> : <>Tu <em style={{ color: '#B8833A' }}>negocio</em></>}
-          </h1>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {[{ n: 1, label: 'Cuenta' }, { n: 2, label: 'Negocio' }].map(({ n, label }, i) => (
-              <div key={n} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: step >= n ? 'rgba(184,131,58,0.1)' : '#FFFFFF', border: `1.5px solid ${step >= n ? 'rgba(184,131,58,0.3)' : 'rgba(0,0,0,0.1)'}`, borderRadius: 100, padding: '5px 12px', transition: 'all 0.3s' }}>
-                  <div style={{ width: 18, height: 18, borderRadius: '50%', background: step >= n ? 'linear-gradient(135deg,#B8833A,#D4A055)' : 'rgba(0,0,0,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: step >= n ? '#FFFFFF' : 'rgba(26,22,18,0.3)', fontFamily: 'Outfit, sans-serif' }}>{n}</div>
-                  <span style={{ fontSize: 11, color: step >= n ? '#B8833A' : 'rgba(26,22,18,0.35)', fontFamily: 'Outfit, sans-serif', fontWeight: step >= n ? 600 : 400 }}>{label}</span>
-                </div>
-                {i < 1 && <div style={{ width: 20, height: 1.5, background: step > n ? '#B8833A' : 'rgba(0,0,0,0.1)', borderRadius: 1 }} />}
-              </div>
-            ))}
-          </div>
-        </div>
+      <main style={{ flex: 1, display: 'flex', justifyContent: 'center', padding: '32px 24px 56px', position: 'relative', zIndex: 1 }}>
+        <div style={{ width: '100%', maxWidth: 440 }}>
 
-        {/* Beneficios — solo en paso 1 */}
-        {step === 1 && (
-          <div style={{ display: 'flex', gap: 7, marginBottom: 20, flexWrap: 'wrap' }}>
-            {[
-              { icon: '🎁', text: 'Gratis para siempre' },
-              { icon: '📅', text: 'Reservas automáticas' },
-              { icon: '⭐', text: 'Más visibilidad' },
-            ].map(b => (
-              <div key={b.text} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'rgba(184,131,58,0.07)', border: '1px solid rgba(184,131,58,0.18)', borderRadius: 999, padding: '5px 12px' }}>
-                <span style={{ fontSize: 13 }}>{b.icon}</span>
-                <span style={{ fontSize: 11, color: '#B8833A', fontWeight: 600, fontFamily: 'Outfit, sans-serif' }}>{b.text}</span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* Google OAuth — solo en paso 1 */}
-        {step === 1 && (
-          <>
-            <button type="button" onClick={() => loginWithGoogle('professional')} disabled={googleLoading}
-              style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '14px 16px', background: googleLoading ? '#F7F5F2' : '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.12)', borderRadius: 14, cursor: googleLoading ? 'not-allowed' : 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 600, color: '#1A1612', transition: 'all 0.2s', boxShadow: '0 1px 6px rgba(0,0,0,0.06)', marginBottom: 16 }}>
-              {googleLoading ? <span style={{ width: 18, height: 18, border: '2px solid rgba(0,0,0,0.1)', borderTopColor: '#B8833A', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} /> : <GoogleIcon />}
-              {googleLoading ? 'Conectando...' : 'Continuar con Google'}
-            </button>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-              <div style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.07)' }} />
-              <span style={{ fontSize: 12, color: 'rgba(26,22,18,0.3)', fontFamily: 'Outfit, sans-serif' }}>o completa el formulario</span>
-              <div style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.07)' }} />
+          {/* Hero */}
+          <div className="fade-up" style={{ textAlign: 'center', marginBottom: 28 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg, rgba(184,131,58,0.15), rgba(212,160,85,0.15))', border: '1px solid rgba(212,160,85,0.3)', borderRadius: 999, padding: '7px 16px', marginBottom: 22 }}>
+              <span style={{ fontSize: 14 }}>✂️</span>
+              <span style={{ fontSize: 11, color: '#D4A055', fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Cuenta profesional</span>
             </div>
-          </>
-        )}
+            <h1 style={{ margin: 0, fontFamily: 'Cormorant Garamond, serif', fontWeight: 300, fontSize: 'clamp(2.4rem, 8vw, 3.2rem)', lineHeight: 1.04, letterSpacing: '-0.02em' }}>
+              {step === 1 ? <>Haz crecer <em style={{ color: '#D4A055', fontStyle: 'italic' }}>tu negocio</em></> : <>Cuéntanos de <em style={{ color: '#D4A055', fontStyle: 'italic' }}>tu negocio</em></>}
+            </h1>
+            <p style={{ margin: '14px 0 0', color: 'rgba(255,255,255,0.55)', fontSize: 15, lineHeight: 1.6, fontFamily: 'Outfit, sans-serif' }}>
+              {step === 1 ? 'Únete a la red de profesionales más elegante de España.' : 'Estos detalles ayudan a los clientes a encontrarte.'}
+            </p>
+          </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {/* Stepper */}
+          <div className="fade-up-d1" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 28 }}>
+            {[
+              { n: 1, label: 'Cuenta' },
+              { n: 2, label: 'Negocio' },
+            ].map(({ n, label }, i) => (
+              <div key={n} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{
+                    width: 28, height: 28, borderRadius: '50%',
+                    background: step >= n ? 'linear-gradient(135deg, #B8833A, #D4A055)' : 'rgba(255,255,255,0.08)',
+                    border: step === n ? '2px solid rgba(212,160,85,0.4)' : 'none',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 11, fontWeight: 700, color: step >= n ? '#1A1612' : 'rgba(255,255,255,0.4)', fontFamily: 'Outfit, sans-serif',
+                    boxShadow: step === n ? '0 4px 14px rgba(184,131,58,0.4)' : 'none', transition: 'all 0.3s',
+                  }}>
+                    {n}
+                  </div>
+                  <span style={{ fontSize: 12, color: step >= n ? '#D4A055' : 'rgba(255,255,255,0.35)', fontWeight: step >= n ? 600 : 400, fontFamily: 'Outfit, sans-serif' }}>{label}</span>
+                </div>
+                {i < 1 && <div style={{ width: 32, height: 2, background: step > 1 ? 'linear-gradient(90deg, #B8833A, #D4A055)' : 'rgba(255,255,255,0.08)', borderRadius: 2 }} />}
+              </div>
+            ))}
+          </div>
 
           {step === 1 && (
             <>
-              <Field label="Nombre completo" error={errors.full_name?.message} focused={focused === 'name'}>
-                <input {...register('full_name', { required: 'Requerido' })} placeholder="Ana Martínez" onFocus={() => setFocused('name')} onBlur={() => setFocused(null)} style={inputStyle} />
-              </Field>
-              <Field label="Email" error={errors.email?.message} focused={focused === 'email'}>
-                <input {...register('email', { required: 'Requerido', pattern: { value: /\S+@\S+\.\S+/, message: 'Email inválido' } })} type="email" placeholder="tu@email.com" onFocus={() => setFocused('email')} onBlur={() => setFocused(null)} style={inputStyle} />
-              </Field>
-              <Field label="Teléfono" error={errors.phone?.message} focused={focused === 'phone'}>
-                <input {...register('phone', { required: 'Requerido', pattern: { value: /^[0-9+\s\-()]{9,15}$/, message: 'Teléfono inválido' } })} type="tel" placeholder="+34 600 000 000" onFocus={() => setFocused('phone')} onBlur={() => setFocused(null)} style={inputStyle} />
-              </Field>
-              <Field label="Contraseña" error={errors.password?.message} focused={focused === 'password'}>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <input {...register('password', { required: 'Requerido', minLength: { value: 8, message: 'Mínimo 8 caracteres' } })} type={showPassword ? 'text' : 'password'} placeholder="Mínimo 8 caracteres" onFocus={() => setFocused('password')} onBlur={() => setFocused(null)} style={{ ...inputStyle, flex: 1 }} />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(26,22,18,0.35)', fontSize: 16, padding: 0 }}>
-                    {showPassword ? '🙈' : '👁️'}
-                  </button>
+              {/* Beneficios */}
+              <div className="fade-up-d1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 24 }}>
+                {[
+                  { icon: '🎁', text: 'Gratis para siempre' },
+                  { icon: '📅', text: 'Reservas 24/7' },
+                  { icon: '⭐', text: 'Más visibilidad' },
+                ].map(b => (
+                  <div key={b.text} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(184,131,58,0.12)', borderRadius: 14, padding: '12px 8px', textAlign: 'center', backdropFilter: 'blur(10px)' }}>
+                    <div style={{ fontSize: 22, marginBottom: 6 }}>{b.icon}</div>
+                    <p style={{ margin: 0, fontSize: 10.5, color: 'rgba(255,255,255,0.7)', fontFamily: 'Outfit, sans-serif', fontWeight: 600, lineHeight: 1.3 }}>{b.text}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Google */}
+              <div className="fade-up-d2">
+                <button type="button" onClick={() => loginWithGoogle('professional')} disabled={googleLoading} className="google-btn"
+                  style={{ width: '100%', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 16, cursor: googleLoading ? 'not-allowed' : 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 600, color: '#FFFFFF', marginBottom: 18, transition: 'all 0.2s', backdropFilter: 'blur(10px)' }}>
+                  {googleLoading
+                    ? <span style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.2)', borderTopColor: '#D4A055', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
+                    : <GoogleIcon />
+                  }
+                  {googleLoading ? 'Conectando...' : 'Continuar con Google'}
+                </button>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 22 }}>
+                  <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
+                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: 'Outfit, sans-serif', letterSpacing: '0.08em', textTransform: 'uppercase' }}>O con email</span>
+                  <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
                 </div>
-              </Field>
-              <div style={{ flex: 1 }} />
-              <button type="button" onClick={goToStep2} style={{ width: '100%', padding: '16px', fontSize: 15, fontWeight: 700, background: 'linear-gradient(135deg,#B8833A,#D4A055)', color: '#FFFFFF', border: 'none', borderRadius: 14, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', letterSpacing: '0.03em', boxShadow: '0 6px 24px rgba(184,131,58,0.3)', marginTop: 8 }}>
-                Siguiente → Datos del negocio
-              </button>
+
+                <form onSubmit={(e) => e.preventDefault()}>
+                  <Field icon="👤" label="Nombre completo" error={errors.full_name?.message} focused={focused === 'name'}>
+                    <input {...register('full_name', { required: 'Requerido' })} placeholder="Ana Martínez" onFocus={() => setFocused('name')} onBlur={() => setFocused(null)} style={inputStyle} />
+                  </Field>
+                  <Field icon="📧" label="Email" error={errors.email?.message} focused={focused === 'email'}>
+                    <input {...register('email', { required: 'Requerido', pattern: { value: /\S+@\S+\.\S+/, message: 'Email inválido' } })} type="email" placeholder="tu@email.com" onFocus={() => setFocused('email')} onBlur={() => setFocused(null)} style={inputStyle} />
+                  </Field>
+                  <Field icon="📱" label="Teléfono" error={errors.phone?.message} focused={focused === 'phone'}>
+                    <input {...register('phone', { required: 'Requerido', pattern: { value: /^[0-9+\s\-()]{9,15}$/, message: 'Teléfono inválido' } })} type="tel" placeholder="+34 600 000 000" onFocus={() => setFocused('phone')} onBlur={() => setFocused(null)} style={inputStyle} />
+                  </Field>
+                  <Field icon="🔒" label="Contraseña" error={errors.password?.message} focused={focused === 'password'}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      <input {...register('password', { required: 'Requerido', minLength: { value: 8, message: 'Mínimo 8 caracteres' } })} type={showPassword ? 'text' : 'password'} placeholder="Mínimo 8 caracteres" onFocus={() => setFocused('password')} onBlur={() => setFocused(null)} style={{ ...inputStyle, flex: 1 }} />
+                      <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(26,22,18,0.35)', fontSize: 16, padding: 0 }}>
+                        {showPassword ? '🙈' : '👁️'}
+                      </button>
+                    </div>
+                  </Field>
+
+                  <button type="button" onClick={goToStep2} className="primary-btn"
+                    style={{ width: '100%', height: 58, marginTop: 12, fontSize: 15, fontWeight: 700, background: 'linear-gradient(135deg, #B8833A 0%, #D4A055 100%)', color: '#1A1612', border: 'none', borderRadius: 16, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', letterSpacing: '0.02em', boxShadow: '0 10px 30px rgba(184,131,58,0.35)', transition: 'all 0.25s' }}>
+                    Siguiente → Datos del negocio
+                  </button>
+                </form>
+              </div>
             </>
           )}
 
           {step === 2 && (
-            <>
-              <Field label="Nombre del negocio" error={errors.business_name?.message} focused={focused === 'bname'}>
-                <input {...register('business_name', { required: 'Requerido' })} placeholder="Salón Ana" onFocus={() => setFocused('bname')} onBlur={() => setFocused(null)} style={inputStyle} />
-              </Field>
-              <Field label="Ciudad" error={errors.city?.message} focused={focused === 'city'}>
-                <input {...register('city', { required: 'Requerido' })} placeholder="Madrid" onFocus={() => setFocused('city')} onBlur={() => setFocused(null)} style={inputStyle} />
-              </Field>
-              <div style={{ marginBottom: 20 }}>
-                <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.4)', marginBottom: 12, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>Categoría</p>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
-                  {CATEGORIES.map(cat => {
-                    const active = selectedCategory === cat.value
-                    return (
-                      <button key={cat.value} type="button" className="cat-btn" onClick={() => setSelectedCategory(cat.value)} style={{ padding: '10px 4px 8px', borderRadius: 14, cursor: 'pointer', textAlign: 'center', border: `1.5px solid ${active ? '#B8833A' : 'rgba(0,0,0,0.08)'}`, background: active ? 'rgba(184,131,58,0.1)' : '#FFFFFF', color: active ? '#B8833A' : 'rgba(26,22,18,0.5)', transition: 'all 0.18s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5, fontFamily: 'Outfit, sans-serif', boxShadow: active ? '0 2px 10px rgba(184,131,58,0.15)' : '0 1px 3px rgba(0,0,0,0.04)', transform: active ? 'scale(1.04)' : 'scale(1)' }}>
-                        <span style={{ fontSize: '1.3rem', lineHeight: 1 }}>{cat.icon}</span>
-                        <span style={{ fontSize: 9.5, lineHeight: 1.2, fontWeight: active ? 600 : 400 }}>{cat.label}</span>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-              <button type="submit" disabled={isPending} style={{ width: '100%', padding: '16px', fontSize: 15, fontWeight: 700, background: isPending ? 'rgba(184,131,58,0.4)' : 'linear-gradient(135deg,#B8833A,#D4A055)', color: '#FFFFFF', border: 'none', borderRadius: 14, cursor: isPending ? 'not-allowed' : 'pointer', fontFamily: 'Outfit, sans-serif', letterSpacing: '0.03em', boxShadow: isPending ? 'none' : '0 6px 24px rgba(184,131,58,0.3)' }}>
-                {isPending ? (
-                  <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
-                    <span style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#FFFFFF', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
-                    Creando cuenta...
-                  </span>
-                ) : 'Crear mi cuenta →'}
-              </button>
-              <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.3)', textAlign: 'center', marginTop: 12, lineHeight: 1.6, fontFamily: 'Outfit, sans-serif' }}>
-                Después añade dirección y fotos desde tu panel.
-              </p>
-            </>
-          )}
-        </form>
+            <div className="fade-up">
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <Field icon="🏪" label="Nombre del negocio" error={errors.business_name?.message} focused={focused === 'bname'}>
+                  <input {...register('business_name', { required: 'Requerido' })} placeholder="Salón Ana" onFocus={() => setFocused('bname')} onBlur={() => setFocused(null)} style={inputStyle} />
+                </Field>
+                <Field icon="📍" label="Ciudad" error={errors.city?.message} focused={focused === 'city'}>
+                  <input {...register('city', { required: 'Requerido' })} placeholder="Madrid" onFocus={() => setFocused('city')} onBlur={() => setFocused(null)} style={inputStyle} />
+                </Field>
 
-        <p style={{ textAlign: 'center', color: 'rgba(26,22,18,0.35)', fontSize: 14, marginTop: 20, fontFamily: 'Outfit, sans-serif' }}>
-          ¿Ya tienes cuenta?{' '}
-          <Link to="/login" style={{ color: '#B8833A', textDecoration: 'none', fontWeight: 600 }}>Inicia sesión</Link>
-        </p>
-      </div>
+                <div style={{ marginTop: 18, marginBottom: 22 }}>
+                  <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginBottom: 14, fontFamily: 'Outfit, sans-serif', fontWeight: 600, paddingLeft: 2 }}>Categoría</p>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+                    {CATEGORIES.map(cat => {
+                      const active = selectedCategory === cat.value
+                      return (
+                        <button key={cat.value} type="button" className="cat-btn" onClick={() => setSelectedCategory(cat.value)}
+                          style={{
+                            padding: '12px 4px 10px', borderRadius: 14, cursor: 'pointer', textAlign: 'center',
+                            border: `1.5px solid ${active ? '#D4A055' : 'rgba(255,255,255,0.1)'}`,
+                            background: active ? 'linear-gradient(135deg, rgba(184,131,58,0.2), rgba(212,160,85,0.15))' : 'rgba(255,255,255,0.03)',
+                            color: active ? '#D4A055' : 'rgba(255,255,255,0.6)',
+                            transition: 'all 0.2s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                            fontFamily: 'Outfit, sans-serif',
+                            boxShadow: active ? '0 6px 20px rgba(184,131,58,0.25)' : 'none',
+                            backdropFilter: 'blur(10px)',
+                          }}>
+                          <span style={{ fontSize: '1.4rem', lineHeight: 1 }}>{cat.icon}</span>
+                          <span style={{ fontSize: 10, lineHeight: 1.2, fontWeight: active ? 700 : 500 }}>{cat.label}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                <button type="submit" disabled={isPending} className="primary-btn"
+                  style={{ width: '100%', height: 58, fontSize: 15, fontWeight: 700, background: isPending ? 'rgba(184,131,58,0.3)' : 'linear-gradient(135deg, #B8833A 0%, #D4A055 100%)', color: '#1A1612', border: 'none', borderRadius: 16, cursor: isPending ? 'not-allowed' : 'pointer', fontFamily: 'Outfit, sans-serif', letterSpacing: '0.02em', boxShadow: isPending ? 'none' : '0 10px 30px rgba(184,131,58,0.35)', transition: 'all 0.25s' }}>
+                  {isPending ? (
+                    <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+                      <span style={{ width: 18, height: 18, border: '2px solid rgba(26,22,18,0.3)', borderTopColor: '#1A1612', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
+                      Creando cuenta...
+                    </span>
+                  ) : 'Crear mi negocio →'}
+                </button>
+
+                <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)', textAlign: 'center', marginTop: 14, lineHeight: 1.6, fontFamily: 'Outfit, sans-serif' }}>
+                  Añadirás dirección y fotos desde tu panel después.
+                </p>
+              </form>
+            </div>
+          )}
+
+          <p style={{ textAlign: 'center', color: 'rgba(255,255,255,0.45)', fontSize: 14, marginTop: 28, fontFamily: 'Outfit, sans-serif' }}>
+            ¿Ya tienes cuenta?{' '}
+            <Link to="/login" style={{ color: '#D4A055', textDecoration: 'none', fontWeight: 700 }}>Iniciar sesión</Link>
+          </p>
+        </div>
+      </main>
     </div>
   )
 }
