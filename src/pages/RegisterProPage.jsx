@@ -72,7 +72,7 @@ function Field({ icon, label, error, focused, children }) {
   return (
     <div style={{ marginBottom: 12 }}>
       <div style={{
-        background: focused ? 'rgba(184,131,58,0.04)' : '#FFFFFF',
+        background: '#FFFFFF',
         border: `1.5px solid ${error ? '#f87171' : focused ? '#B8833A' : 'rgba(26,22,18,0.1)'}`,
         borderRadius: 16, padding: '14px 18px', transition: 'all 0.25s',
         boxShadow: focused ? '0 0 0 4px rgba(184,131,58,0.08), 0 8px 24px rgba(184,131,58,0.12)' : '0 1px 3px rgba(0,0,0,0.03)',
