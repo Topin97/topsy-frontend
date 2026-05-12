@@ -91,6 +91,11 @@ function Field({ icon, label, error, focused, children }) {
 
 const inputStyle = { width: '100%', background: 'none', border: 'none', outline: 'none', color: '#1A1612', fontSize: 15, fontFamily: 'Outfit, sans-serif', padding: 0 }
 
+// CSS adicional para placeholder
+const placeholderStyle = `
+  input::placeholder { color: rgba(26,22,18,0.35) !important; }
+`
+
 export default function RegisterProPage() {
   const navigate = useNavigate()
   const { setAuth } = useAuthStore()
@@ -130,7 +135,9 @@ export default function RegisterProPage() {
     try {
       if (executeRecaptcha) token = await executeRecaptcha('register')
     } catch { /* captcha no disponible */ }
-    mutate({ ...data, category: selectedCategory, recaptcha_token: token ?? 'bypass' })
+    const phone = data.phone?.replace(/\s/g, '') || ''
+    const fullPhone = phone.startsWith('+') ? phone : `+34${phone}`
+    mutate({ ...data, phone: fullPhone, category: selectedCategory, recaptcha_token: token ?? 'bypass' })
   }
 
   if (emailSent) {
@@ -172,6 +179,7 @@ export default function RegisterProPage() {
   return (
     <div style={{ minHeight: '100dvh', background: 'linear-gradient(180deg, #1A1612 0%, #0F0A06 100%)', display: 'flex', flexDirection: 'column', color: '#FFFFFF', position: 'relative', overflow: 'hidden' }}>
       <style>{`
+        input::placeholder{color:rgba(26,22,18,0.35) !important}
         @keyframes spin{to{transform:rotate(360deg)}}
         @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
         @keyframes glow{0%,100%{opacity:0.3}50%{opacity:0.6}}
@@ -246,7 +254,7 @@ export default function RegisterProPage() {
               <span className="pulse-dot" style={{ width: 6, height: 6, borderRadius: '50%', background: '#D4A055' }} />
               <span style={{ fontSize: 11, color: '#D4A055', fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Cuenta profesional</span>
             </div>
-            <h1 style={{ margin: 0, fontFamily: 'Cormorant Garamond, serif', fontWeight: 300, fontSize: 'clamp(2.4rem, 8vw, 3.2rem)', lineHeight: 1.04, letterSpacing: '-0.02em' }}>
+            <h1 style={{ margin: 0, fontFamily: 'Cormorant Garamond, serif', fontWeight: 300, fontSize: 'clamp(2.4rem, 8vw, 3.2rem)', lineHeight: 1.04, letterSpacing: '-0.02em', color: '#FFFFFF' }}>
               {step === 1 ? <>Haz crecer <span className="shimmer-text">tu negocio</span></> : <>Cuéntanos de <span className="shimmer-text">tu negocio</span></>}
             </h1>
             <p style={{ margin: '14px 0 0', color: 'rgba(255,255,255,0.55)', fontSize: 15, lineHeight: 1.6, fontFamily: 'Outfit, sans-serif' }}>
@@ -329,7 +337,11 @@ export default function RegisterProPage() {
                     <input {...register('email', { required: 'Requerido', pattern: { value: /\S+@\S+\.\S+/, message: 'Email inválido' } })} type="email" placeholder="tu@email.com" onFocus={() => setFocused('email')} onBlur={() => setFocused(null)} style={inputStyle} />
                   </Field>
                   <Field icon="📱" label="Teléfono" error={errors.phone?.message} focused={focused === 'phone'}>
-                    <input {...register('phone', { required: 'Requerido', pattern: { value: /^[0-9+\s\-()]{9,15}$/, message: 'Teléfono inválido' } })} type="tel" placeholder="+34 600 000 000" onFocus={() => setFocused('phone')} onBlur={() => setFocused(null)} style={inputStyle} />
+                    <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: 8 }}>
+                      <span style={{ fontSize: 15, color: '#1A1612', fontFamily: 'Outfit, sans-serif', fontWeight: 500, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4 }}>🇪🇸 +34</span>
+                      <div style={{ width: 1, height: 18, background: 'rgba(0,0,0,0.1)', flexShrink: 0 }} />
+                      <input {...register('phone', { required: 'Requerido', pattern: { value: /^[0-9\s]{9,12}$/, message: 'Teléfono inválido' } })} type="tel" placeholder="600 000 000" onFocus={() => setFocused('phone')} onBlur={() => setFocused(null)} style={{ ...inputStyle, flex: 1 }} />
+                    </div>
                   </Field>
                   <Field icon="🔒" label="Contraseña" error={errors.password?.message} focused={focused === 'password'}>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
