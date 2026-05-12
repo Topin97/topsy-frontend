@@ -8,6 +8,46 @@ import toast from 'react-hot-toast'
 
 const ROLE_LABEL = { client: 'Cliente', professional: 'Profesional', admin: 'Admin' }
 
+// ─── Helpers de visualización del usuario ───────────────────────────────────
+// Devuelve un nombre legible aunque falte full_name (típico en Apple OAuth)
+function getDisplayName(me, userEmail) {
+  const fullName = me?.full_name?.trim()
+  if (fullName) return fullName
+  // Fallback 1: parte antes de @ del email (ej "juan@gmail.com" → "juan")
+  if (userEmail) {
+    const localPart = userEmail.split('@')[0]
+    // Limpiar si es un email de Apple relay (string aleatorio feo)
+    if (!userEmail.includes('privaterelay.appleid.com')) {
+      return localPart
+    }
+  }
+  // Fallback 2
+  return 'Mi cuenta'
+}
+
+// Devuelve 1-2 iniciales para el avatar
+function getInitials(me, userEmail) {
+  const fullName = me?.full_name?.trim()
+  if (fullName) {
+    const parts = fullName.split(/\s+/).filter(Boolean)
+    if (parts.length >= 2) {
+      // "Juan Pérez" → "JP"
+      return (parts[0][0] + parts[1][0]).toUpperCase()
+    }
+    // "Juan" → "JU"
+    return parts[0].slice(0, 2).toUpperCase()
+  }
+  // Fallback al email
+  if (userEmail) {
+    const localPart = userEmail.split('@')[0]
+    if (!userEmail.includes('privaterelay.appleid.com') && localPart) {
+      return localPart.slice(0, 2).toUpperCase()
+    }
+  }
+  return '?'
+}
+// ────────────────────────────────────────────────────────────────────────────
+
 function ResendVerificationButton({ email }) {
   const [loading, setLoading] = useState(false)
   const [timer, setTimer] = useState(0)
@@ -176,6 +216,10 @@ export default function ProfilePage() {
   const isOAuthUser = meData?.provider && meData.provider !== 'email'
   const showBanner = !emailVerified && !isAppleRelay && !isOAuthUser && !!userEmail
 
+  // ── Detecta si al usuario le falta el nombre (caso típico de Apple OAuth) ──
+  const hasName = !!me?.full_name?.trim()
+  const showCompleteProfileBanner = !isLoading && !hasName
+
   const { mutate: saveProfile, isPending: saving } = useMutation({
     mutationFn: data => authApi.updateProfile(data),
     onSuccess: ({ data }) => {
@@ -214,7 +258,8 @@ export default function ProfilePage() {
   )
 
   const avatarSrc = preview ?? me?.avatar_url
-  const initials  = me?.full_name?.slice(0, 2).toUpperCase() ?? 'US'
+  const displayName = getDisplayName(me, userEmail)
+  const initials = getInitials(me, userEmail)
 
   if (section === 'datos') return <DatosPersonales me={me} userEmail={userEmail} emailVerified={emailVerified} onBack={() => setSection(null)} onSave={d => saveProfile(d)} saving={saving} />
   if (section === 'notificaciones') return <Notificaciones onBack={() => setSection(null)} />
@@ -240,6 +285,7 @@ export default function ProfilePage() {
         @keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
       `}</style>
 
+      {/* Banner verificación email pendiente */}
       {showBanner && (
         <div style={{ background: '#FEF3C7', borderBottom: '1px solid #F59E0B', padding: '12px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 10 }}>
@@ -253,6 +299,22 @@ export default function ProfilePage() {
         </div>
       )}
 
+      {/* Banner "completa tu perfil" — típico para Apple OAuth */}
+      {showCompleteProfileBanner && (
+        <div style={{ background: 'linear-gradient(135deg, rgba(184,131,58,0.10), rgba(212,160,85,0.05))', borderBottom: '1px solid rgba(184,131,58,0.25)', padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <span style={{ fontSize: 22, flexShrink: 0 }}>✨</span>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 700, color: '#92400E', margin: 0 }}>Completa tu perfil</p>
+            <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 12, color: '#B45309', margin: '2px 0 0' }}>Añade tu nombre para que los profesionales puedan identificarte.</p>
+          </div>
+          <button onClick={() => setSection('datos')}
+            style={{ background: '#B8833A', color: '#FFFFFF', border: 'none', borderRadius: 8, padding: '8px 14px', fontSize: 12, fontWeight: 700, fontFamily: 'Outfit, sans-serif', cursor: 'pointer', flexShrink: 0, whiteSpace: 'nowrap' }}>
+            Completar →
+          </button>
+        </div>
+      )}
+
+      {/* Cabecera con avatar y nombre */}
       <div style={{ background: '#FFFFFF', padding: '28px 20px 20px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <div style={{ position: 'relative', flexShrink: 0 }}>
@@ -269,8 +331,8 @@ export default function ProfilePage() {
             <input ref={fileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleAvatarChange} />
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.2rem', fontWeight: 700, color: '#181512', margin: '0 0 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {me?.full_name}
+            <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.2rem', fontWeight: 700, color: '#181512', margin: '0 0 4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontStyle: hasName ? 'normal' : 'italic', opacity: hasName ? 1 : 0.7 }}>
+              {displayName}
             </h1>
             {me?.phone && <p style={{ fontSize: 13, color: 'rgba(24,21,18,0.45)', margin: '0 0 4px' }}>{me.phone}</p>}
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
