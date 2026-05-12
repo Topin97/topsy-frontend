@@ -1,12 +1,12 @@
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
+import { useEffect, useState, useRef } from 'react'
 import { authApi } from '../services/api'
 import { useAuthStore } from '../store/authStore'
 import { useGoogleAuth } from '../hooks/useGoogleAuth'
 import { useGoogleReCaptcha } from 'react-google-recaptcha-v3'
 import toast from 'react-hot-toast'
-import { useState } from 'react'
 
 function GoogleIcon() {
   return (
@@ -20,19 +20,70 @@ function GoogleIcon() {
 }
 
 const CATEGORIES = [
-  { value: 'hair',      label: 'Peluquería',  icon: '💇' },
-  { value: 'nails',     label: 'Uñas',        icon: '💅' },
-  { value: 'spa',       label: 'Spa',         icon: '🧖' },
-  { value: 'barber',    label: 'Barbería',    icon: '🪒' },
-  { value: 'aesthetic', label: 'Estética',    icon: '✨' },
-  { value: 'brows',     label: 'Cejas',       icon: '👁️' },
-  { value: 'massage',   label: 'Masajes',     icon: '💆' },
-  { value: 'makeup',    label: 'Maquillaje',  icon: '💋' },
-  { value: 'skincare',  label: 'Skincare',    icon: '🧴' },
-  { value: 'fitness',   label: 'Fitness',     icon: '🏋️' },
-  { value: 'yoga',      label: 'Yoga',        icon: '🧘' },
-  { value: 'dental',    label: 'Dental',      icon: '🦷' },
+  { value: 'hair', label: 'Peluquería', icon: '💇' },
+  { value: 'nails', label: 'Uñas', icon: '💅' },
+  { value: 'spa', label: 'Spa', icon: '🧖' },
+  { value: 'barber', label: 'Barbería', icon: '🪒' },
+  { value: 'aesthetic', label: 'Estética', icon: '✨' },
+  { value: 'brows', label: 'Cejas', icon: '👁️' },
+  { value: 'massage', label: 'Masajes', icon: '💆' },
+  { value: 'makeup', label: 'Maquillaje', icon: '💋' },
+  { value: 'skincare', label: 'Skincare', icon: '🧴' },
+  { value: 'fitness', label: 'Fitness', icon: '🏋️' },
+  { value: 'yoga', label: 'Yoga', icon: '🧘' },
+  { value: 'dental', label: 'Dental', icon: '🦷' },
 ]
+
+// Componente de partículas doradas flotantes
+function GoldParticles() {
+  const particles = Array.from({ length: 18 }).map((_, i) => ({
+    id: i,
+    left: Math.random() * 100,
+    size: 2 + Math.random() * 4,
+    duration: 8 + Math.random() * 12,
+    delay: Math.random() * 8,
+    opacity: 0.3 + Math.random() * 0.5,
+  }))
+
+  return (
+    <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+      {particles.map(p => (
+        <div key={p.id}
+          className="gold-particle"
+          style={{
+            position: 'absolute',
+            left: `${p.left}%`,
+            bottom: -20,
+            width: p.size,
+            height: p.size,
+            background: 'radial-gradient(circle, #D4A055 0%, transparent 70%)',
+            borderRadius: '50%',
+            opacity: p.opacity,
+            animation: `floatUp ${p.duration}s linear ${p.delay}s infinite`,
+            boxShadow: '0 0 6px #D4A055',
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+// Counter animado
+function AnimatedCounter({ target, duration = 1500 }) {
+  const [count, setCount] = useState(0)
+  useEffect(() => {
+    const start = Date.now()
+    const tick = () => {
+      const elapsed = Date.now() - start
+      const progress = Math.min(elapsed / duration, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      setCount(Math.floor(eased * target))
+      if (progress < 1) requestAnimationFrame(tick)
+    }
+    tick()
+  }, [target, duration])
+  return <>{count.toLocaleString('es-ES')}</>
+}
 
 function Field({ icon, label, error, focused, children }) {
   return (
@@ -40,13 +91,13 @@ function Field({ icon, label, error, focused, children }) {
       <div style={{
         background: focused ? 'rgba(184,131,58,0.04)' : '#FFFFFF',
         border: `1.5px solid ${error ? '#f87171' : focused ? '#B8833A' : 'rgba(26,22,18,0.1)'}`,
-        borderRadius: 16, padding: '14px 18px', transition: 'all 0.2s',
-        boxShadow: focused ? '0 0 0 4px rgba(184,131,58,0.08)' : '0 1px 3px rgba(0,0,0,0.03)',
-        display: 'flex', alignItems: 'center', gap: 14,
+        borderRadius: 16, padding: '14px 18px', transition: 'all 0.25s',
+        boxShadow: focused ? '0 0 0 4px rgba(184,131,58,0.08), 0 8px 24px rgba(184,131,58,0.12)' : '0 1px 3px rgba(0,0,0,0.03)',
+        display: 'flex', alignItems: 'center', gap: 14, transform: focused ? 'translateY(-1px)' : 'translateY(0)',
       }}>
-        {icon && <span style={{ fontSize: 18, opacity: focused ? 1 : 0.4, transition: 'opacity 0.2s' }}>{icon}</span>}
+        {icon && <span style={{ fontSize: 18, opacity: focused ? 1 : 0.4, transition: 'all 0.2s', transform: focused ? 'scale(1.15)' : 'scale(1)' }}>{icon}</span>}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <label style={{ display: 'block', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: focused ? '#B8833A' : 'rgba(26,22,18,0.4)', marginBottom: 4, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{label}</label>
+          <label style={{ display: 'block', fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: focused ? '#B8833A' : 'rgba(26,22,18,0.4)', marginBottom: 4, fontFamily: 'Outfit, sans-serif', fontWeight: 600, transition: 'color 0.2s' }}>{label}</label>
           {children}
         </div>
       </div>
@@ -101,31 +152,28 @@ export default function RegisterProPage() {
 
   if (emailSent) {
     return (
-      <div style={{ minHeight: '100dvh', background: 'linear-gradient(180deg, #1A1612 0%, #2C1810 100%)', display: 'flex', flexDirection: 'column', color: '#FFFFFF' }}>
-        <header style={{ height: 74, display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+      <div style={{ minHeight: '100dvh', background: 'linear-gradient(180deg, #1A1612 0%, #2C1810 100%)', display: 'flex', flexDirection: 'column', color: '#FFFFFF', position: 'relative', overflow: 'hidden' }}>
+        <GoldParticles />
+        <header style={{ height: 74, display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '1px solid rgba(255,255,255,0.08)', position: 'relative', zIndex: 1 }}>
           <Link to="/" style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.8rem', fontWeight: 700, letterSpacing: '3px', textDecoration: 'none', color: '#FFFFFF' }}>
             TOP<span style={{ color: '#D4A055', fontStyle: 'italic' }}>sy</span>
           </Link>
         </header>
-        <main style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '36px 24px' }}>
+        <main style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '36px 24px', position: 'relative', zIndex: 1 }}>
           <div style={{ width: '100%', maxWidth: 440, textAlign: 'center' }}>
-            <div style={{ width: 110, height: 110, borderRadius: '50%', background: 'linear-gradient(135deg, #B8833A 0%, #D4A055 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.8rem', margin: '0 auto 32px', boxShadow: '0 20px 60px rgba(184,131,58,0.5)' }}>
+            <div className="success-icon" style={{ width: 110, height: 110, borderRadius: '50%', background: 'linear-gradient(135deg, #B8833A 0%, #D4A055 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.8rem', margin: '0 auto 32px', boxShadow: '0 20px 60px rgba(184,131,58,0.5)' }}>
               ✂️
             </div>
             <h1 style={{ margin: 0, fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(2.2rem, 8vw, 3rem)', fontWeight: 300, lineHeight: 1.08 }}>
               Confirma tu <em style={{ color: '#D4A055' }}>email</em>
             </h1>
-            <p style={{ margin: '14px 0 4px', color: 'rgba(255,255,255,0.5)', fontSize: 15, fontFamily: 'Outfit, sans-serif' }}>
-              Enlace enviado a
-            </p>
-            <p style={{ margin: '0 0 36px', color: '#D4A055', fontSize: 15, fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>
-              {sentTo}
-            </p>
+            <p style={{ margin: '14px 0 4px', color: 'rgba(255,255,255,0.5)', fontSize: 15, fontFamily: 'Outfit, sans-serif' }}>Enlace enviado a</p>
+            <p style={{ margin: '0 0 36px', color: '#D4A055', fontSize: 15, fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>{sentTo}</p>
             <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(184,131,58,0.18)', borderRadius: 22, padding: '24px 28px', marginBottom: 24, textAlign: 'left', backdropFilter: 'blur(20px)' }}>
-              {['Confirma tu email', 'Inicia sesión en TopSy', 'Completa los datos de tu negocio', 'Recibe verificación en 24-48h'].map((step, i) => (
+              {['Confirma tu email', 'Inicia sesión en TopSy', 'Completa los datos de tu negocio', 'Recibe verificación en 24-48h'].map((s, i) => (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '11px 0', borderBottom: i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
                   <div style={{ width: 30, height: 30, borderRadius: '50%', background: 'linear-gradient(135deg, #B8833A, #D4A055)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#1A1612', fontWeight: 700, flexShrink: 0, fontFamily: 'Outfit, sans-serif' }}>{i + 1}</div>
-                  <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', fontFamily: 'Outfit, sans-serif' }}>{step}</span>
+                  <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.85)', fontFamily: 'Outfit, sans-serif' }}>{s}</span>
                 </div>
               ))}
             </div>
@@ -144,18 +192,54 @@ export default function RegisterProPage() {
         @keyframes spin{to{transform:rotate(360deg)}}
         @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
         @keyframes glow{0%,100%{opacity:0.3}50%{opacity:0.6}}
+        @keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+        @keyframes floatUp{0%{transform:translateY(0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(-110vh);opacity:0}}
+        @keyframes pulseGlow{0%,100%{box-shadow:0 0 0 0 rgba(212,160,85,0.4)}50%{box-shadow:0 0 0 12px rgba(212,160,85,0)}}
+        @keyframes successPop{0%{transform:scale(0.5);opacity:0}50%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+
         .fade-up{animation:fadeUp 0.5s ease forwards}
         .fade-up-d1{animation:fadeUp 0.6s ease 0.1s both}
         .fade-up-d2{animation:fadeUp 0.7s ease 0.2s both}
-        .cat-btn:hover{border-color:#D4A055 !important;transform:translateY(-2px)}
-        .google-btn:hover{background:rgba(255,255,255,0.06) !important;transform:translateY(-2px)}
+        .fade-up-d3{animation:fadeUp 0.8s ease 0.3s both}
+
+        .success-icon{animation:successPop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both}
+
+        .shimmer-text{
+          background:linear-gradient(90deg, #D4A055 0%, #FFE4B5 25%, #D4A055 50%, #FFE4B5 75%, #D4A055 100%);
+          background-size:200% auto;
+          -webkit-background-clip:text;
+          background-clip:text;
+          -webkit-text-fill-color:transparent;
+          animation:shimmer 4s linear infinite;
+          font-style:italic;
+        }
+
+        .cat-btn{position:relative;transform-style:preserve-3d;perspective:1000px}
+        .cat-btn:hover{border-color:#D4A055 !important;transform:translateY(-3px) rotateX(-3deg) !important;box-shadow:0 16px 32px rgba(184,131,58,0.25) !important}
+        .cat-btn:hover .cat-icon{transform:scale(1.2) rotate(-5deg)}
+        .cat-icon{transition:transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)}
+
+        .google-btn:hover{background:rgba(255,255,255,0.06) !important;transform:translateY(-2px);border-color:rgba(212,160,85,0.4) !important}
+
+        .primary-btn{position:relative;overflow:hidden}
+        .primary-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);transition:left 0.6s}
+        .primary-btn:hover::before{left:100%}
         .primary-btn:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(184,131,58,0.5) !important}
+
         .glow-orb{position:absolute;border-radius:50%;background:radial-gradient(circle, rgba(184,131,58,0.15) 0%, transparent 70%);animation:glow 4s ease-in-out infinite;pointer-events:none}
+
+        .pulse-dot{animation:pulseGlow 2s ease-in-out infinite}
+
+        .stat-card{transition:all 0.3s}
+        .stat-card:hover{background:rgba(255,255,255,0.06) !important;transform:translateY(-3px);border-color:rgba(212,160,85,0.3) !important}
       `}</style>
 
       {/* Decorative orbs */}
-      <div className="glow-orb" style={{ width: 400, height: 400, top: -100, right: -100 }} />
-      <div className="glow-orb" style={{ width: 300, height: 300, bottom: -50, left: -50, animationDelay: '2s' }} />
+      <div className="glow-orb" style={{ width: 500, height: 500, top: -150, right: -150 }} />
+      <div className="glow-orb" style={{ width: 350, height: 350, bottom: -100, left: -100, animationDelay: '2s' }} />
+
+      {/* Partículas doradas */}
+      <GoldParticles />
 
       {/* Header */}
       <header style={{ height: 74, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', borderBottom: '1px solid rgba(255,255,255,0.06)', background: 'rgba(26,22,18,0.6)', backdropFilter: 'blur(20px)', position: 'sticky', top: 0, zIndex: 10 }}>
@@ -174,11 +258,11 @@ export default function RegisterProPage() {
           {/* Hero */}
           <div className="fade-up" style={{ textAlign: 'center', marginBottom: 28 }}>
             <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'linear-gradient(135deg, rgba(184,131,58,0.15), rgba(212,160,85,0.15))', border: '1px solid rgba(212,160,85,0.3)', borderRadius: 999, padding: '7px 16px', marginBottom: 22 }}>
-              <span style={{ fontSize: 14 }}>✂️</span>
+              <span className="pulse-dot" style={{ width: 6, height: 6, borderRadius: '50%', background: '#D4A055' }} />
               <span style={{ fontSize: 11, color: '#D4A055', fontFamily: 'Outfit, sans-serif', fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Cuenta profesional</span>
             </div>
             <h1 style={{ margin: 0, fontFamily: 'Cormorant Garamond, serif', fontWeight: 300, fontSize: 'clamp(2.4rem, 8vw, 3.2rem)', lineHeight: 1.04, letterSpacing: '-0.02em' }}>
-              {step === 1 ? <>Haz crecer <em style={{ color: '#D4A055', fontStyle: 'italic' }}>tu negocio</em></> : <>Cuéntanos de <em style={{ color: '#D4A055', fontStyle: 'italic' }}>tu negocio</em></>}
+              {step === 1 ? <>Haz crecer <span className="shimmer-text">tu negocio</span></> : <>Cuéntanos de <span className="shimmer-text">tu negocio</span></>}
             </h1>
             <p style={{ margin: '14px 0 0', color: 'rgba(255,255,255,0.55)', fontSize: 15, lineHeight: 1.6, fontFamily: 'Outfit, sans-serif' }}>
               {step === 1 ? 'Únete a la red de profesionales más elegante de España.' : 'Estos detalles ayudan a los clientes a encontrarte.'}
@@ -201,35 +285,47 @@ export default function RegisterProPage() {
                     fontSize: 11, fontWeight: 700, color: step >= n ? '#1A1612' : 'rgba(255,255,255,0.4)', fontFamily: 'Outfit, sans-serif',
                     boxShadow: step === n ? '0 4px 14px rgba(184,131,58,0.4)' : 'none', transition: 'all 0.3s',
                   }}>
-                    {n}
+                    {step > n ? '✓' : n}
                   </div>
                   <span style={{ fontSize: 12, color: step >= n ? '#D4A055' : 'rgba(255,255,255,0.35)', fontWeight: step >= n ? 600 : 400, fontFamily: 'Outfit, sans-serif' }}>{label}</span>
                 </div>
-                {i < 1 && <div style={{ width: 32, height: 2, background: step > 1 ? 'linear-gradient(90deg, #B8833A, #D4A055)' : 'rgba(255,255,255,0.08)', borderRadius: 2 }} />}
+                {i < 1 && <div style={{ width: 32, height: 2, background: step > 1 ? 'linear-gradient(90deg, #B8833A, #D4A055)' : 'rgba(255,255,255,0.08)', borderRadius: 2, transition: 'background 0.4s' }} />}
               </div>
             ))}
           </div>
 
           {step === 1 && (
             <>
-              {/* Beneficios */}
-              <div className="fade-up-d1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 24 }}>
+              {/* Stats live */}
+              <div className="fade-up-d1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 18 }}>
                 {[
-                  { icon: '🎁', text: 'Gratis para siempre' },
-                  { icon: '📅', text: 'Reservas 24/7' },
-                  { icon: '⭐', text: 'Más visibilidad' },
-                ].map(b => (
-                  <div key={b.text} style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(184,131,58,0.12)', borderRadius: 14, padding: '12px 8px', textAlign: 'center', backdropFilter: 'blur(10px)' }}>
-                    <div style={{ fontSize: 22, marginBottom: 6 }}>{b.icon}</div>
-                    <p style={{ margin: 0, fontSize: 10.5, color: 'rgba(255,255,255,0.7)', fontFamily: 'Outfit, sans-serif', fontWeight: 600, lineHeight: 1.3 }}>{b.text}</p>
+                  { num: 1247, label: 'Profesionales', icon: '✨' },
+                  { num: 28543, label: 'Citas reservadas', icon: '📅' },
+                  { num: 4.9, label: 'Valoración media', icon: '⭐', isDecimal: true },
+                ].map((s, i) => (
+                  <div key={i} className="stat-card" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(184,131,58,0.12)', borderRadius: 14, padding: '12px 8px', textAlign: 'center', backdropFilter: 'blur(10px)' }}>
+                    <div style={{ fontSize: 16, marginBottom: 4 }}>{s.icon}</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: '#D4A055', fontFamily: 'Outfit, sans-serif', lineHeight: 1 }}>
+                      {s.isDecimal ? s.num : <AnimatedCounter target={s.num} />}
+                    </div>
+                    <p style={{ margin: '4px 0 0', fontSize: 9.5, color: 'rgba(255,255,255,0.5)', fontFamily: 'Outfit, sans-serif', fontWeight: 500, lineHeight: 1.2 }}>{s.label}</p>
                   </div>
                 ))}
+              </div>
+
+              {/* Oferta primer año */}
+              <div className="fade-up-d2" style={{ background: 'linear-gradient(135deg, rgba(184,131,58,0.15), rgba(212,160,85,0.08))', border: '1px solid rgba(212,160,85,0.3)', borderRadius: 14, padding: '14px 18px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 14, backdropFilter: 'blur(10px)' }}>
+                <div style={{ fontSize: 24 }}>🎁</div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#D4A055', fontFamily: 'Outfit, sans-serif' }}>Primer año GRATIS</p>
+                  <p style={{ margin: '2px 0 0', fontSize: 11, color: 'rgba(255,255,255,0.6)', fontFamily: 'Outfit, sans-serif' }}>Sin tarjeta · Reservas ilimitadas</p>
+                </div>
               </div>
 
               {/* Google */}
               <div className="fade-up-d2">
                 <button type="button" onClick={() => loginWithGoogle('professional')} disabled={googleLoading} className="google-btn"
-                  style={{ width: '100%', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 16, cursor: googleLoading ? 'not-allowed' : 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 600, color: '#FFFFFF', marginBottom: 18, transition: 'all 0.2s', backdropFilter: 'blur(10px)' }}>
+                  style={{ width: '100%', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 16, cursor: googleLoading ? 'not-allowed' : 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 600, color: '#FFFFFF', marginBottom: 18, transition: 'all 0.25s', backdropFilter: 'blur(10px)' }}>
                   {googleLoading
                     ? <span style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.2)', borderTopColor: '#D4A055', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
                     : <GoogleIcon />
@@ -291,14 +387,15 @@ export default function RegisterProPage() {
                           style={{
                             padding: '12px 4px 10px', borderRadius: 14, cursor: 'pointer', textAlign: 'center',
                             border: `1.5px solid ${active ? '#D4A055' : 'rgba(255,255,255,0.1)'}`,
-                            background: active ? 'linear-gradient(135deg, rgba(184,131,58,0.2), rgba(212,160,85,0.15))' : 'rgba(255,255,255,0.03)',
+                            background: active ? 'linear-gradient(135deg, rgba(184,131,58,0.25), rgba(212,160,85,0.15))' : 'rgba(255,255,255,0.03)',
                             color: active ? '#D4A055' : 'rgba(255,255,255,0.6)',
-                            transition: 'all 0.2s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+                            transition: 'all 0.25s', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
                             fontFamily: 'Outfit, sans-serif',
-                            boxShadow: active ? '0 6px 20px rgba(184,131,58,0.25)' : 'none',
+                            boxShadow: active ? '0 10px 28px rgba(184,131,58,0.3)' : 'none',
                             backdropFilter: 'blur(10px)',
+                            transform: active ? 'translateY(-2px)' : 'none',
                           }}>
-                          <span style={{ fontSize: '1.4rem', lineHeight: 1 }}>{cat.icon}</span>
+                          <span className="cat-icon" style={{ fontSize: '1.4rem', lineHeight: 1 }}>{cat.icon}</span>
                           <span style={{ fontSize: 10, lineHeight: 1.2, fontWeight: active ? 700 : 500 }}>{cat.label}</span>
                         </button>
                       )
