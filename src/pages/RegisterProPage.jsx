@@ -314,21 +314,6 @@ export default function RegisterProPage() {
 
               {/* Google */}
               <div className="fade-up-d2">
-                <button type="button" onClick={() => loginWithGoogle('professional')} disabled={googleLoading} className="google-btn"
-                  style={{ width: '100%', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 16, cursor: googleLoading ? 'not-allowed' : 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 600, color: '#FFFFFF', marginBottom: 18, transition: 'all 0.25s', backdropFilter: 'blur(10px)' }}>
-                  {googleLoading
-                    ? <span style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.2)', borderTopColor: '#D4A055', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
-                    : <GoogleIcon />
-                  }
-                  {googleLoading ? 'Conectando...' : 'Continuar con Google'}
-                </button>
-
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 22 }}>
-                  <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
-                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: 'Outfit, sans-serif', letterSpacing: '0.08em', textTransform: 'uppercase' }}>O con email</span>
-                  <div style={{ flex: 1, height: 1, background: 'rgba(255,255,255,0.08)' }} />
-                </div>
-
                 <form onSubmit={(e) => e.preventDefault()}>
                   <Field icon="👤" label="Nombre completo" error={errors.full_name?.message} focused={focused === 'name'}>
                     <input {...register('full_name', { required: 'Requerido' })} placeholder="Ana Martínez" onFocus={() => setFocused('name')} onBlur={() => setFocused(null)} style={inputStyle} />
