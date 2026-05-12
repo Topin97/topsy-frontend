@@ -18,8 +18,8 @@ const STATUS = {
 
 function Sheet({ onClose, children }) {
   return (
-    <div onClick={onClose} style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', width: '100%', maxWidth: '100%', overflowX: 'hidden' }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: '#FFFFFF', borderRadius: '24px 24px 0 0', padding: '0 0 env(safe-area-inset-bottom, 24px)', width: '100%', maxWidth: 480, boxShadow: '0 -8px 40px rgba(0,0,0,0.15)', maxHeight: '92dvh', overflowY: 'auto', overflowX: 'hidden', boxSizing: 'border-box' }}>
+    <div onClick={onClose} className="sheet-backdrop" style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(6px)', display: 'flex', alignItems: 'flex-end', justifyContent: 'center', width: '100%', maxWidth: '100%', overflowX: 'hidden' }}>
+      <div onClick={e => e.stopPropagation()} className="sheet-content" style={{ background: '#FFFFFF', borderRadius: '24px 24px 0 0', padding: '0 0 env(safe-area-inset-bottom, 24px)', width: '100%', maxWidth: 480, boxShadow: '0 -8px 40px rgba(0,0,0,0.15)', maxHeight: '92dvh', overflowY: 'auto', overflowX: 'hidden', boxSizing: 'border-box' }}>
         <div style={{ width: 36, height: 4, borderRadius: 2, background: 'rgba(0,0,0,0.08)', margin: '16px auto 0', position: 'sticky', top: 0 }} />
         {children}
       </div>
@@ -47,7 +47,7 @@ function ClientSheet({ booking, onClose }) {
     <Sheet onClose={onClose}>
       <div style={{ padding: '20px', overflowX: 'hidden', boxSizing: 'border-box' }}>
         {/* Header cliente */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
+        <div className="anim-fadeup" style={{ animationDelay: '0.05s', display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
           <div style={{ width: 56, height: 56, borderRadius: '50%', overflow: 'hidden', background: 'linear-gradient(135deg,#1A0F05,#2C1810)', border: '2px solid rgba(184,131,58,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             {booking.profiles?.avatar_url
               ? <img src={booking.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -64,7 +64,7 @@ function ClientSheet({ booking, onClose }) {
         </div>
 
         {/* Datos de contacto */}
-        <div style={{ background: '#FAFAF9', borderRadius: 14, padding: '14px 16px', marginBottom: 16, border: '1px solid rgba(0,0,0,0.06)' }}>
+        <div className="anim-fadeup" style={{ animationDelay: '0.12s', background: '#FAFAF9', borderRadius: 14, padding: '14px 16px', marginBottom: 16, border: '1px solid rgba(0,0,0,0.06)' }}>
           <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(26,22,18,0.4)', marginBottom: 12, fontFamily: 'Outfit, sans-serif' }}>Contacto</p>
           {booking.profiles?.phone && (
             <>
@@ -104,22 +104,22 @@ function ClientSheet({ booking, onClose }) {
         </div>
 
         {/* Historial */}
-        <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(26,22,18,0.4)', marginBottom: 10, fontFamily: 'Outfit, sans-serif' }}>Historial de citas</p>
+        <p className="anim-fadeup" style={{ animationDelay: '0.18s', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(26,22,18,0.4)', marginBottom: 10, fontFamily: 'Outfit, sans-serif' }}>Historial de citas</p>
         {isLoading ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {[1,2,3].map(i => <div key={i} style={{ height: 56, borderRadius: 12, background: 'linear-gradient(90deg,#f0ede8 25%,#e8e4de 50%,#f0ede8 75%)', backgroundSize: '400px 100%', animation: 'shimmer 1.4s infinite' }} />)}
           </div>
         ) : history.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '20px 0', color: 'rgba(26,22,18,0.3)' }}>
+          <div className="anim-scale" style={{ textAlign: 'center', padding: '20px 0', color: 'rgba(26,22,18,0.3)' }}>
             <p style={{ fontSize: 24, marginBottom: 6 }}>📋</p>
             <p style={{ fontSize: 13, fontFamily: 'Outfit, sans-serif' }}>Sin historial aún</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, maxHeight: 280, overflowY: 'auto' }}>
-            {history.map(b => {
+            {history.map((b, idx) => {
               const st = STATUS[b.status] ?? STATUS.pending
               return (
-                <div key={b.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#FAFAF9', borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}>
+                <div key={b.id} className="anim-fadeup" style={{ animationDelay: `${0.2 + idx * 0.04}s`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#FAFAF9', borderRadius: 12, border: '1px solid rgba(0,0,0,0.06)' }}>
                   <div>
                     <p style={{ fontSize: 13, fontWeight: 600, color: '#1A1612', margin: 0, fontFamily: 'Outfit, sans-serif' }}>{b.services?.name}</p>
                     <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.4)', margin: 0, fontFamily: 'Outfit, sans-serif' }}>{format(new Date(b.starts_at), "d MMM yyyy · HH:mm", { locale: es })}</p>
@@ -152,16 +152,16 @@ function NotesModal({ booking, onClose, onSend, isLoading }) {
   return (
     <Sheet onClose={onClose}>
       <div style={{ padding: '20px' }}>
-        <p style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#B8833A', marginBottom: 2, fontFamily: 'Outfit, sans-serif' }}>💬 Notas · {booking.profiles?.full_name}</p>
-        <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.35)', marginBottom: 16, fontFamily: 'Outfit, sans-serif' }}>{booking.services?.name} · {format(new Date(booking.starts_at), "d MMM · HH:mm", { locale: es })}</p>
+        <p className="anim-fadeup" style={{ animationDelay: '0.05s', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#B8833A', marginBottom: 2, fontFamily: 'Outfit, sans-serif' }}>💬 Notas · {booking.profiles?.full_name}</p>
+        <p className="anim-fadeup" style={{ animationDelay: '0.08s', fontSize: 12, color: 'rgba(26,22,18,0.35)', marginBottom: 16, fontFamily: 'Outfit, sans-serif' }}>{booking.services?.name} · {format(new Date(booking.starts_at), "d MMM · HH:mm", { locale: es })}</p>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14, minHeight: 60, maxHeight: 240, overflowY: 'auto' }}>
           {messages.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '16px 0', color: 'rgba(26,22,18,0.25)' }}>
+            <div className="anim-scale" style={{ textAlign: 'center', padding: '16px 0', color: 'rgba(26,22,18,0.25)' }}>
               <p style={{ fontSize: 26, marginBottom: 6 }}>💬</p>
               <p style={{ fontSize: 13, fontFamily: 'Outfit, sans-serif' }}>Sin notas aún</p>
             </div>
           ) : messages.map((m, i) => (
-            <div key={i} style={{ alignSelf: m.isPro ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
+            <div key={i} className={m.isPro ? 'anim-slide-right' : 'anim-slide-left'} style={{ animationDelay: `${0.1 + i * 0.05}s`, alignSelf: m.isPro ? 'flex-end' : 'flex-start', maxWidth: '80%' }}>
               <p style={{ fontSize: 10, color: 'rgba(26,22,18,0.35)', margin: '0 0 3px', fontFamily: 'Outfit, sans-serif', textAlign: m.isPro ? 'right' : 'left' }}>{m.author}{m.time && ` · ${m.time}`}</p>
               <div style={{ background: m.isPro ? 'linear-gradient(135deg,#B8833A,#D4A055)' : '#F7F5F2', borderRadius: m.isPro ? '14px 4px 14px 14px' : '4px 14px 14px 14px', padding: '10px 14px' }}>
                 <p style={{ margin: 0, fontSize: 14, color: m.isPro ? '#FFFFFF' : '#1A1612', fontFamily: 'Outfit, sans-serif', lineHeight: 1.4 }}>{m.message}</p>
@@ -169,11 +169,15 @@ function NotesModal({ booking, onClose, onSend, isLoading }) {
             </div>
           ))}
         </div>
-        <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end', width: '100%' }}>
+        <div className="anim-fadeup" style={{ animationDelay: '0.15s', display: 'flex', gap: 10, alignItems: 'flex-end', width: '100%' }}>
           <textarea value={text} onChange={e => setText(e.target.value)} placeholder="Escribe una nota para el cliente..." maxLength={500} rows={2}
             style={{ flex: 1, minWidth: 0, background: '#F7F5F2', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 14, padding: '11px 14px', fontSize: 14, fontFamily: 'Outfit, sans-serif', resize: 'none', outline: 'none', color: '#1A1612', boxSizing: 'border-box' }} />
           <button onClick={() => { if (!text.trim()) return; onSend(text.trim()); setText('') }} disabled={isLoading || !text.trim()}
-            style={{ width: 46, height: 46, minWidth: 46, borderRadius: '50%', background: text.trim() ? 'linear-gradient(135deg,#B8833A,#D4A055)' : 'rgba(184,131,58,0.15)', border: 'none', color: '#FFFFFF', fontSize: 20, cursor: text.trim() ? 'pointer' : 'not-allowed', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>↑</button>
+            style={{ width: 46, height: 46, minWidth: 46, borderRadius: '50%', background: text.trim() ? 'linear-gradient(135deg,#B8833A,#D4A055)' : 'rgba(184,131,58,0.15)', border: 'none', color: '#FFFFFF', fontSize: 20, cursor: text.trim() ? 'pointer' : 'not-allowed', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'transform 0.15s' }}
+            onMouseDown={e => e.currentTarget.style.transform = 'scale(0.92)'}
+            onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+          >↑</button>
         </div>
       </div>
     </Sheet>
@@ -200,16 +204,17 @@ function RescheduleModal({ booking, onClose, onConfirm, isLoading }) {
   return (
     <Sheet onClose={onClose}>
       <div style={{ padding: '20px' }}>
-        <p style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#B8833A', marginBottom: 2, fontFamily: 'Outfit, sans-serif' }}>🔄 Reprogramar cita</p>
-        <p style={{ fontSize: 13, color: '#1A1612', fontWeight: 600, marginBottom: 2, fontFamily: 'Outfit, sans-serif' }}>{booking.profiles?.full_name} · {booking.services?.name}</p>
-        <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.4)', marginBottom: 18, fontFamily: 'Outfit, sans-serif' }}>
+        <p className="anim-fadeup" style={{ animationDelay: '0.05s', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#B8833A', marginBottom: 2, fontFamily: 'Outfit, sans-serif' }}>🔄 Reprogramar cita</p>
+        <p className="anim-fadeup" style={{ animationDelay: '0.08s', fontSize: 13, color: '#1A1612', fontWeight: 600, marginBottom: 2, fontFamily: 'Outfit, sans-serif' }}>{booking.profiles?.full_name} · {booking.services?.name}</p>
+        <p className="anim-fadeup" style={{ animationDelay: '0.11s', fontSize: 12, color: 'rgba(26,22,18,0.4)', marginBottom: 18, fontFamily: 'Outfit, sans-serif' }}>
           Actual: {format(new Date(booking.starts_at), "EEEE d MMM · HH:mm", { locale: es })}
         </p>
-        <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(26,22,18,0.4)', marginBottom: 8, fontFamily: 'Outfit, sans-serif' }}>Selecciona día</p>
+        <p className="anim-fadeup" style={{ animationDelay: '0.14s', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.12em', color: 'rgba(26,22,18,0.4)', marginBottom: 8, fontFamily: 'Outfit, sans-serif' }}>Selecciona día</p>
         <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8, marginBottom: 16 }}>
-          {days.map(d => (
+          {days.map((d, i) => (
             <button key={d.iso} onClick={() => { setSelectedDate(d.iso); setSelectedSlot(null) }}
-              style={{ flexShrink: 0, padding: '8px 14px', borderRadius: 12, border: `1.5px solid ${selectedDate === d.iso ? '#B8833A' : 'rgba(0,0,0,0.1)'}`, background: selectedDate === d.iso ? 'linear-gradient(135deg,#B8833A,#D4A055)' : '#FFFFFF', color: selectedDate === d.iso ? '#FFFFFF' : '#1A1612', fontSize: 12, fontFamily: 'Outfit, sans-serif', fontWeight: 600, cursor: 'pointer', textTransform: 'capitalize' }}>
+              className="anim-fadeup"
+              style={{ animationDelay: `${0.16 + i * 0.025}s`, flexShrink: 0, padding: '8px 14px', borderRadius: 12, border: `1.5px solid ${selectedDate === d.iso ? '#B8833A' : 'rgba(0,0,0,0.1)'}`, background: selectedDate === d.iso ? 'linear-gradient(135deg,#B8833A,#D4A055)' : '#FFFFFF', color: selectedDate === d.iso ? '#FFFFFF' : '#1A1612', fontSize: 12, fontFamily: 'Outfit, sans-serif', fontWeight: 600, cursor: 'pointer', textTransform: 'capitalize', transition: 'transform 0.15s, border-color 0.2s, background 0.2s' }}>
               {d.label}
             </button>
           ))}
@@ -218,18 +223,19 @@ function RescheduleModal({ booking, onClose, onConfirm, isLoading }) {
           Horas libres {loadingSlots && <span style={{ color: '#B8833A' }}>· cargando...</span>}
         </p>
         {!loadingSlots && freeSlots.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '20px 0', color: 'rgba(26,22,18,0.3)' }}>
+          <div className="anim-scale" style={{ textAlign: 'center', padding: '20px 0', color: 'rgba(26,22,18,0.3)' }}>
             <p style={{ fontSize: 24, marginBottom: 6 }}>😔</p>
             <p style={{ fontSize: 13, fontFamily: 'Outfit, sans-serif' }}>Sin huecos ese día</p>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16, maxHeight: 180, overflowY: 'auto' }}>
-            {freeSlots.map(slot => {
+            {freeSlots.map((slot, i) => {
               const time = slot.starts_at.slice(11, 16)
               const isSelected = selectedSlot?.starts_at === slot.starts_at
               return (
                 <button key={slot.starts_at} onClick={() => setSelectedSlot(slot)}
-                  style={{ padding: '10px 4px', borderRadius: 12, border: `1.5px solid ${isSelected ? '#B8833A' : 'rgba(0,0,0,0.1)'}`, background: isSelected ? 'linear-gradient(135deg,#B8833A,#D4A055)' : '#F7F5F2', color: isSelected ? '#FFFFFF' : '#1A1612', fontSize: 13, fontFamily: 'Outfit, sans-serif', fontWeight: 600, cursor: 'pointer', textAlign: 'center' }}>
+                  className="anim-scale slot-btn"
+                  style={{ animationDelay: `${0.05 + i * 0.02}s`, padding: '10px 4px', borderRadius: 12, border: `1.5px solid ${isSelected ? '#B8833A' : 'rgba(0,0,0,0.1)'}`, background: isSelected ? 'linear-gradient(135deg,#B8833A,#D4A055)' : '#F7F5F2', color: isSelected ? '#FFFFFF' : '#1A1612', fontSize: 13, fontFamily: 'Outfit, sans-serif', fontWeight: 600, cursor: 'pointer', textAlign: 'center', transition: 'transform 0.15s, border-color 0.2s, background 0.2s' }}>
                   {time}
                 </button>
               )
@@ -237,7 +243,7 @@ function RescheduleModal({ booking, onClose, onConfirm, isLoading }) {
           </div>
         )}
         {selectedSlot && (
-          <div style={{ background: 'rgba(184,131,58,0.06)', border: '1.5px solid rgba(184,131,58,0.2)', borderRadius: 12, padding: '12px 16px', marginBottom: 16 }}>
+          <div className="anim-scale" style={{ background: 'rgba(184,131,58,0.06)', border: '1.5px solid rgba(184,131,58,0.2)', borderRadius: 12, padding: '12px 16px', marginBottom: 16 }}>
             <p style={{ margin: 0, fontSize: 13, color: '#B8833A', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
               Nueva hora: {format(new Date(selectedSlot.starts_at), "EEEE d MMM · HH:mm", { locale: es })}
             </p>
@@ -246,7 +252,7 @@ function RescheduleModal({ booking, onClose, onConfirm, isLoading }) {
         <div style={{ display: 'flex', gap: 10 }}>
           <button onClick={onClose} style={{ flex: 1, background: '#F7F5F2', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 12, padding: '13px 0', color: 'rgba(26,22,18,0.4)', fontSize: 14, fontFamily: 'Outfit, sans-serif', cursor: 'pointer' }}>Cancelar</button>
           <button onClick={() => selectedSlot && onConfirm(selectedSlot.starts_at)} disabled={!selectedSlot || isLoading}
-            style={{ flex: 2, background: selectedSlot ? 'linear-gradient(135deg,#B8833A,#D4A055)' : 'rgba(184,131,58,0.15)', border: 'none', borderRadius: 12, padding: '13px 0', color: '#FFFFFF', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', cursor: selectedSlot ? 'pointer' : 'not-allowed' }}>
+            style={{ flex: 2, background: selectedSlot ? 'linear-gradient(135deg,#B8833A,#D4A055)' : 'rgba(184,131,58,0.15)', border: 'none', borderRadius: 12, padding: '13px 0', color: '#FFFFFF', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', cursor: selectedSlot ? 'pointer' : 'not-allowed', transition: 'transform 0.15s' }}>
             {isLoading ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><span style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#FFF', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />Guardando...</span> : '✓ Confirmar nueva hora'}
           </button>
         </div>
@@ -261,7 +267,7 @@ export default function ProDashboardPage() {
   const [rescheduleBooking, setRescheduleBooking] = useState(null)
   const [notesBooking, setNotesBooking] = useState(null)
   const [clientBooking, setClientBooking] = useState(null)
-
+  const [showRevenueChart, setShowRevenueChart] = useState(true)
   const today = new Date().toLocaleDateString('sv-SE')
 
   const { data: stats, isLoading: loadingStats } = useQuery({
@@ -358,14 +364,18 @@ export default function ProDashboardPage() {
   const maxCount = Math.max(...weekData.map(d => d.count), 1)
 
   // Booking card — reutilizable para hoy y próximas
-  const BookingCard = ({ b, compact = false }) => {
+  const BookingCard = ({ b, compact = false, index = 0 }) => {
     const st = STATUS[b.status] ?? STATUS.pending
     const isPast = new Date(b.ends_at) < new Date()
     return (
-      <div className="booking-card" style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 14, padding: compact ? '12px 14px' : '14px 16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+      <div className="booking-card anim-fadeup" style={{ animationDelay: `${0.1 + index * 0.05}s`, background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 14, padding: compact ? '12px 14px' : '14px 16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           {/* Avatar — tap abre perfil cliente */}
-          <button onClick={() => setClientBooking(b)} style={{ width: compact ? 32 : 38, height: compact ? 32 : 38, borderRadius: '50%', overflow: 'hidden', background: 'rgba(184,131,58,0.08)', border: '1.5px solid rgba(184,131,58,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', padding: 0 }}>
+          <button onClick={() => setClientBooking(b)} style={{ width: compact ? 32 : 38, height: compact ? 32 : 38, borderRadius: '50%', overflow: 'hidden', background: 'rgba(184,131,58,0.08)', border: '1.5px solid rgba(184,131,58,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', padding: 0, transition: 'transform 0.15s' }}
+            onMouseDown={e => e.currentTarget.style.transform = 'scale(0.92)'}
+            onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+          >
             {b.profiles?.avatar_url
               ? <img src={b.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: compact ? '0.85rem' : '1rem', color: '#B8833A' }}>{b.profiles?.full_name?.[0]?.toUpperCase()}</span>
@@ -400,11 +410,11 @@ export default function ProDashboardPage() {
         })()}
         {b.status === 'confirmed' && (
           <div style={{ display: 'flex', gap: 6, marginTop: 10, paddingTop: 10, borderTop: '1px solid rgba(0,0,0,0.06)', flexWrap: 'wrap' }}>
-            {isPast && <button className="complete-btn" onClick={() => completeBooking(b.id)} style={{ flex: 1, minWidth: 70, background: 'rgba(37,99,235,0.06)', border: '1.5px solid rgba(37,99,235,0.2)', borderRadius: 8, padding: '7px 4px', fontSize: 12, color: '#2563eb', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', fontWeight: 600 }}>✓ OK</button>}
-            {isPast && <button className="noshow-btn" onClick={() => { if (confirm('¿Marcar como no presentado?')) noShowBooking(b.id) }} style={{ flex: 1, minWidth: 50, background: 'rgba(245,158,11,0.05)', border: '1.5px solid rgba(245,158,11,0.2)', borderRadius: 8, padding: '7px 4px', fontSize: 12, color: '#d97706', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', fontWeight: 600 }}>👻</button>}
-            <button onClick={() => setNotesBooking(b)} style={{ flex: 1, minWidth: 50, background: b.notes ? 'rgba(184,131,58,0.06)' : 'transparent', border: `1.5px solid ${b.notes ? 'rgba(184,131,58,0.2)' : 'rgba(0,0,0,0.1)'}`, borderRadius: 8, padding: '7px 4px', fontSize: 12, color: b.notes ? '#B8833A' : 'rgba(26,22,18,0.4)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>💬</button>
-            <button onClick={() => setRescheduleBooking(b)} style={{ flex: 1, minWidth: 50, background: 'rgba(184,131,58,0.04)', border: '1.5px solid rgba(184,131,58,0.18)', borderRadius: 8, padding: '7px 4px', fontSize: 12, color: '#B8833A', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>🔄</button>
-            <button className="cancel-btn" onClick={() => { if (confirm('¿Cancelar esta cita?')) cancelBooking(b.id) }} style={{ flex: 1, minWidth: 50, background: 'rgba(220,38,38,0.05)', border: '1.5px solid rgba(220,38,38,0.15)', borderRadius: 8, padding: '7px 4px', fontSize: 12, color: '#dc2626', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', fontWeight: 600 }}>✕</button>
+            {isPast && <button className="complete-btn action-btn" onClick={() => completeBooking(b.id)} style={{ flex: 1, minWidth: 70, background: 'rgba(37,99,235,0.06)', border: '1.5px solid rgba(37,99,235,0.2)', borderRadius: 8, padding: '7px 4px', fontSize: 12, color: '#2563eb', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', fontWeight: 600 }}>✓ OK</button>}
+            {isPast && <button className="noshow-btn action-btn" onClick={() => { if (confirm('¿Marcar como no presentado?')) noShowBooking(b.id) }} style={{ flex: 1, minWidth: 50, background: 'rgba(245,158,11,0.05)', border: '1.5px solid rgba(245,158,11,0.2)', borderRadius: 8, padding: '7px 4px', fontSize: 12, color: '#d97706', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', fontWeight: 600 }}>👻</button>}
+            <button className="action-btn" onClick={() => setNotesBooking(b)} style={{ flex: 1, minWidth: 50, background: b.notes ? 'rgba(184,131,58,0.06)' : 'transparent', border: `1.5px solid ${b.notes ? 'rgba(184,131,58,0.2)' : 'rgba(0,0,0,0.1)'}`, borderRadius: 8, padding: '7px 4px', fontSize: 12, color: b.notes ? '#B8833A' : 'rgba(26,22,18,0.4)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600, transition: 'all 0.2s' }}>💬</button>
+            <button className="action-btn" onClick={() => setRescheduleBooking(b)} style={{ flex: 1, minWidth: 50, background: 'rgba(184,131,58,0.04)', border: '1.5px solid rgba(184,131,58,0.18)', borderRadius: 8, padding: '7px 4px', fontSize: 12, color: '#B8833A', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600, transition: 'all 0.2s' }}>🔄</button>
+            <button className="cancel-btn action-btn" onClick={() => { if (confirm('¿Cancelar esta cita?')) cancelBooking(b.id) }} style={{ flex: 1, minWidth: 50, background: 'rgba(220,38,38,0.05)', border: '1.5px solid rgba(220,38,38,0.15)', borderRadius: 8, padding: '7px 4px', fontSize: 12, color: '#dc2626', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', fontWeight: 600 }}>✕</button>
           </div>
         )}
       </div>
@@ -415,15 +425,40 @@ export default function ProDashboardPage() {
     <div style={{ background: '#F7F5F2', minHeight: '100vh', paddingBottom: 80 }}>
       <style>{`
         .nav-btn:hover { background: rgba(184,131,58,0.08) !important; border-color: rgba(184,131,58,0.3) !important; color: #B8833A !important; }
-        .booking-card { transition: box-shadow 0.2s, border-color 0.2s; }
-        .booking-card:hover { border-color: rgba(184,131,58,0.2) !important; box-shadow: 0 4px 16px rgba(0,0,0,0.06) !important; }
-        .kpi-card { transition: transform 0.2s, box-shadow 0.2s; }
-        .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0,0,0,0.09) !important; }
+        .booking-card { transition: box-shadow 0.25s, border-color 0.25s, transform 0.25s; }
+        .booking-card:hover { border-color: rgba(184,131,58,0.2) !important; box-shadow: 0 4px 16px rgba(0,0,0,0.06) !important; transform: translateY(-1px); }
+        .kpi-card { transition: transform 0.25s, box-shadow 0.25s; }
+        .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(0,0,0,0.1) !important; }
         .complete-btn:hover { background: rgba(37,99,235,0.1) !important; border-color: rgba(37,99,235,0.3) !important; }
         .cancel-btn:hover { background: rgba(220,38,38,0.08) !important; border-color: rgba(220,38,38,0.3) !important; }
         .noshow-btn:hover { background: rgba(245,158,11,0.1) !important; border-color: rgba(245,158,11,0.35) !important; }
+        .action-btn:active { transform: scale(0.94); }
+        .slot-btn:active { transform: scale(0.94); }
+
         @keyframes spin { to { transform: rotate(360deg) } }
         @keyframes shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px) } to { opacity: 1; transform: translateY(0) } }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.9) } to { opacity: 1; transform: scale(1) } }
+        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-20px) } to { opacity: 1; transform: translateX(0) } }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(20px) } to { opacity: 1; transform: translateX(0) } }
+        @keyframes slideUpSheet { from { transform: translateY(100%) } to { transform: translateY(0) } }
+        @keyframes fadeInBackdrop { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes growBar { from { height: 4px; opacity: 0.4 } to { height: var(--bar-h); opacity: 1 } }
+
+        .anim-fadeup { animation: fadeInUp 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both }
+        .anim-scale { animation: fadeInScale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both }
+        .anim-slide-left { animation: slideInLeft 0.4s ease-out both }
+        .anim-slide-right { animation: slideInRight 0.4s ease-out both }
+        .anim-bar { animation: growBar 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both }
+
+        .sheet-backdrop { animation: fadeInBackdrop 0.25s ease-out both; }
+        .sheet-content { animation: slideUpSheet 0.4s cubic-bezier(0.32, 0.72, 0.32, 1) both; }
+
+        @media (prefers-reduced-motion: reduce) {
+          .anim-fadeup, .anim-scale, .anim-slide-left, .anim-slide-right, .anim-bar,
+          .sheet-backdrop, .sheet-content { animation: none !important; opacity: 1 !important; transform: none !important; }
+        }
+
         @media (max-width: 768px) {
           .kpi-grid { grid-template-columns: 1fr 1fr !important; }
           .main-grid { grid-template-columns: 1fr !important; }
@@ -440,13 +475,13 @@ export default function ProDashboardPage() {
         <div className="container-app">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, flexWrap: 'wrap' }}>
             <div>
-              <p style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#B8833A', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
+              <p className="anim-fadeup" style={{ fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase', color: '#B8833A', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
                 <span style={{ display: 'inline-block', width: 20, height: 1.5, background: '#B8833A', borderRadius: 1 }} /> Panel profesional
               </p>
-              <h1 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.8rem,4vw,2.6rem)', fontWeight: 300, lineHeight: 1.1, color: '#1A1612' }}>
+              <h1 className="anim-fadeup" style={{ animationDelay: '0.08s', fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.8rem,4vw,2.6rem)', fontWeight: 300, lineHeight: 1.1, color: '#1A1612' }}>
                 {greeting()},<br /><em style={{ color: '#B8833A' }}>{user?.full_name?.split(' ')[0]}</em>
               </h1>
-              <p style={{ color: 'rgba(26,22,18,0.4)', fontSize: 12, marginTop: 6, fontFamily: 'Outfit, sans-serif' }}>
+              <p className="anim-fadeup" style={{ animationDelay: '0.14s', color: 'rgba(26,22,18,0.4)', fontSize: 12, marginTop: 6, fontFamily: 'Outfit, sans-serif' }}>
                 {format(new Date(), "EEEE, d 'de' MMMM yyyy", { locale: es })}
               </p>
             </div>
@@ -456,12 +491,13 @@ export default function ProDashboardPage() {
                 { to: '/pro/services', icon: '✂️', label: 'Servicios' },
                 { to: '/pro/availability', icon: '🕐', label: 'Horarios' },
                 { to: '/pro/waitlist', icon: '⏳', label: 'Espera' },
-              ].map(({ to, icon, label }) => (
+              ].map(({ to, icon, label }, i) => (
                 <Link
                   key={to}
                   to={to}
-                  className="nav-btn"
+                  className="nav-btn anim-fadeup"
                   style={{
+                    animationDelay: `${0.2 + i * 0.05}s`,
                     textDecoration: 'none',
                     fontSize: 12,
                     padding: '9px 16px',
@@ -499,7 +535,7 @@ export default function ProDashboardPage() {
               { label: 'Completadas', value: stats.completed ?? 0, icon: '✅', delta: 'total' },
               { label: 'Valoración', value: stats.avg_rating || '—', icon: '⭐', delta: `${stats.total_reviews ?? 0} reseñas` },
             ].map((kpi, i) => (
-              <div key={i} className="kpi-card" style={{ background: kpi.accent ? 'linear-gradient(135deg, rgba(184,131,58,0.08), rgba(184,131,58,0.03))' : '#FFFFFF', border: `1.5px solid ${kpi.accent ? 'rgba(184,131,58,0.2)' : 'rgba(0,0,0,0.07)'}`, borderRadius: 18, padding: '18px 16px', position: 'relative', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
+              <div key={i} className="kpi-card anim-fadeup" style={{ animationDelay: `${i * 0.08}s`, background: kpi.accent ? 'linear-gradient(135deg, rgba(184,131,58,0.08), rgba(184,131,58,0.03))' : '#FFFFFF', border: `1.5px solid ${kpi.accent ? 'rgba(184,131,58,0.2)' : 'rgba(0,0,0,0.07)'}`, borderRadius: 18, padding: '18px 16px', position: 'relative', overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
                 <div style={{ position: 'absolute', top: 14, right: 14, fontSize: '1.4rem', opacity: 0.15 }}>{kpi.icon}</div>
                 <p style={{ fontSize: 9, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.35)', marginBottom: 8, fontFamily: 'Outfit, sans-serif' }}>{kpi.label}</p>
                 <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.6rem,3vw,2.4rem)', fontWeight: 300, color: kpi.accent ? '#B8833A' : '#1A1612', lineHeight: 1, marginBottom: 4 }}>{kpi.value}</p>
@@ -509,45 +545,51 @@ export default function ProDashboardPage() {
           </div>
         )}
 
-        {/* Mini chart */}
         {/* Gráfico de ingresos por mes */}
-        {stats?.revenue_by_month?.length > 0 && (() => {
+        {stats?.revenue_by_month && (() => {
           const maxRev = Math.max(...stats.revenue_by_month.map(m => m.revenue), 1)
           return (
-            <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 18, padding: '20px 20px 16px', marginBottom: 24, boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <div className="anim-fadeup" style={{ animationDelay: '0.35s', background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 18, padding: '20px 20px 16px', marginBottom: 24, boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: showRevenueChart ? 16 : 0 }}>
                 <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#B8833A', display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', fontWeight: 600, margin: 0 }}>
                   <span style={{ display: 'inline-block', width: 16, height: 1.5, background: '#B8833A' }} /> Ingresos últimos 6 meses
                 </p>
-                <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', color: '#B8833A', fontStyle: 'italic' }}>
-                  {stats.revenue_by_month.reduce((s, m) => s + m.revenue, 0).toFixed(0)}€ total
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', color: '#B8833A', fontStyle: 'italic' }}>
+                    {stats.revenue_by_month.reduce((s, m) => s + m.revenue, 0).toFixed(0)}€ total
+                  </span>
+                  <button onClick={() => setShowRevenueChart(!showRevenueChart)} style={{ background: 'none', border: '1px solid rgba(184,131,58,0.2)', borderRadius: 8, padding: '4px 10px', fontSize: 11, color: '#B8833A', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600, transition: 'background 0.2s' }}>
+                    {showRevenueChart ? 'Ocultar' : 'Mostrar'}
+                  </button>
+                </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 72 }}>
-                {stats.revenue_by_month.map((m, i) => (
-                  <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                    {m.revenue > 0 && (
-                      <span style={{ fontSize: 9, color: '#B8833A', fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>{m.revenue.toFixed(0)}€</span>
-                    )}
-                    <div style={{ width: '100%', background: m.revenue > 0 ? 'linear-gradient(180deg, #B8833A, rgba(184,131,58,0.25))' : '#EFEDE9', borderRadius: '5px 5px 0 0', height: `${Math.max((m.revenue / maxRev) * 52, m.revenue > 0 ? 10 : 4)}px`, transition: 'height 0.4s cubic-bezier(0.34,1.56,0.64,1)' }} />
-                    <span style={{ fontSize: 9, color: 'rgba(26,22,18,0.35)', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{m.label}</span>
-                  </div>
-                ))}
-              </div>
+              {showRevenueChart && (
+                <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 72 }}>
+                  {stats.revenue_by_month.map((m, i) => (
+                    <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+                      {m.revenue > 0 && (
+                        <span style={{ fontSize: 9, color: '#B8833A', fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>{m.revenue.toFixed(0)}€</span>
+                      )}
+                      <div className="anim-bar" style={{ '--bar-h': `${Math.max((m.revenue / maxRev) * 52, m.revenue > 0 ? 10 : 4)}px`, animationDelay: `${0.5 + i * 0.08}s`, width: '100%', background: m.revenue > 0 ? 'linear-gradient(180deg, #B8833A, rgba(184,131,58,0.25))' : '#EFEDE9', borderRadius: '5px 5px 0 0', height: `${Math.max((m.revenue / maxRev) * 52, m.revenue > 0 ? 10 : 4)}px` }} />
+                      <span style={{ fontSize: 9, color: 'rgba(26,22,18,0.35)', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{m.label}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )
         })()}
 
         {/* Mini chart de citas últimos 7 días */}
         {weekData.length > 0 && (
-          <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 18, padding: '20px 20px 16px', marginBottom: 24, boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
+          <div className="anim-fadeup" style={{ animationDelay: '0.42s', background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 18, padding: '20px 20px 16px', marginBottom: 24, boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
             <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#B8833A', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
               <span style={{ display: 'inline-block', width: 16, height: 1.5, background: '#B8833A' }} /> Citas últimos 7 días
             </p>
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 60 }}>
               {weekData.map((d, i) => (
                 <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                  <div style={{ width: '100%', background: d.count > 0 ? 'linear-gradient(180deg, #B8833A, rgba(184,131,58,0.3))' : '#EFEDE9', borderRadius: '4px 4px 0 0', height: `${Math.max((d.count / maxCount) * 48, d.count > 0 ? 8 : 4)}px`, transition: 'height 0.3s' }} />
+                  <div className="anim-bar" style={{ '--bar-h': `${Math.max((d.count / maxCount) * 48, d.count > 0 ? 8 : 4)}px`, animationDelay: `${0.6 + i * 0.06}s`, width: '100%', background: d.count > 0 ? 'linear-gradient(180deg, #B8833A, rgba(184,131,58,0.3))' : '#EFEDE9', borderRadius: '4px 4px 0 0', height: `${Math.max((d.count / maxCount) * 48, d.count > 0 ? 8 : 4)}px` }} />
                   <span style={{ fontSize: 9, color: 'rgba(26,22,18,0.3)', textTransform: 'capitalize', fontFamily: 'Outfit, sans-serif' }}>{d.day}</span>
                 </div>
               ))}
@@ -558,7 +600,7 @@ export default function ProDashboardPage() {
         <div className="main-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
           {/* Citas hoy */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div className="anim-fadeup" style={{ animationDelay: '0.5s', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
               <p style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#B8833A', display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
                 <span style={{ display: 'inline-block', width: 16, height: 1.5, background: '#B8833A' }} /> Citas hoy
               </p>
@@ -569,33 +611,33 @@ export default function ProDashboardPage() {
                 {[1,2,3].map(i => <div key={i} className="skeleton" style={{ height: 80, borderRadius: 14 }} />)}
               </div>
             ) : !bookingsToday?.length ? (
-              <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 16, padding: '36px 20px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+              <div className="anim-scale" style={{ animationDelay: '0.55s', background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 16, padding: '36px 20px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
                 <p style={{ fontSize: '2rem', marginBottom: 8 }}>☀️</p>
                 <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', fontStyle: 'italic', color: 'rgba(26,22,18,0.3)' }}>Sin citas hoy</p>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {bookingsToday.map(b => <BookingCard key={b.id} b={b} />)}
+                {bookingsToday.map((b, i) => <BookingCard key={b.id} b={b} index={i} />)}
               </div>
             )}
           </div>
 
           {/* Próximas */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+            <div className="anim-fadeup" style={{ animationDelay: '0.55s', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
               <p style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#B8833A', display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
                 <span style={{ display: 'inline-block', width: 16, height: 1.5, background: '#B8833A' }} /> Próximas
               </p>
               <span style={{ fontSize: 11, color: 'rgba(26,22,18,0.3)', fontFamily: 'Outfit, sans-serif' }}>{upcoming?.length ?? 0} confirmadas</span>
             </div>
             {!upcoming?.length ? (
-              <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 16, padding: '36px 20px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+              <div className="anim-scale" style={{ animationDelay: '0.6s', background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 16, padding: '36px 20px', textAlign: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
                 <p style={{ fontSize: '2rem', marginBottom: 8 }}>📭</p>
                 <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', fontStyle: 'italic', color: 'rgba(26,22,18,0.3)' }}>Sin próximas citas</p>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                {upcoming.slice(0, 8).map(b => <BookingCard key={b.id} b={b} compact />)}
+                {upcoming.slice(0, 8).map((b, i) => <BookingCard key={b.id} b={b} compact index={i} />)}
               </div>
             )}
           </div>
@@ -604,12 +646,15 @@ export default function ProDashboardPage() {
         {/* Reseñas */}
         {myReviews?.length > 0 && (
           <div style={{ marginTop: 28 }}>
-            <p style={{ fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#B8833A', display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', fontWeight: 600, marginBottom: 14 }}>
+            <p className="anim-fadeup" style={{ animationDelay: '0.65s', fontSize: 10, letterSpacing: '0.18em', textTransform: 'uppercase', color: '#B8833A', display: 'flex', alignItems: 'center', gap: 8, fontFamily: 'Outfit, sans-serif', fontWeight: 600, marginBottom: 14 }}>
               <span style={{ display: 'inline-block', width: 16, height: 1.5, background: '#B8833A' }} /> Reseñas de clientes
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {myReviews.map(r => (
-                <div key={r.id} style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 16, padding: '16px 18px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+              {myReviews.map((r, i) => (
+                <div key={r.id} className="anim-fadeup" style={{ animationDelay: `${0.7 + i * 0.06}s`, background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 16, padding: '16px 18px', boxShadow: '0 2px 8px rgba(0,0,0,0.04)', transition: 'box-shadow 0.25s, transform 0.25s' }}
+                  onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.07)'; e.currentTarget.style.transform = 'translateY(-1px)' }}
+                  onMouseLeave={e => { e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.04)'; e.currentTarget.style.transform = 'translateY(0)' }}
+                >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
                     <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg,#1A0F05,#2C1810)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
                       {r.profiles?.avatar_url
@@ -622,8 +667,8 @@ export default function ProDashboardPage() {
                       <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.35)', margin: 0, fontFamily: 'Outfit, sans-serif' }}>{format(new Date(r.created_at), "d MMM yyyy", { locale: es })}</p>
                     </div>
                     <div style={{ display: 'flex', gap: 2 }}>
-                      {[1,2,3,4,5].map(i => (
-                        <span key={i} style={{ fontSize: 14, color: i <= r.rating ? '#F59E0B' : '#E5E7EB' }}>★</span>
+                      {[1,2,3,4,5].map(idx => (
+                        <span key={idx} style={{ fontSize: 14, color: idx <= r.rating ? '#F59E0B' : '#E5E7EB' }}>★</span>
                       ))}
                     </div>
                   </div>
