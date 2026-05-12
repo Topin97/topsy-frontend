@@ -246,7 +246,7 @@ export default function RegisterProPage() {
       </header>
 
       <main style={{ flex: 1, display: 'flex', justifyContent: 'center', padding: '32px 24px 56px', position: 'relative', zIndex: 1 }}>
-        <div style={{ width: '100%', maxWidth: 440 }}>
+        <div style={{ width: '100%', maxWidth: 480 }}>
 
           {/* Hero */}
           <div className="fade-up" style={{ textAlign: 'center', marginBottom: 28 }}>
@@ -316,7 +316,7 @@ export default function RegisterProPage() {
               <div className="fade-up-d2">
                 <form onSubmit={(e) => e.preventDefault()}>
                   <Field icon="👤" label="Nombre completo" error={errors.full_name?.message} focused={focused === 'name'}>
-                    <input {...register('full_name', { required: 'Requerido' })} placeholder="Ana Martínez" onFocus={() => setFocused('name')} onBlur={() => setFocused(null)} style={inputStyle} />
+                    <input {...register('full_name', { required: 'Requerido' })} placeholder="Nombre y apellidos" onFocus={() => setFocused('name')} onBlur={() => setFocused(null)} style={inputStyle} />
                   </Field>
                   <Field icon="📧" label="Email" error={errors.email?.message} focused={focused === 'email'}>
                     <input {...register('email', { required: 'Requerido', pattern: { value: /\S+@\S+\.\S+/, message: 'Email inválido' } })} type="email" placeholder="tu@email.com" onFocus={() => setFocused('email')} onBlur={() => setFocused(null)} style={inputStyle} />
@@ -350,7 +350,7 @@ export default function RegisterProPage() {
             <div className="fade-up">
               <form onSubmit={handleSubmit(onSubmit)}>
                 <Field icon="🏪" label="Nombre del negocio" error={errors.business_name?.message} focused={focused === 'bname'}>
-                  <input {...register('business_name', { required: 'Requerido' })} placeholder="Salón Ana" onFocus={() => setFocused('bname')} onBlur={() => setFocused(null)} style={inputStyle} />
+                  <input {...register('business_name', { required: 'Requerido' })} placeholder="Nombre de tu negocio" onFocus={() => setFocused('bname')} onBlur={() => setFocused(null)} style={inputStyle} />
                 </Field>
                 <Field icon="📍" label="Ciudad" error={errors.city?.message} focused={focused === 'city'}>
                   <input {...register('city', { required: 'Requerido' })} placeholder="Madrid" onFocus={() => setFocused('city')} onBlur={() => setFocused(null)} style={inputStyle} />

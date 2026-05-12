@@ -106,7 +106,6 @@ export function useGoogleAuth() {
         role
       )
 
-      // Usuario sin nombre (típico de Apple) → completar perfil
       if (data.needs_complete_profile || data.needs_phone_verification) {
         sessionStorage.setItem('pending_access_token', data.access_token)
         sessionStorage.setItem('pending_refresh_token', data.refresh_token)
@@ -117,19 +116,22 @@ export function useGoogleAuth() {
 
       setAuth(data.user, data.access_token, data.refresh_token)
       const name = data.user.full_name?.split(' ')[0] || 'Usuario'
-      toast.success(`¡Bienvenido, ${name}! ✨`)
 
+      let target = '/'
       const redirect = sessionStorage.getItem('login_redirect')
       if (redirect) {
         sessionStorage.removeItem('login_redirect')
-        navigate(redirect)
-        return
+        target = redirect
+      } else if (data.user.role === 'professional') {
+        target = data.user.professional_profiles ? '/pro/dashboard' : '/pro/onboarding'
       }
 
-      if (data.user.role === 'professional') {
-        navigate(data.user.professional_profiles ? '/pro/dashboard' : '/pro/onboarding')
+      // Si el OAuthCallbackPage está montado, usa la transición cinematográfica
+      if (typeof window !== 'undefined' && window.__topsyNavigate) {
+        window.__topsyNavigate(target, name)
       } else {
-        navigate('/')
+        toast.success(`¡Bienvenido, ${name}! ✨`)
+        navigate(target)
       }
     } catch (err) {
       console.error('[OAuth callback] error:', err.response?.data ?? err.message)

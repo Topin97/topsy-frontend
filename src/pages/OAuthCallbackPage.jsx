@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createClient } from '@supabase/supabase-js'
 import { useGoogleAuth } from '../hooks/useGoogleAuth'
@@ -12,6 +12,19 @@ export default function OAuthCallbackPage() {
   const navigate = useNavigate()
   const { handleCallback } = useGoogleAuth()
   const called = useRef(false)
+  const [transitioning, setTransitioning] = useState(false)
+  const [welcomeName, setWelcomeName] = useState('')
+
+  // Interceptar el navigate global desde el hook para mostrar transición
+  useEffect(() => {
+    const originalNavigate = window.__topsyNavigate
+    window.__topsyNavigate = (path, userName) => {
+      setWelcomeName(userName || '')
+      setTransitioning(true)
+      setTimeout(() => navigate(path), 1100)
+    }
+    return () => { window.__topsyNavigate = originalNavigate }
+  }, [navigate])
 
   useEffect(() => {
     if (called.current) return
@@ -25,13 +38,11 @@ export default function OAuthCallbackPage() {
       const code = urlParams.get('code')
       const error = urlParams.get('error')
 
-      // Si Apple devuelve error directo
       if (error) {
         navigate('/login')
         return
       }
 
-      // Flujo PKCE con código (Apple)
       if (code) {
         try {
           const { data, error: exchErr } = await supabase.auth.exchangeCodeForSession(code)
@@ -49,7 +60,6 @@ export default function OAuthCallbackPage() {
         }
       }
 
-      // Flujo hash (Google)
       try {
         const { data: { session } } = await supabase.auth.getSession()
         if (session) {
@@ -58,7 +68,6 @@ export default function OAuthCallbackPage() {
         }
       } catch (_) {}
 
-      // Esperar evento de Supabase
       const { data } = supabase.auth.onAuthStateChange((event, session) => {
         if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
           clearTimeout(timeout)
@@ -81,6 +90,74 @@ export default function OAuthCallbackPage() {
     setup()
     return () => { clearTimeout(timeout); subscription?.unsubscribe() }
   }, []) // eslint-disable-line
+
+  if (transitioning) {
+    return (
+      <div style={{ position: 'fixed', inset: 0, zIndex: 1000, pointerEvents: 'none' }}>
+        <style>{`
+          @keyframes flashIn{0%{opacity:0}30%{opacity:1}100%{opacity:1}}
+          @keyframes logoReveal{
+            0%{transform:translate(-50%,-50%) scale(0.5);opacity:0;filter:blur(20px)}
+            40%{transform:translate(-50%,-50%) scale(1);opacity:1;filter:blur(0px)}
+            70%{transform:translate(-50%,-50%) scale(1.05);opacity:1}
+            100%{transform:translate(-50%,-50%) scale(1.3);opacity:0;filter:blur(8px)}
+          }
+          @keyframes welcomeFade{
+            0%{opacity:0;transform:translateX(-50%) translateY(20px)}
+            30%{opacity:1;transform:translateX(-50%) translateY(0)}
+            80%{opacity:1;transform:translateX(-50%) translateY(0)}
+            100%{opacity:0;transform:translateX(-50%) translateY(-10px)}
+          }
+          @keyframes sparkleUp{
+            0%{transform:translateY(100vh) scale(0);opacity:0}
+            50%{opacity:1}
+            100%{transform:translateY(-20vh) scale(1.2);opacity:0}
+          }
+        `}</style>
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,#1A1612 0%,#2C1810 100%)', animation: 'flashIn 0.4s ease forwards' }} />
+        <div style={{
+          position: 'absolute', top: '50%', left: '50%',
+          fontFamily: 'Cormorant Garamond, serif',
+          fontWeight: 700, letterSpacing: '4px',
+          fontSize: 'clamp(60px, 12vw, 100px)',
+          whiteSpace: 'nowrap', color: '#FFFFFF',
+          filter: 'drop-shadow(0 0 40px rgba(212,160,85,0.9))',
+          animation: 'logoReveal 1.1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards',
+        }}>
+          TOP<span style={{ color: '#D4A055', fontStyle: 'italic' }}>sy</span>
+        </div>
+        {welcomeName && (
+          <div style={{
+            position: 'absolute',
+            top: 'calc(50% + 80px)',
+            left: '50%',
+            fontFamily: 'Outfit, sans-serif',
+            fontSize: 18, fontWeight: 500,
+            color: 'rgba(255,255,255,0.85)',
+            letterSpacing: '0.05em',
+            animation: 'welcomeFade 1.1s ease 0.2s forwards',
+            opacity: 0,
+          }}>
+            Bienvenido, <span style={{ color: '#D4A055', fontWeight: 700 }}>{welcomeName}</span> ✨
+          </div>
+        )}
+        {Array.from({ length: 25 }).map((_, i) => (
+          <div key={i}
+            style={{
+              position: 'absolute',
+              width: 6, height: 6,
+              background: 'radial-gradient(circle, #D4A055 0%, transparent 70%)',
+              borderRadius: '50%',
+              boxShadow: '0 0 10px #D4A055',
+              left: `${Math.random() * 100}%`,
+              top: `${50 + Math.random() * 40}%`,
+              animation: `sparkleUp ${0.8 + Math.random() * 0.4}s ease ${Math.random() * 0.4}s forwards`,
+            }}
+          />
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div style={{ minHeight: '100dvh', background: '#FFFFFF', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 20 }}>

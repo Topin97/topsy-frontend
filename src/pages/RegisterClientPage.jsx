@@ -146,7 +146,7 @@ export default function RegisterClientPage() {
       </header>
 
       <main style={{ flex: 1, display: 'flex', justifyContent: 'center', padding: '32px 24px 56px' }}>
-        <div style={{ width: '100%', maxWidth: 420 }}>
+        <div style={{ width: '100%', maxWidth: 480 }}>
 
           {/* Hero */}
           <div className="fade-up" style={{ textAlign: 'center', marginBottom: 32 }}>
@@ -181,7 +181,7 @@ export default function RegisterClientPage() {
 
             <form onSubmit={handleSubmit(onSubmit)}>
               <Field icon="👤" label="Nombre completo" error={errors.full_name?.message} focused={focused === 'name'}>
-                <input {...register('full_name', { required: 'Nombre requerido' })} placeholder="Lucía García" onFocus={() => setFocused('name')} onBlur={() => setFocused(null)} style={inputStyle} />
+                <input {...register('full_name', { required: 'Nombre requerido' })} placeholder="Nombre y apellidos" onFocus={() => setFocused('name')} onBlur={() => setFocused(null)} style={inputStyle} />
               </Field>
 
               <Field icon="📧" label="Email" error={errors.email?.message} focused={focused === 'email'}>

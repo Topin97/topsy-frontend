@@ -34,6 +34,8 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [email, setEmail] = useState('')
   const [emailStep, setEmailStep] = useState(false)
+  const [transitioning, setTransitioning] = useState(false)
+  const [welcomeName, setWelcomeName] = useState('')
   const { register, handleSubmit, formState: { errors } } = useForm()
   const { loginWithGoogle, loginWithApple, loading: oauthLoading } = useGoogleAuth()
 
@@ -46,10 +48,15 @@ export default function LoginPage() {
   const nextParam = searchParams.get('next')
   if (nextParam) sessionStorage.setItem('login_redirect', nextParam)
 
+  const triggerTransition = (name, redirectFn) => {
+    setWelcomeName(name)
+    setTransitioning(true)
+    setTimeout(redirectFn, 1100)
+  }
+
   const { mutate, isPending } = useMutation({
     mutationFn: authApi.login,
     onSuccess: ({ data }) => {
-      // Si falta completar perfil (sin teléfono verificado)
       if (data.needs_complete_profile) {
         sessionStorage.setItem('pending_access_token', data.access_token)
         sessionStorage.setItem('pending_refresh_token', data.refresh_token)
@@ -59,8 +66,7 @@ export default function LoginPage() {
       }
       setAuth(data.user, data.access_token, data.refresh_token)
       const name = data.user.full_name?.split(' ')[0] || 'Usuario'
-      toast.success(`Bienvenido, ${name} ✨`)
-      navigate(getRedirect(data.user.role))
+      triggerTransition(name, () => navigate(getRedirect(data.user.role)))
     },
     onError: (err) => {
       const data = err.response?.data
@@ -75,17 +81,96 @@ export default function LoginPage() {
   })
 
   return (
-    <div style={{ minHeight: '100dvh', background: '#FFFFFF', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ minHeight: '100dvh', background: '#FFFFFF', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
       <style>{`
         @keyframes spin{to{transform:rotate(360deg)}}
         @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+        @keyframes flashIn{0%{opacity:0}30%{opacity:1}100%{opacity:1}}
+        @keyframes fadeOutContent{0%{opacity:1}100%{opacity:0}}
+        @keyframes logoReveal{
+          0%{transform:translate(-50%,-50%) scale(0.5);opacity:0;filter:blur(20px)}
+          40%{transform:translate(-50%,-50%) scale(1);opacity:1;filter:blur(0px)}
+          70%{transform:translate(-50%,-50%) scale(1.05);opacity:1}
+          100%{transform:translate(-50%,-50%) scale(1.3);opacity:0;filter:blur(8px)}
+        }
+        @keyframes welcomeFade{
+          0%{opacity:0;transform:translateX(-50%) translateY(20px)}
+          30%{opacity:1;transform:translateX(-50%) translateY(0)}
+          80%{opacity:1;transform:translateX(-50%) translateY(0)}
+          100%{opacity:0;transform:translateX(-50%) translateY(-10px)}
+        }
+        @keyframes sparkle{
+          0%{transform:translateY(100vh) scale(0);opacity:0}
+          50%{opacity:1}
+          100%{transform:translateY(-20vh) scale(1.2);opacity:0}
+        }
+
         .fade-up{animation:fadeUp 0.3s ease forwards}
         .social-btn:hover{background:#F5F5F4 !important}
         .login-btn:hover{opacity:0.88}
         input:focus{border-color:#1A1612 !important}
+
+        .transition-overlay{position:fixed;inset:0;z-index:1000;pointer-events:none}
+        .transition-bg{position:absolute;inset:0;background:linear-gradient(180deg,#1A1612 0%,#2C1810 100%);animation:flashIn 0.4s ease forwards}
+        .transition-logo{
+          position:absolute;top:50%;left:50%;
+          font-family:'Cormorant Garamond', serif;
+          font-weight:700;letter-spacing:4px;
+          font-size:clamp(60px, 12vw, 100px);
+          white-space:nowrap;color:#FFFFFF;
+          filter:drop-shadow(0 0 40px rgba(212,160,85,0.9));
+          animation:logoReveal 1.1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        .transition-welcome{
+          position:absolute;
+          top:calc(50% + 80px);
+          left:50%;
+          font-family:'Outfit', sans-serif;
+          font-size:18px;
+          font-weight:500;
+          color:rgba(255,255,255,0.85);
+          letter-spacing:0.05em;
+          animation:welcomeFade 1.1s ease 0.2s forwards;
+          opacity:0;
+        }
+        .sparkle{
+          position:absolute;
+          width:6px;height:6px;
+          background:radial-gradient(circle, #D4A055 0%, transparent 70%);
+          border-radius:50%;
+          box-shadow:0 0 10px #D4A055;
+          animation:sparkle 1s ease forwards;
+        }
+        .content-fadeout{animation:fadeOutContent 0.3s ease forwards}
       `}</style>
 
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+      {/* Transición cinematográfica al hacer login */}
+      {transitioning && (
+        <div className="transition-overlay">
+          <div className="transition-bg" />
+          <div className="transition-logo">
+            TOP<span style={{ color: '#D4A055', fontStyle: 'italic' }}>sy</span>
+          </div>
+          {welcomeName && (
+            <div className="transition-welcome">
+              Bienvenido, <span style={{ color: '#D4A055', fontWeight: 700 }}>{welcomeName}</span> ✨
+            </div>
+          )}
+          {/* Partículas doradas */}
+          {Array.from({ length: 25 }).map((_, i) => (
+            <div key={i} className="sparkle"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${50 + Math.random() * 40}%`,
+                animationDelay: `${Math.random() * 0.4}s`,
+                animationDuration: `${0.8 + Math.random() * 0.4}s`,
+              }}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className={transitioning ? 'content-fadeout' : ''} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
         <button onClick={() => emailStep ? setEmailStep(false) : navigate('/')}
           style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(26,22,18,0.5)', fontSize: 20, padding: 4 }}>
           ←
@@ -96,7 +181,7 @@ export default function LoginPage() {
         <div style={{ width: 32 }} />
       </div>
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', maxWidth: 480, margin: '0 auto', width: '100%', padding: '0 24px 40px' }}>
+      <div className={transitioning ? 'content-fadeout' : ''} style={{ flex: 1, display: 'flex', flexDirection: 'column', maxWidth: 480, margin: '0 auto', width: '100%', padding: '0 24px 40px' }}>
 
         {!emailStep ? (
           <div className="fade-up">
