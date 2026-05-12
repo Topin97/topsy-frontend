@@ -318,7 +318,10 @@ const handleAvatarChange = async (e) => {
 
       // 3) Actualizar caché local (store + react-query)
       setUser({ ...user, avatar_url: url })
-      qc.invalidateQueries({ queryKey: ['me'] })
+      await qc.refetchQueries({ queryKey: ['me'] })
+
+      // Limpiar el preview para que se vea la URL ya persistida
+      setPreview(null)
 
       toast.success('Foto actualizada ✨')
     } catch (err) {
