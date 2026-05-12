@@ -251,13 +251,50 @@ const [showOnboarding, setShowOnboarding] = useState(
     </>
   )
 }
+// ────────────────────────────────────────────────────────────────
+// Bloquea el render hasta que Zustand termine de leer localStorage.
+// Sin esto, las llamadas iniciales a /me salen sin token y devuelven 401.
+// ────────────────────────────────────────────────────────────────
+function AuthHydrationGate({ children }) {
+  const [hydrated, setHydrated] = useState(() => useAuthStore.persist.hasHydrated())
 
+  useEffect(() => {
+    const unsubFinish = useAuthStore.persist.onFinishHydration(() => setHydrated(true))
+    // Comprobación de seguridad: si ya estaba hidratado al montar
+    if (useAuthStore.persist.hasHydrated()) setHydrated(true)
+    return unsubFinish
+  }, [])
+
+  if (!hydrated) {
+    return (
+      <div style={{
+        minHeight: '100dvh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#FFFFFF',
+      }}>
+        <div style={{
+          width: 32, height: 32, borderRadius: '50%',
+          border: '3px solid rgba(184,131,58,0.15)',
+          borderTopColor: '#B8833A',
+          animation: 'spin 0.8s linear infinite',
+        }} />
+        <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
+      </div>
+    )
+  }
+
+  return children
+}
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AppInner />
-      </BrowserRouter>
-    </QueryClientProvider>
+    <AuthHydrationGate>
+      <QueryClientProvider client={queryClient}>
+        <BrowserRouter>
+          <AppInner />
+        </BrowserRouter>
+      </QueryClientProvider>
+    </AuthHydrationGate>
   )
 }
