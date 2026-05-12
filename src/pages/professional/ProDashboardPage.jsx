@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import GCalDisconnectedBanner from '../../components/GCalDisconnectedBanner'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { profApi, bookingsApi } from '../../services/api'
 import { useAuthStore } from '../../store/authStore'
@@ -46,6 +47,7 @@ function ClientSheet({ booking, onClose }) {
   return (
     <Sheet onClose={onClose}>
       <div style={{ padding: '20px', overflowX: 'hidden', boxSizing: 'border-box' }}>
+	<GCalDisconnectedBanner />
         {/* Header cliente */}
         <div className="anim-fadeup" style={{ animationDelay: '0.05s', display: 'flex', alignItems: 'center', gap: 14, marginBottom: 20 }}>
           <div style={{ width: 56, height: 56, borderRadius: '50%', overflow: 'hidden', background: 'linear-gradient(135deg,#1A0F05,#2C1810)', border: '2px solid rgba(184,131,58,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
