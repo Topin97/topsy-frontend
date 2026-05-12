@@ -267,8 +267,7 @@ export default function ProfilePage() {
       return res.data
     },
   })
-
-  const me = meData?.user
+  const me = meData?.user ?? user
   const userEmail = me?.email ?? user?.email
   const emailVerified = !!meData?.email_confirmed_at
   const isAppleRelay = userEmail?.includes('privaterelay.appleid.com')
@@ -278,8 +277,7 @@ export default function ProfilePage() {
 
   // ── Detecta si al usuario le falta el nombre (caso típico de Apple OAuth) ──
   const hasName = !!me?.full_name?.trim()
-  const showCompleteProfileBanner = !isLoading && !hasName
-
+  const showCompleteProfileBanner = !isLoading && !hasName && !!meData
   const { mutate: saveProfile, isPending: saving } = useMutation({
     mutationFn: data => authApi.updateProfile(data),
     onSuccess: ({ data }) => {
