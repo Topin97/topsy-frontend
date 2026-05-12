@@ -289,20 +289,41 @@ export default function ProfilePage() {
     onError: err => toast.error(err.response?.data?.error ?? 'Error al guardar'),
   })
 
-  const handleAvatarChange = async (e) => {
+const handleAvatarChange = async (e) => {
     const file = e.target.files?.[0]
     if (!file) return
+
+    // Validaciones básicas antes de subir
+    if (!file.type.startsWith('image/')) {
+      toast.error('Solo se aceptan imágenes')
+      return
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('La imagen no puede superar los 5 MB')
+      return
+    }
+
+    // Preview inmediato mientras se sube
     const reader = new FileReader()
     reader.onload = ev => setPreview(ev.target.result)
     reader.readAsDataURL(file)
+
     setUploading(true)
     try {
+      // 1) Subir el fichero al bucket de Supabase Storage
       const url = await storageApi.uploadAvatar(file, user.id)
+
+      // 2) PERSISTIR la nueva URL en BD vía backend
+      await authApi.updateProfile({ avatar_url: url })
+
+      // 3) Actualizar caché local (store + react-query)
       setUser({ ...user, avatar_url: url })
-      toast.success('Foto actualizada ✨')
       qc.invalidateQueries({ queryKey: ['me'] })
-    } catch {
-      toast.error('Error al subir la imagen')
+
+      toast.success('Foto actualizada ✨')
+    } catch (err) {
+      console.error('[Avatar] upload error:', err)
+      toast.error(err.response?.data?.error ?? 'Error al subir la imagen')
       setPreview(null)
     } finally {
       setUploading(false)
