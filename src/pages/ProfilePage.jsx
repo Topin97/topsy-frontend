@@ -46,6 +46,15 @@ function getInitials(me, userEmail) {
   }
   return '?'
 }
+
+// Quita prefijo +34 / 0034 / 34 + 9 dígitos para mostrar SOLO los 9 dígitos en el input
+function stripSpanishPrefix(phone) {
+  if (!phone) return ''
+  const digits = String(phone).replace(/\D/g, '')
+  if (digits.length === 11 && digits.startsWith('34')) return digits.slice(2)
+  if (digits.length === 13 && digits.startsWith('0034')) return digits.slice(4)
+  return digits
+}
 // ────────────────────────────────────────────────────────────────────────────
 
 function ResendVerificationButton({ email }) {
@@ -79,10 +88,27 @@ function ResendVerificationButton({ email }) {
 
 function DatosPersonales({ me, userEmail, emailVerified, onBack, onSave, saving }) {
   const [focused, setFocused] = useState(null)
-  const { register, handleSubmit, formState: { isDirty } } = useForm({
-    values: { full_name: me?.full_name ?? '', city: me?.city ?? '', bio: me?.bio ?? '' }
+  const { register, handleSubmit, formState: { isDirty, errors } } = useForm({
+    values: {
+      full_name: me?.full_name ?? '',
+      phone: stripSpanishPrefix(me?.phone),
+      city: me?.city ?? '',
+      bio: me?.bio ?? '',
+    },
   })
   const inputStyle = { width: '100%', background: 'none', border: 'none', outline: 'none', color: '#181512', fontSize: 15, fontFamily: 'Outfit, sans-serif', padding: 0 }
+
+  const submit = (data) => {
+    // Solo añadimos el prefijo si el usuario escribió algo; si está vacío mandamos null para "quitar teléfono"
+    const rawPhone = (data.phone ?? '').replace(/\s/g, '')
+    const phone = rawPhone ? `+34${rawPhone}` : null
+    onSave({
+      full_name: data.full_name,
+      city: data.city,
+      bio: data.bio,
+      phone,
+    })
+  }
 
   return (
     <div style={{ background: '#FFFFFF', minHeight: '100vh', fontFamily: 'Outfit, sans-serif' }}>
@@ -93,7 +119,7 @@ function DatosPersonales({ me, userEmail, emailVerified, onBack, onSave, saving 
       <div style={{ padding: '0 20px' }}>
         <div style={{ padding: '16px 0' }}>
           <p style={{ fontSize: 12, fontWeight: 700, color: 'rgba(24,21,18,0.4)', letterSpacing: '0.08em', marginBottom: 16, textTransform: 'uppercase' }}>Datos personales</p>
-          <form onSubmit={handleSubmit(onSave)} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <form onSubmit={handleSubmit(submit)} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {[
               { key: 'full_name', label: 'Nombre y apellido', placeholder: 'Tu nombre completo' },
               { key: 'city', label: 'Ciudad', placeholder: 'Madrid' },
@@ -103,10 +129,52 @@ function DatosPersonales({ me, userEmail, emailVerified, onBack, onSave, saving 
                 <input {...register(f.key)} placeholder={f.placeholder} onFocus={() => setFocused(f.key)} onBlur={() => setFocused(null)} style={inputStyle} />
               </div>
             ))}
+
+            {/* TELÉFONO con prefijo +34 fijo */}
+            <div>
+              <div style={{
+                border: `1.5px solid ${errors.phone ? '#f87171' : focused === 'phone' ? '#181512' : 'rgba(0,0,0,0.12)'}`,
+                borderRadius: 12,
+                padding: '12px 16px',
+                transition: 'border-color 0.2s',
+                background: '#FAFAF9',
+              }}>
+                <label style={{ display: 'block', fontSize: 11, color: 'rgba(24,21,18,0.4)', marginBottom: 4, fontFamily: 'Outfit, sans-serif' }}>Teléfono</label>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 15, color: '#181512', fontWeight: 500, fontFamily: 'Outfit, sans-serif', flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4 }}>🇪🇸 +34</span>
+                  <div style={{ width: 1, height: 18, background: 'rgba(0,0,0,0.1)', flexShrink: 0 }} />
+                  <input
+                    {...register('phone', {
+                      validate: (v) => {
+                        if (!v || !v.trim()) return true // Permitir vaciar el teléfono
+                        const digits = v.replace(/\D/g, '')
+                        if (digits.length !== 9) return 'Deben ser 9 dígitos'
+                        if (!/^[67]/.test(digits)) return 'Debe empezar por 6 o 7'
+                        return true
+                      },
+                    })}
+                    type="tel"
+                    inputMode="numeric"
+                    placeholder="600 000 000"
+                    onFocus={() => setFocused('phone')}
+                    onBlur={() => setFocused(null)}
+                    style={{ ...inputStyle, flex: 1 }}
+                    autoComplete="tel-national"
+                  />
+                </div>
+              </div>
+              {errors.phone && (
+                <p style={{ color: '#f87171', fontSize: 12, marginTop: 5, paddingLeft: 4, fontFamily: 'Outfit, sans-serif' }}>
+                  {errors.phone.message}
+                </p>
+              )}
+            </div>
+
             <div style={{ border: `1.5px solid ${focused === 'bio' ? '#181512' : 'rgba(0,0,0,0.12)'}`, borderRadius: 12, padding: '12px 16px', transition: 'border-color 0.2s', background: '#FAFAF9' }}>
               <label style={{ display: 'block', fontSize: 11, color: 'rgba(24,21,18,0.4)', marginBottom: 4, fontFamily: 'Outfit, sans-serif' }}>Bio</label>
               <textarea {...register('bio')} placeholder="Cuéntanos algo sobre ti..." rows={3} onFocus={() => setFocused('bio')} onBlur={() => setFocused(null)} style={{ ...inputStyle, resize: 'none' }} />
             </div>
+
             <div style={{ padding: '14px 0', borderTop: '1px solid rgba(0,0,0,0.06)', borderBottom: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
               <div style={{ minWidth: 0 }}>
                 <p style={{ fontSize: 12, color: 'rgba(24,21,18,0.4)', margin: '0 0 2px' }}>Correo electrónico</p>
@@ -117,15 +185,7 @@ function DatosPersonales({ me, userEmail, emailVerified, onBack, onSave, saving 
                 : <span style={{ fontSize: 11, fontWeight: 700, color: '#d97706', background: 'rgba(217,119,6,0.08)', border: '1px solid rgba(217,119,6,0.15)', borderRadius: 999, padding: '3px 10px', flexShrink: 0 }}>⚠ Pendiente</span>
               }
             </div>
-            <div style={{ padding: '14px 0', borderBottom: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-              <div>
-                <p style={{ fontSize: 12, color: 'rgba(24,21,18,0.4)', margin: '0 0 2px' }}>Número de teléfono</p>
-                <p style={{ fontSize: 14, color: '#181512', margin: 0, fontWeight: 500 }}>{me?.phone ?? '—'}</p>
-              </div>
-              {me?.phone && (
-                <span style={{ fontSize: 11, fontWeight: 700, color: '#16a34a', background: 'rgba(22,163,74,0.08)', border: '1px solid rgba(22,163,74,0.15)', borderRadius: 999, padding: '3px 10px', flexShrink: 0 }}>✓ Verificado</span>
-              )}
-            </div>
+
             <button type="submit" disabled={!isDirty || saving}
               style={{ width: '100%', padding: '15px', background: !isDirty || saving ? 'rgba(24,21,18,0.1)' : '#181512', color: !isDirty || saving ? 'rgba(24,21,18,0.3)' : '#FFFFFF', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700, fontFamily: 'Outfit, sans-serif', cursor: !isDirty || saving ? 'not-allowed' : 'pointer', marginTop: 8, transition: 'all 0.15s' }}>
               {saving ? 'Guardando...' : 'Guardar'}

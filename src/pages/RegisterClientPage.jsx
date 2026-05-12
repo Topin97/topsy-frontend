@@ -163,7 +163,12 @@ export default function RegisterClientPage() {
     try {
       if (executeRecaptcha) token = await executeRecaptcha('register')
     } catch { /* captcha no disponible */ }
-    mutate({ ...data, recaptcha_token: token ?? 'bypass' })
+    // Pegamos prefijo +34 si el usuario solo escribió los 9 dígitos
+    const rawPhone = (data.phone ?? '').replace(/\s/g, '')
+    const fullPhone = rawPhone
+      ? (rawPhone.startsWith('+') ? rawPhone : `+34${rawPhone}`)
+      : ''
+    mutate({ ...data, phone: fullPhone, recaptcha_token: token ?? 'bypass' })
   }
 
   // ═══════════════════ PANTALLA EMAIL ENVIADO ═══════════════════
@@ -327,8 +332,24 @@ export default function RegisterClientPage() {
               <input {...register('email', { required: 'Email requerido', pattern: { value: /\S+@\S+\.\S+/, message: 'Email inválido' } })} type="email" placeholder="tu@email.com" onFocus={() => setFocused('email')} onBlur={() => setFocused(null)} style={inputStyle} autoComplete="email" />
             </Field>
 
+            {/* TELÉFONO con prefijo +34 fijo */}
             <Field icon="📱" label="Teléfono" error={errors.phone?.message} focused={focused === 'phone'} delay={0.54}>
-              <input {...register('phone', { pattern: { value: /^[+0-9()\-\s]{6,20}$/, message: 'Teléfono inválido' } })} type="tel" placeholder="+34 600 000 000" onFocus={() => setFocused('phone')} onBlur={() => setFocused(null)} style={inputStyle} autoComplete="tel" />
+              <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: 8 }}>
+                <span style={{ fontSize: 15, color: '#1A1612', fontFamily: 'Outfit, sans-serif', fontWeight: 500, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4 }}>🇪🇸 +34</span>
+                <div style={{ width: 1, height: 18, background: 'rgba(0,0,0,0.1)', flexShrink: 0 }} />
+                <input
+                  {...register('phone', {
+                    pattern: { value: /^[0-9\s]{9,12}$/, message: 'Teléfono inválido (9 dígitos)' },
+                  })}
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder="600 000 000"
+                  onFocus={() => setFocused('phone')}
+                  onBlur={() => setFocused(null)}
+                  style={{ ...inputStyle, flex: 1 }}
+                  autoComplete="tel-national"
+                />
+              </div>
             </Field>
 
             <Field icon="🔒" label="Contraseña" error={errors.password?.message} focused={focused === 'password'} delay={0.62}>
