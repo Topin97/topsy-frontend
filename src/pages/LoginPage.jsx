@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { Link, useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { useMutation } from '@tanstack/react-query'
@@ -36,8 +36,19 @@ export default function LoginPage() {
   const [emailStep, setEmailStep] = useState(false)
   const [transitioning, setTransitioning] = useState(false)
   const [welcomeName, setWelcomeName] = useState('')
+  const [emailFocused, setEmailFocused] = useState(false)
+  const [passwordFocused, setPasswordFocused] = useState(false)
+  const passwordRef = useRef(null)
   const { register, handleSubmit, formState: { errors } } = useForm()
+  const { ref: registerPasswordRef, ...passwordRegister } = register('password', { required: 'Contraseña requerida' })
   const { loginWithGoogle, loginWithApple, loading: oauthLoading } = useGoogleAuth()
+
+  // Auto-focus en el campo de contraseña cuando pasamos al paso 2
+  useEffect(() => {
+    if (emailStep && passwordRef.current) {
+      setTimeout(() => passwordRef.current?.focus(), 350)
+    }
+  }, [emailStep])
 
   const getRedirect = (role) => {
     const next = searchParams.get('next') || location.state?.from
@@ -83,68 +94,230 @@ export default function LoginPage() {
   return (
     <div style={{ minHeight: '100dvh', background: '#FFFFFF', display: 'flex', flexDirection: 'column', position: 'relative', overflow: 'hidden' }}>
       <style>{`
-        @keyframes spin{to{transform:rotate(360deg)}}
-        @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-        @keyframes flashIn{0%{opacity:0}30%{opacity:1}100%{opacity:1}}
-        @keyframes fadeOutContent{0%{opacity:1}100%{opacity:0}}
-        @keyframes logoReveal{
-          0%{transform:translate(-50%,-50%) scale(0.5);opacity:0;filter:blur(20px)}
-          40%{transform:translate(-50%,-50%) scale(1);opacity:1;filter:blur(0px)}
-          70%{transform:translate(-50%,-50%) scale(1.05);opacity:1}
-          100%{transform:translate(-50%,-50%) scale(1.3);opacity:0;filter:blur(8px)}
+        /* ── KEYFRAMES (sistema unificado TopSy) ── */
+        @keyframes spin { to { transform: rotate(360deg) } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px) } to { opacity: 1; transform: translateY(0) } }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.9) } to { opacity: 1; transform: scale(1) } }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(20px) } to { opacity: 1; transform: translateX(0) } }
+        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-20px) } to { opacity: 1; transform: translateX(0) } }
+
+        /* Animaciones de la transición cinemática (PRESERVADAS) */
+        @keyframes flashIn { 0% { opacity: 0 } 30% { opacity: 1 } 100% { opacity: 1 } }
+        @keyframes fadeOutContent { 0% { opacity: 1 } 100% { opacity: 0 } }
+        @keyframes logoReveal {
+          0% { transform: translate(-50%,-50%) scale(0.5); opacity: 0; filter: blur(20px) }
+          40% { transform: translate(-50%,-50%) scale(1); opacity: 1; filter: blur(0px) }
+          70% { transform: translate(-50%,-50%) scale(1.05); opacity: 1 }
+          100% { transform: translate(-50%,-50%) scale(1.3); opacity: 0; filter: blur(8px) }
         }
-        @keyframes welcomeFade{
-          0%{opacity:0;transform:translateX(-50%) translateY(20px)}
-          30%{opacity:1;transform:translateX(-50%) translateY(0)}
-          80%{opacity:1;transform:translateX(-50%) translateY(0)}
-          100%{opacity:0;transform:translateX(-50%) translateY(-10px)}
+        @keyframes welcomeFade {
+          0% { opacity: 0; transform: translateX(-50%) translateY(20px) }
+          30% { opacity: 1; transform: translateX(-50%) translateY(0) }
+          80% { opacity: 1; transform: translateX(-50%) translateY(0) }
+          100% { opacity: 0; transform: translateX(-50%) translateY(-10px) }
         }
-        @keyframes sparkle{
-          0%{transform:translateY(100vh) scale(0);opacity:0}
-          50%{opacity:1}
-          100%{transform:translateY(-20vh) scale(1.2);opacity:0}
+        @keyframes sparkle {
+          0% { transform: translateY(100vh) scale(0); opacity: 0 }
+          50% { opacity: 1 }
+          100% { transform: translateY(-20vh) scale(1.2); opacity: 0 }
+        }
+        @keyframes errorPulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(248,113,113,0.4) }
+          50% { box-shadow: 0 0 0 4px rgba(248,113,113,0.15) }
         }
 
-        .fade-up{animation:fadeUp 0.3s ease forwards}
-        .social-btn:hover{background:#F5F5F4 !important}
-        .login-btn:hover{opacity:0.88}
-        input:focus{border-color:#1A1612 !important}
+        /* Clases utilitarias */
+        .anim-fadeup { animation: fadeInUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both }
+        .anim-scale { animation: fadeInScale 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both }
+        .anim-slide-right { animation: slideInRight 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both }
+        .anim-slide-left { animation: slideInLeft 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both }
 
-        .transition-overlay{position:fixed;inset:0;z-index:1000;pointer-events:none}
-        .transition-bg{position:absolute;inset:0;background:linear-gradient(180deg,#1A1612 0%,#2C1810 100%);animation:flashIn 0.4s ease forwards}
-        .transition-logo{
-          position:absolute;top:50%;left:50%;
-          font-family:'Cormorant Garamond', serif;
-          font-weight:700;letter-spacing:4px;
-          font-size:clamp(60px, 12vw, 100px);
-          white-space:nowrap;color:#FFFFFF;
-          filter:drop-shadow(0 0 40px rgba(212,160,85,0.9));
-          animation:logoReveal 1.1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        /* Inputs — focus dorado premium */
+        .topsy-input {
+          width: 100%;
+          padding: 14px 16px;
+          border: 1.5px solid rgba(0,0,0,0.15);
+          border-radius: 10px;
+          font-size: 15px;
+          font-family: Outfit, sans-serif;
+          color: #1A1612;
+          background: #FAFAF9;
+          outline: none;
+          box-sizing: border-box;
+          transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
         }
-        .transition-welcome{
-          position:absolute;
-          top:calc(50% + 80px);
-          left:50%;
-          font-family:'Outfit', sans-serif;
-          font-size:18px;
-          font-weight:500;
-          color:rgba(255,255,255,0.85);
-          letter-spacing:0.05em;
-          animation:welcomeFade 1.1s ease 0.2s forwards;
-          opacity:0;
+        .topsy-input:focus {
+          border-color: #B8833A !important;
+          background: #FFFFFF;
+          box-shadow: 0 0 0 4px rgba(184,131,58,0.1);
         }
-        .sparkle{
-          position:absolute;
-          width:6px;height:6px;
-          background:radial-gradient(circle, #D4A055 0%, transparent 70%);
-          border-radius:50%;
-          box-shadow:0 0 10px #D4A055;
-          animation:sparkle 1s ease forwards;
+        .topsy-input-wrap {
+          display: flex;
+          align-items: center;
+          border: 1.5px solid rgba(0,0,0,0.15);
+          border-radius: 10px;
+          background: #FAFAF9;
+          overflow: hidden;
+          transition: border-color 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
         }
-        .content-fadeout{animation:fadeOutContent 0.3s ease forwards}
+        .topsy-input-wrap.focused {
+          border-color: #B8833A;
+          background: #FFFFFF;
+          box-shadow: 0 0 0 4px rgba(184,131,58,0.1);
+        }
+        .topsy-input-wrap.error {
+          border-color: #f87171;
+          animation: errorPulse 1.4s ease-in-out infinite;
+        }
+
+        /* Botones */
+        .primary-btn {
+          width: 100%;
+          padding: 15px;
+          border: none;
+          border-radius: 10px;
+          font-size: 15px;
+          font-weight: 700;
+          font-family: Outfit, sans-serif;
+          cursor: pointer;
+          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.2s ease, box-shadow 0.25s ease;
+        }
+        .primary-btn:not(:disabled):hover {
+          transform: translateY(-1px);
+          box-shadow: 0 8px 20px rgba(26,22,18,0.25);
+        }
+        .primary-btn:not(:disabled):active {
+          transform: translateY(0) scale(0.98);
+        }
+
+        .social-btn {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 12px;
+          padding: 14px;
+          border-radius: 10px;
+          cursor: pointer;
+          font-family: Outfit, sans-serif;
+          font-size: 15px;
+          font-weight: 600;
+          transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s ease, box-shadow 0.25s ease, border-color 0.2s ease;
+        }
+        .social-btn:not(:disabled):hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+        }
+        .social-btn:not(:disabled):active {
+          transform: translateY(0) scale(0.98);
+        }
+        .social-btn-google { background: #FFFFFF; border: 1.5px solid rgba(0,0,0,0.15); color: #1A1612; }
+        .social-btn-google:not(:disabled):hover { border-color: rgba(0,0,0,0.3); background: #FAFAF9; }
+        .social-btn-apple { background: #1A1612; border: none; color: #FFFFFF; }
+        .social-btn-apple:not(:disabled):hover { background: #2C1810; }
+
+        /* Header — logo y back button con micro-interacciones */
+        .header-logo { transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1); display: inline-block; }
+        .header-logo:hover { transform: scale(1.05); }
+        .back-btn {
+          background: none; border: none; cursor: pointer;
+          color: rgba(26,22,18,0.5); font-size: 20px; padding: 4px;
+          transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.2s ease;
+        }
+        .back-btn:hover { transform: translateX(-3px); color: #1A1612; }
+
+        /* Toggle de password */
+        .pwd-toggle {
+          background: none; border: none; padding: 14px 12px; cursor: pointer;
+          color: rgba(26,22,18,0.35); font-size: 16px;
+          transition: transform 0.2s ease, color 0.2s ease;
+        }
+        .pwd-toggle:hover { color: #1A1612; transform: scale(1.1); }
+        .pwd-toggle:active { transform: scale(0.92); }
+
+        /* Forgot password link */
+        .forgot-link {
+          font-size: 13px;
+          color: rgba(26,22,18,0.45);
+          text-decoration: none;
+          font-family: Outfit, sans-serif;
+          transition: color 0.2s ease;
+        }
+        .forgot-link:hover { color: #B8833A; }
+
+        /* Footer signup link */
+        .signup-link {
+          color: #1A1612;
+          font-weight: 700;
+          text-decoration: none;
+          position: relative;
+          transition: color 0.2s ease;
+        }
+        .signup-link::after {
+          content: '';
+          position: absolute;
+          left: 0; right: 0; bottom: -2px;
+          height: 1.5px;
+          background: #B8833A;
+          transform: scaleX(0);
+          transform-origin: center;
+          transition: transform 0.25s ease;
+        }
+        .signup-link:hover { color: #B8833A; }
+        .signup-link:hover::after { transform: scaleX(1); }
+
+        /* ── TRANSICIÓN CINEMÁTICA (preservada intacta) ── */
+        .transition-overlay { position: fixed; inset: 0; z-index: 1000; pointer-events: none }
+        .transition-bg { position: absolute; inset: 0; background: linear-gradient(180deg,#1A1612 0%,#2C1810 100%); animation: flashIn 0.4s ease forwards }
+        .transition-logo {
+          position: absolute; top: 50%; left: 50%;
+          font-family: 'Cormorant Garamond', serif;
+          font-weight: 700; letter-spacing: 4px;
+          font-size: clamp(60px, 12vw, 100px);
+          white-space: nowrap; color: #FFFFFF;
+          filter: drop-shadow(0 0 40px rgba(212,160,85,0.9));
+          animation: logoReveal 1.1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        .transition-welcome {
+          position: absolute;
+          top: calc(50% + 80px);
+          left: 50%;
+          font-family: 'Outfit', sans-serif;
+          font-size: 18px;
+          font-weight: 500;
+          color: rgba(255,255,255,0.85);
+          letter-spacing: 0.05em;
+          animation: welcomeFade 1.1s ease 0.2s forwards;
+          opacity: 0;
+        }
+        .sparkle {
+          position: absolute;
+          width: 6px; height: 6px;
+          background: radial-gradient(circle, #D4A055 0%, transparent 70%);
+          border-radius: 50%;
+          box-shadow: 0 0 10px #D4A055;
+          animation: sparkle 1s ease forwards;
+        }
+        .content-fadeout { animation: fadeOutContent 0.3s ease forwards }
+
+        /* ── REDUCED MOTION ── */
+        @media (prefers-reduced-motion: reduce) {
+          .anim-fadeup, .anim-scale, .anim-slide-right, .anim-slide-left {
+            animation: none !important;
+            opacity: 1 !important;
+            transform: none !important;
+          }
+          .topsy-input, .topsy-input-wrap, .primary-btn, .social-btn,
+          .header-logo, .back-btn, .pwd-toggle, .signup-link::after {
+            transition: none !important;
+          }
+          .topsy-input-wrap.error { animation: none !important; }
+          /* La transición cinemática se mantiene porque es central a la UX del login;
+             solo se reduce su duración percibida */
+        }
       `}</style>
 
-      {/* Transición cinematográfica al hacer login */}
+      {/* ═══════════════════ TRANSICIÓN CINEMÁTICA ═══════════════════ */}
       {transitioning && (
         <div className="transition-overlay">
           <div className="transition-bg" />
@@ -156,7 +329,6 @@ export default function LoginPage() {
               Bienvenido, <span style={{ color: '#D4A055', fontWeight: 700 }}>{welcomeName}</span> ✨
             </div>
           )}
-          {/* Partículas doradas */}
           {Array.from({ length: 25 }).map((_, i) => (
             <div key={i} className="sparkle"
               style={{
@@ -170,95 +342,152 @@ export default function LoginPage() {
         </div>
       )}
 
-      <div className={transitioning ? 'content-fadeout' : ''} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
-        <button onClick={() => emailStep ? setEmailStep(false) : navigate('/')}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'rgba(26,22,18,0.5)', fontSize: 20, padding: 4 }}>
+      {/* ═══════════════════ HEADER ═══════════════════ */}
+      <div className={transitioning ? 'content-fadeout' : 'anim-fadeup'} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 24px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+        <button onClick={() => emailStep ? setEmailStep(false) : navigate('/')} className="back-btn" aria-label="Volver">
           ←
         </button>
-        <Link to="/" style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.4rem', fontWeight: 700, letterSpacing: '2px', textDecoration: 'none', color: '#1A1612' }}>
+        <Link to="/" className="header-logo" style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.4rem', fontWeight: 700, letterSpacing: '2px', textDecoration: 'none', color: '#1A1612' }}>
           TOP<span style={{ color: '#B8833A', fontStyle: 'italic' }}>sy</span>
         </Link>
         <div style={{ width: 32 }} />
       </div>
 
+      {/* ═══════════════════ CUERPO ═══════════════════ */}
       <div className={transitioning ? 'content-fadeout' : ''} style={{ flex: 1, display: 'flex', flexDirection: 'column', maxWidth: 480, margin: '0 auto', width: '100%', padding: '0 24px 40px' }}>
 
         {!emailStep ? (
-          <div className="fade-up">
-            <div style={{ paddingTop: 40, paddingBottom: 32, textAlign: 'center' }}>
+          // ─── PASO 1: Email ───
+          <div key="email-step">
+            <div className="anim-fadeup" style={{ animationDelay: '0.05s', paddingTop: 40, paddingBottom: 32, textAlign: 'center' }}>
               <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.8rem', fontWeight: 700, color: '#1A1612', marginBottom: 8 }}>Iniciar sesión</h1>
               <p style={{ color: 'rgba(26,22,18,0.45)', fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>Accede a tu cuenta de TopSy</p>
             </div>
 
-            <div style={{ marginBottom: 16 }}>
+            <div className="anim-fadeup" style={{ animationDelay: '0.15s', marginBottom: 16 }}>
               <input
-                type="email" placeholder="Email" value={email}
+                type="email"
+                placeholder="Email"
+                value={email}
                 onChange={e => setEmail(e.target.value)}
+                onFocus={() => setEmailFocused(true)}
+                onBlur={() => setEmailFocused(false)}
                 onKeyDown={e => e.key === 'Enter' && email && setEmailStep(true)}
-                style={{ width: '100%', padding: '14px 16px', border: '1.5px solid rgba(0,0,0,0.15)', borderRadius: 10, fontSize: 15, fontFamily: 'Outfit, sans-serif', color: '#1A1612', background: '#FAFAF9', outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.2s' }}
+                className="topsy-input"
+                autoComplete="email"
+                style={{ transform: emailFocused ? 'translateY(-1px)' : 'translateY(0)' }}
               />
             </div>
 
-            <button onClick={() => email && setEmailStep(true)} disabled={!email}
-              style={{ width: '100%', padding: '15px', background: !email ? 'rgba(26,22,18,0.12)' : '#1A1612', color: !email ? 'rgba(26,22,18,0.3)' : '#FFFFFF', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, fontFamily: 'Outfit, sans-serif', cursor: !email ? 'not-allowed' : 'pointer', marginBottom: 24, transition: 'all 0.15s' }}>
+            <button
+              onClick={() => email && setEmailStep(true)}
+              disabled={!email}
+              className="primary-btn anim-fadeup"
+              style={{
+                animationDelay: '0.22s',
+                background: !email ? 'rgba(26,22,18,0.12)' : '#1A1612',
+                color: !email ? 'rgba(26,22,18,0.3)' : '#FFFFFF',
+                marginBottom: 24,
+                cursor: !email ? 'not-allowed' : 'pointer',
+              }}
+            >
               Continuar
             </button>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+            <div className="anim-fadeup" style={{ animationDelay: '0.3s', display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
               <div style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.1)' }} />
               <span style={{ fontSize: 12, color: 'rgba(26,22,18,0.35)', fontFamily: 'Outfit, sans-serif' }}>o</span>
               <div style={{ flex: 1, height: 1, background: 'rgba(0,0,0,0.1)' }} />
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <button onClick={() => loginWithGoogle('client')} disabled={oauthLoading} className="social-btn"
-                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '14px', background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.15)', borderRadius: 10, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 600, color: '#1A1612', transition: 'background 0.15s' }}>
-                {oauthLoading ? <span style={{ width: 20, height: 20, border: '2px solid rgba(0,0,0,0.1)', borderTopColor: '#1A1612', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} /> : <GoogleIcon />}
+              <button
+                onClick={() => loginWithGoogle('client')}
+                disabled={oauthLoading}
+                className="social-btn social-btn-google anim-fadeup"
+                style={{ animationDelay: '0.38s' }}
+              >
+                {oauthLoading
+                  ? <span style={{ width: 20, height: 20, border: '2px solid rgba(0,0,0,0.1)', borderTopColor: '#1A1612', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
+                  : <GoogleIcon />
+                }
                 Continuar con Google
               </button>
-              <button onClick={() => loginWithApple('client')} disabled={oauthLoading} className="social-btn"
-                style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, padding: '14px', background: '#1A1612', border: 'none', borderRadius: 10, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontSize: 15, fontWeight: 600, color: '#FFFFFF', transition: 'opacity 0.15s' }}>
+              <button
+                onClick={() => loginWithApple('client')}
+                disabled={oauthLoading}
+                className="social-btn social-btn-apple anim-fadeup"
+                style={{ animationDelay: '0.46s' }}
+              >
                 <AppleIcon />
                 Continuar con Apple
               </button>
             </div>
 
-            <p style={{ textAlign: 'center', color: 'rgba(26,22,18,0.4)', fontSize: 13, marginTop: 28, fontFamily: 'Outfit, sans-serif' }}>
+            <p className="anim-fadeup" style={{ animationDelay: '0.55s', textAlign: 'center', color: 'rgba(26,22,18,0.4)', fontSize: 13, marginTop: 28, fontFamily: 'Outfit, sans-serif' }}>
               ¿Nuevo en TopSy?{' '}
-              <Link to="/register" style={{ color: '#1A1612', fontWeight: 700, textDecoration: 'none' }}>Crear cuenta</Link>
+              <Link to="/register" className="signup-link">Crear cuenta</Link>
             </p>
           </div>
         ) : (
-          <div className="fade-up">
-            <div style={{ paddingTop: 32, paddingBottom: 24 }}>
+          // ─── PASO 2: Contraseña ───
+          <div key="password-step">
+            <div className="anim-slide-right" style={{ paddingTop: 32, paddingBottom: 24 }}>
               <h1 style={{ fontFamily: 'Outfit, sans-serif', fontSize: '1.6rem', fontWeight: 700, color: '#1A1612', marginBottom: 6 }}>Introduce tu contraseña</h1>
               <p style={{ color: 'rgba(26,22,18,0.45)', fontSize: 14, fontFamily: 'Outfit, sans-serif' }}>{email}</p>
             </div>
 
             <form onSubmit={handleSubmit(d => mutate({ email, password: d.password }))} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', border: `1.5px solid ${errors.password ? '#f87171' : 'rgba(0,0,0,0.15)'}`, borderRadius: 10, background: '#FAFAF9', overflow: 'hidden', transition: 'border-color 0.2s' }}>
+              <div className="anim-slide-right" style={{ animationDelay: '0.08s' }}>
+                <div className={`topsy-input-wrap ${passwordFocused ? 'focused' : ''} ${errors.password ? 'error' : ''}`}>
                   <input
-                    {...register('password', { required: 'Contraseña requerida' })}
-                    type={showPassword ? 'text' : 'password'} placeholder="Contraseña" autoComplete="current-password"
+                    {...passwordRegister}
+                    ref={el => {
+                      registerPasswordRef(el)
+                      passwordRef.current = el
+                    }}
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Contraseña"
+                    autoComplete="current-password"
+                    onFocus={() => setPasswordFocused(true)}
+                    onBlur={() => setPasswordFocused(false)}
                     style={{ flex: 1, padding: '14px 16px', border: 'none', fontSize: 15, fontFamily: 'Outfit, sans-serif', color: '#1A1612', background: 'transparent', outline: 'none' }}
                   />
-                  <button type="button" onClick={() => setShowPassword(p => !p)}
-                    style={{ background: 'none', border: 'none', padding: '14px 12px', cursor: 'pointer', color: 'rgba(26,22,18,0.35)', fontSize: 16 }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(p => !p)}
+                    className="pwd-toggle"
+                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                  >
                     {showPassword ? '🙈' : '👁️'}
                   </button>
                 </div>
-                {errors.password && <p style={{ color: '#f87171', fontSize: 12, marginTop: 4, fontFamily: 'Outfit, sans-serif' }}>{errors.password.message}</p>}
+                {errors.password && (
+                  <p className="anim-fadeup" style={{ color: '#f87171', fontSize: 12, marginTop: 6, fontFamily: 'Outfit, sans-serif' }}>
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
 
-              <div style={{ textAlign: 'right' }}>
-                <Link to="/forgot-password" style={{ fontSize: 13, color: 'rgba(26,22,18,0.45)', textDecoration: 'none', fontFamily: 'Outfit, sans-serif' }}>
+              <div className="anim-slide-right" style={{ animationDelay: '0.16s', textAlign: 'right' }}>
+                <Link to="/forgot-password" className="forgot-link">
                   ¿Olvidaste tu contraseña?
                 </Link>
               </div>
 
-              <button type="submit" disabled={isPending} className="login-btn"
-                style={{ width: '100%', padding: '15px', background: '#1A1612', color: '#FFFFFF', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, fontFamily: 'Outfit, sans-serif', cursor: isPending ? 'not-allowed' : 'pointer', opacity: isPending ? 0.7 : 1, transition: 'opacity 0.15s', marginTop: 4 }}>
+              <button
+                type="submit"
+                disabled={isPending}
+                className="primary-btn anim-slide-right"
+                style={{
+                  animationDelay: '0.24s',
+                  background: '#1A1612',
+                  color: '#FFFFFF',
+                  marginTop: 4,
+                  cursor: isPending ? 'not-allowed' : 'pointer',
+                  opacity: isPending ? 0.7 : 1,
+                }}
+              >
                 {isPending
                   ? <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
                       <span style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#FFFFFF', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
