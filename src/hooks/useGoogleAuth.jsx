@@ -84,9 +84,10 @@ export function useGoogleAuth() {
     }
   }
 
+  // El handleCallback ahora solo se usa para fallback, la lógica principal está en OAuthCallbackPage
   const handleCallback = async (session) => {
     if (Capacitor.isNativePlatform()) {
-      await Browser.close()
+      try { await Browser.close() } catch {}
     }
 
     const role = sessionStorage.getItem('oauth_role') ?? 'client'
@@ -116,22 +117,19 @@ export function useGoogleAuth() {
 
       setAuth(data.user, data.access_token, data.refresh_token)
       const name = data.user.full_name?.split(' ')[0] || 'Usuario'
+      toast.success(`¡Bienvenido, ${name}! ✨`)
 
-      let target = '/'
       const redirect = sessionStorage.getItem('login_redirect')
       if (redirect) {
         sessionStorage.removeItem('login_redirect')
-        target = redirect
-      } else if (data.user.role === 'professional') {
-        target = data.user.professional_profiles ? '/pro/dashboard' : '/pro/onboarding'
+        navigate(redirect)
+        return
       }
 
-      // Si el OAuthCallbackPage está montado, usa la transición cinematográfica
-      if (typeof window !== 'undefined' && window.__topsyNavigate) {
-        window.__topsyNavigate(target, name)
+      if (data.user.role === 'professional') {
+        navigate(data.user.professional_profiles ? '/pro/dashboard' : '/pro/onboarding')
       } else {
-        toast.success(`¡Bienvenido, ${name}! ✨`)
-        navigate(target)
+        navigate('/')
       }
     } catch (err) {
       console.error('[OAuth callback] error:', err.response?.data ?? err.message)

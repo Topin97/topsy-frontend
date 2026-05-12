@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createClient } from '@supabase/supabase-js'
-import { useGoogleAuth } from '../hooks/useGoogleAuth'
+import { useAuthStore } from '../store/authStore'
+import { authApi } from '../services/api'
+import { Capacitor } from '@capacitor/core'
+import { Browser } from '@capacitor/browser'
+import toast from 'react-hot-toast'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -10,21 +14,65 @@ const supabase = createClient(
 
 export default function OAuthCallbackPage() {
   const navigate = useNavigate()
-  const { handleCallback } = useGoogleAuth()
+  const { setAuth } = useAuthStore()
   const called = useRef(false)
   const [transitioning, setTransitioning] = useState(false)
   const [welcomeName, setWelcomeName] = useState('')
 
-  // Interceptar el navigate global desde el hook para mostrar transición
-  useEffect(() => {
-    const originalNavigate = window.__topsyNavigate
-    window.__topsyNavigate = (path, userName) => {
-      setWelcomeName(userName || '')
-      setTransitioning(true)
-      setTimeout(() => navigate(path), 1100)
+  const runTransition = (name, target) => {
+    setWelcomeName(name)
+    setTransitioning(true)
+    setTimeout(() => navigate(target), 1100)
+  }
+
+  const processSession = async (session) => {
+    if (Capacitor.isNativePlatform()) {
+      try { await Browser.close() } catch {}
     }
-    return () => { window.__topsyNavigate = originalNavigate }
-  }, [navigate])
+
+    const role = sessionStorage.getItem('oauth_role') ?? 'client'
+    sessionStorage.removeItem('oauth_role')
+
+    if (!session?.access_token) {
+      toast.error('No se pudo obtener la sesión')
+      navigate('/login')
+      return
+    }
+
+    try {
+      const { data } = await authApi.oauthGoogle(
+        session.access_token,
+        session.refresh_token,
+        role
+      )
+
+      if (data.needs_complete_profile || data.needs_phone_verification) {
+        sessionStorage.setItem('pending_access_token', data.access_token)
+        sessionStorage.setItem('pending_refresh_token', data.refresh_token)
+        sessionStorage.setItem('pending_user', JSON.stringify(data.user))
+        navigate('/complete-profile')
+        return
+      }
+
+      setAuth(data.user, data.access_token, data.refresh_token)
+      const name = data.user.full_name?.split(' ')[0] || 'Usuario'
+
+      let target = '/'
+      const redirect = sessionStorage.getItem('login_redirect')
+      if (redirect) {
+        sessionStorage.removeItem('login_redirect')
+        target = redirect
+      } else if (data.user.role === 'professional') {
+        target = data.user.professional_profiles ? '/pro/dashboard' : '/pro/onboarding'
+      }
+
+      runTransition(name, target)
+    } catch (err) {
+      console.error('[OAuth callback] error:', err.response?.data ?? err.message)
+      toast.error('Error al completar el inicio de sesión')
+      navigate('/login')
+    }
+  }
 
   useEffect(() => {
     if (called.current) return
@@ -43,11 +91,12 @@ export default function OAuthCallbackPage() {
         return
       }
 
+      // Apple PKCE flow
       if (code) {
         try {
           const { data, error: exchErr } = await supabase.auth.exchangeCodeForSession(code)
           if (data?.session) {
-            handleCallback(data.session)
+            processSession(data.session)
             return
           }
           if (exchErr) {
@@ -60,19 +109,21 @@ export default function OAuthCallbackPage() {
         }
       }
 
+      // Sesión ya existente (Google hash)
       try {
         const { data: { session } } = await supabase.auth.getSession()
         if (session) {
-          handleCallback(session)
+          processSession(session)
           return
         }
       } catch (_) {}
 
+      // Esperar evento
       const { data } = supabase.auth.onAuthStateChange((event, session) => {
         if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session) {
           clearTimeout(timeout)
           data.subscription.unsubscribe()
-          handleCallback(session)
+          processSession(session)
         } else if (event === 'SIGNED_OUT') {
           clearTimeout(timeout)
           data.subscription.unsubscribe()
@@ -93,7 +144,7 @@ export default function OAuthCallbackPage() {
 
   if (transitioning) {
     return (
-      <div style={{ position: 'fixed', inset: 0, zIndex: 1000, pointerEvents: 'none' }}>
+      <div style={{ position: 'fixed', inset: 0, zIndex: 1000 }}>
         <style>{`
           @keyframes flashIn{0%{opacity:0}30%{opacity:1}100%{opacity:1}}
           @keyframes logoReveal{
