@@ -23,7 +23,7 @@ export default function RegisterPage() {
         @keyframes zoomCard{0%{transform:scale(1);border-radius:18px}100%{transform:scale(20);border-radius:0}}
         @keyframes fadeOutContent{0%{opacity:1}100%{opacity:0}}
         @keyframes floatUp{0%{transform:translateY(100vh) scale(0);opacity:0}50%{opacity:1}100%{transform:translateY(-20vh) scale(1.2);opacity:0}}
-        @keyframes rotateGlow{0%{transform:rotate(0deg) scale(0)}50%{transform:rotate(180deg) scale(1.5);opacity:1}100%{transform:rotate(360deg) scale(3);opacity:0}}
+        @keyframes logoReveal{0%{transform:translate(-50%,-50%) scale(0.5);opacity:0;filter:blur(20px) drop-shadow(0 0 0 rgba(212,160,85,0))}40%{transform:translate(-50%,-50%) scale(1);opacity:1;filter:blur(0px) drop-shadow(0 0 40px rgba(212,160,85,0.9))}70%{transform:translate(-50%,-50%) scale(1.05);opacity:1}100%{transform:translate(-50%,-50%) scale(1.3);opacity:0;filter:blur(8px) drop-shadow(0 0 60px rgba(212,160,85,0.5))}}
 
         .fade-up{animation:fadeUp 0.4s ease forwards}
         .role-card{transition:all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);position:relative;overflow:hidden}
@@ -58,7 +58,7 @@ export default function RegisterPage() {
           left:50%;
           transform:translate(-50%,-50%);
           font-size:80px;
-          animation:rotateGlow 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+          animation:logoReveal 1s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
 
         .transition-particle{
@@ -80,8 +80,8 @@ export default function RegisterPage() {
       {transitioning && (
         <div className="transition-overlay">
           <div className={transitioning === 'client' ? 'transition-zoom-client' : 'transition-zoom-pro'} />
-          <div className="transition-icon" style={{ filter: 'drop-shadow(0 0 30px rgba(212,160,85,0.8))' }}>
-            {transitioning === 'client' ? '✨' : '✂️'}
+          <div className="transition-icon" style={{ filter: 'drop-shadow(0 0 40px rgba(212,160,85,0.9))', fontFamily: 'Cormorant Garamond, serif', fontWeight: 700, letterSpacing: '4px', fontSize: 'clamp(60px, 12vw, 100px)', whiteSpace: 'nowrap', color: transitioning === 'client' ? '#1A1612' : '#FFFFFF' }}>
+            TOP<span style={{ color: '#D4A055', fontStyle: 'italic' }}>sy</span>
           </div>
           {/* Partículas explotando hacia arriba */}
           {transitioning === 'pro' && Array.from({ length: 30 }).map((_, i) => (
