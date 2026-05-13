@@ -111,7 +111,6 @@ export default function PricingPage() {
             </h3>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 6 }}>
               <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '3rem', color: '#1A1612', fontWeight: 700, lineHeight: 1 }}>0€</span>
-              <span style={{ fontSize: 13, color: 'rgba(26,22,18,0.4)' }}>/ por ahora</span>
             </div>
             <p style={{ fontSize: 13, color: 'rgba(26,22,18,0.5)', marginBottom: 22, lineHeight: 1.5 }}>
               Todo lo que necesitas para gestionar tu negocio.
