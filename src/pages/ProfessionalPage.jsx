@@ -432,8 +432,8 @@ const activeServices = prof.services?.filter(s => s.is_active) ?? []
           {availableDays.length > 0 && (
             <div style={{ display: 'flex', gap: 7, overflowX: 'auto', paddingBottom: 4, marginBottom: 4 }}>
               <style>{`.no-sb2::-webkit-scrollbar{display:none}.no-sb2{-ms-overflow-style:none;scrollbar-width:none}`}</style>
-              {availableDays.map(a => (
-                <div key={a.day_of_week} className="no-sb2" style={{ flexShrink: 0, fontSize: 11, background: '#FFFFFF', border: '1.5px solid rgba(184,131,58,0.22)', borderRadius: 12, padding: '6px 12px', color: '#B8833A', fontFamily: 'Outfit, sans-serif', boxShadow: '0 1px 4px rgba(184,131,58,0.08)' }}>
+              {availableDays.map((a, idx) => (
+                <div key={a.day_of_week} className="day-chip fade-up" style={{ flexShrink: 0, fontSize: 11, background: '#FFFFFF', border: '1.5px solid rgba(184,131,58,0.22)', borderRadius: 12, padding: '6px 12px', color: '#B8833A', fontFamily: 'Outfit, sans-serif', boxShadow: '0 1px 4px rgba(184,131,58,0.08)', animationDelay: `${0.18 + idx * 0.05}s` }}>
                   <span style={{ fontWeight: 800 }}>{DAY_MAP[a.day_of_week]}</span>
                   <span style={{ color: 'rgba(26,22,18,0.4)', marginLeft: 5 }}>{a.start_time.slice(0,5)}–{a.end_time.slice(0,5)}</span>
                 </div>
@@ -609,7 +609,7 @@ const activeServices = prof.services?.filter(s => s.is_active) ?? []
                 const slot = prof.availability?.find(a => a.day_of_week === d)
                 const open = slot?.is_available
                 return (
-                  <div key={d} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 0', borderBottom: idx < 6 ? '1px solid rgba(0,0,0,0.04)' : 'none' }}>
+                  <div key={d} className="fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 0', borderBottom: idx < 6 ? '1px solid rgba(0,0,0,0.04)' : 'none', animationDelay: `${idx * 0.05}s` }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: open ? '#1A1612' : 'rgba(26,22,18,0.25)', fontFamily: 'Outfit, sans-serif', width: 38 }}>{DAY_MAP[d]}</span>
                     <span style={{ flex: 1, fontSize: 13, color: open ? '#1A1612' : 'rgba(26,22,18,0.22)', fontFamily: 'Outfit, sans-serif' }}>
                       {open ? `${slot.start_time.slice(0,5)} – ${slot.end_time.slice(0,5)}` : 'Cerrado'}
