@@ -310,8 +310,12 @@ const activeServices = prof.services?.filter(s => s.is_active) ?? []
         .day-chip { transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s; }
         .day-chip:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(184,131,58,0.15); }
         .review-card { animation: fadeUp 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+        @keyframes slideUpCta { from { transform: translateY(100%); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+        @keyframes pulseCta { 0%, 100% { box-shadow: 0 6px 22px rgba(184,131,58,0.38) } 50% { box-shadow: 0 6px 28px rgba(184,131,58,0.6), 0 0 0 4px rgba(184,131,58,0.08) } }
+        .sticky-cta { animation: slideUpCta 0.6s cubic-bezier(0.34,1.56,0.64,1) 0.55s both; }
+        .pulse-cta { animation: pulseCta 2.4s ease-in-out infinite 2s; }
         @media (prefers-reduced-motion: reduce) {
-          .fade-up, .scale-in, .pop, .review-card { animation: none !important; opacity: 1 !important; transform: none !important; }
+          .fade-up, .scale-in, .pop, .review-card, .sticky-cta, .pulse-cta { animation: none !important; opacity: 1 !important; transform: none !important; }
           .svc-row, .gallery-thumb, .book-btn, .day-chip { transition: none !important; }
           .skeleton { animation: none !important; }
         }
@@ -684,7 +688,7 @@ const activeServices = prof.services?.filter(s => s.is_active) ?? []
       </div>
 
       {/* ══ STICKY BOTTOM CTA ══ */}
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50 }}>
+      <div className="sticky-cta" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50 }}>
         <div style={{ maxWidth: 700, margin: '0 auto', background: 'rgba(247,245,242,0.96)', backdropFilter: 'blur(16px)', WebkitBackdropFilter: 'blur(16px)', borderTop: '1px solid rgba(0,0,0,0.07)', padding: '10px 14px', paddingBottom: 'max(10px, env(safe-area-inset-bottom))', display: 'flex', alignItems: 'center', gap: 10, boxShadow: '0 -8px 30px rgba(0,0,0,0.08)' }}>
           {/* Precio */}
           <div style={{ flexShrink: 0 }}>
@@ -692,7 +696,7 @@ const activeServices = prof.services?.filter(s => s.is_active) ?? []
             <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.6rem', color: '#B8833A', fontStyle: 'italic', margin: 0, lineHeight: 1 }}>{minPrice != null ? `${minPrice}€` : '—'}</p>
           </div>
           {/* Botón reservar */}
-          <button className="book-btn" onClick={() => { if (activeServices.length === 1) { handleBook(activeServices[0]) } else { setActiveTab('services'); window.scrollTo({ top: 0, behavior: 'smooth' }) } }}
+          <button className="book-btn pulse-cta" onClick={() => { if (activeServices.length === 1) { handleBook(activeServices[0]) } else { setActiveTab('services'); window.scrollTo({ top: 0, behavior: 'smooth' }) } }}
             style={{ flex: 1, background: 'linear-gradient(135deg,#B8833A,#D4A055)', border: 'none', borderRadius: 15, padding: '14px', color: '#FFFFFF', fontWeight: 700, fontSize: 15, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', boxShadow: '0 6px 22px rgba(184,131,58,0.38)', letterSpacing: '0.02em' }}>
             {activeServices.length === 1 ? `Reservar · ${activeServices[0].name}` : 'Reservar cita'}
           </button>
