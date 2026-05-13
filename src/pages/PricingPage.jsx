@@ -111,7 +111,7 @@ export default function PricingPage() {
             </h3>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginBottom: 6 }}>
               <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '3rem', color: '#1A1612', fontWeight: 700, lineHeight: 1 }}>0€</span>
-              <span style={{ fontSize: 13, color: 'rgba(26,22,18,0.4)' }}>/ siempre</span>
+              <span style={{ fontSize: 13, color: 'rgba(26,22,18,0.4)' }}>/ por ahora</span>
             </div>
             <p style={{ fontSize: 13, color: 'rgba(26,22,18,0.5)', marginBottom: 22, lineHeight: 1.5 }}>
               Todo lo que necesitas para gestionar tu negocio.
@@ -128,7 +128,7 @@ export default function PricingPage() {
 
             <button onClick={handleStartFree} className="cta-btn"
               style={{ width: '100%', background: '#1A1612', color: '#FFFFFF', border: 'none', borderRadius: 14, padding: '15px', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', cursor: 'pointer', letterSpacing: '0.02em', boxShadow: '0 6px 18px rgba(26,15,5,0.18)' }}>
-              Empieza ya — es gratis →
+              Empieza ahora →
             </button>
           </div>
 
@@ -178,20 +178,20 @@ export default function PricingPage() {
 
         {[
           {
-            q: '¿El Plan Free tiene fecha de caducidad?',
-            a: 'No. El Plan Free es gratuito y para siempre. Puedes usar todas sus funciones sin límite de tiempo.',
+            q: '¿El Plan Free es gratis siempre?',
+            a: 'Por ahora sí, el Plan Free es totalmente gratuito y queremos que siga así mucho tiempo. Si algún día cambiamos algo, te avisaremos con antelación.',
           },
           {
             q: '¿Hay comisiones por reserva?',
-            a: 'No. En el Plan Free no cobramos ninguna comisión sobre tus reservas. El cliente paga 100% directamente a ti, en tu local.',
+            a: 'Actualmente no cobramos comisión sobre tus reservas. El cliente paga directamente a ti en tu local, como siempre.',
           },
           {
             q: '¿Cuándo estará disponible el Plan Pro?',
-            a: 'Estamos terminando los últimos detalles. Apúntate a la lista de espera y serás el primero en saberlo, con un descuento de lanzamiento.',
+            a: 'Estamos terminando los últimos detalles. Apúntate a la lista de espera y serás de los primeros en saberlo, con un descuento de lanzamiento.',
           },
           {
             q: '¿Puedo cambiar de plan más adelante?',
-            a: 'Sí. Cuando lances el Plan Pro, podrás activarlo o desactivarlo desde tu panel sin perder ninguno de tus datos.',
+            a: 'Sí. Cuando se lance el Plan Pro, podrás activarlo o desactivarlo desde tu panel sin perder ninguno de tus datos.',
           },
         ].map((faq, idx) => (
           <div key={idx} className="fade-up" style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.06)', borderRadius: 14, padding: '16px 20px', marginBottom: 10, animationDelay: `${0.45 + idx * 0.06}s` }}>
