@@ -563,10 +563,10 @@ const activeServices = prof.services?.filter(s => s.is_active) ?? []
                 </div>
                 {/* Lista reseñas */}
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {[...prof.reviews].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 15).map(r => {
+                  {[...prof.reviews].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 15).map((r, idx) => {
                     const initials = r.profiles?.full_name ? r.profiles.full_name.split(' ').map(w => w[0]).slice(0,2).join('').toUpperCase() : '?'
                     return (
-                      <div key={r.id} style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 16, padding: '15px 16px', boxShadow: '0 1px 4px rgba(0,0,0,0.03)' }}>
+                      <div key={r.id} className="review-card" style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 16, padding: '15px 16px', boxShadow: '0 1px 4px rgba(0,0,0,0.03)', animationDelay: `${idx * 0.06}s` }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: r.comment ? 10 : 0 }}>
                           {r.profiles?.avatar_url
                             ? <img src={r.profiles.avatar_url} alt="" style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '2px solid rgba(184,131,58,0.15)' }} />
