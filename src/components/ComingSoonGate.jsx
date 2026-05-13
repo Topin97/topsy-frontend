@@ -355,28 +355,34 @@ export default function ComingSoonGate({ children }) {
 
           <div style={{
             display: 'flex', justifyContent: 'center',
-            gap: 16, flexWrap: 'wrap', alignItems: 'center',
+            gap: 14, flexWrap: 'wrap', alignItems: 'center',
           }}>
             {/* App Store oficial */}
             <div className="store-btn" style={{
               opacity: 0.92, cursor: 'not-allowed',
+              display: 'inline-flex',
+              alignItems: 'center', justifyContent: 'center',
+              height: 56,
+              width: 178,
               borderRadius: 10,
               overflow: 'hidden',
-              display: 'inline-block',
             }}>
               <img src="/badges/app-store.svg" alt="Descárgalo en App Store"
-                style={{ display: 'block', height: 52, width: 'auto' }} />
+                style={{ display: 'block', height: '100%', width: '100%', objectFit: 'contain' }} />
             </div>
 
             {/* Google Play oficial */}
             <div className="store-btn" style={{
               opacity: 0.92, cursor: 'not-allowed',
+              display: 'inline-flex',
+              alignItems: 'center', justifyContent: 'center',
+              height: 56,
+              width: 178,
               borderRadius: 10,
               overflow: 'hidden',
-              display: 'inline-block',
             }}>
-              <img src="/badges/google-play.png" alt="Disponible en Google Play"
-                style={{ display: 'block', height: 52, width: 'auto' }} />
+              <img src="/badges/google-play.png" alt="Pre-regístrate en Google Play"
+                style={{ display: 'block', height: '100%', width: '100%', objectFit: 'contain' }} />
             </div>
           </div>
         </div>
