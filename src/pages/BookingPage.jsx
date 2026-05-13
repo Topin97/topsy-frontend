@@ -314,6 +314,28 @@ const { mutate: rescheduleConflict, isPending: rescheduling } = useMutation({
         @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(201,150,90,0.5)}50%{box-shadow:0 0 0 8px rgba(201,150,90,0)}}
         @keyframes slotPop{0%{transform:scale(0.9)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
         @keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+        @keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
+        @keyframes slideInRight{from{transform:translateX(40px);opacity:0}to{transform:translateX(0);opacity:1}}
+        @keyframes slideUpSticky{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+        @keyframes pulseDorado{0%,100%{box-shadow:0 8px 24px rgba(201,150,90,0.3)}50%{box-shadow:0 8px 30px rgba(201,150,90,0.6),0 0 0 4px rgba(201,150,90,0.08)}}
+        @keyframes glowOnce{0%{box-shadow:0 0 0 0 rgba(184,131,58,0.5)}60%{box-shadow:0 0 0 12px rgba(184,131,58,0)}100%{box-shadow:0 0 0 0 rgba(184,131,58,0)}}
+        .fade-up{animation:fadeUp 0.6s cubic-bezier(0.34,1.56,0.64,1) both}
+        .slide-down{animation:slideDown 0.5s cubic-bezier(0.34,1.56,0.64,1) both}
+        .slide-in-right{animation:slideInRight 0.6s cubic-bezier(0.34,1.56,0.64,1) both}
+        .slide-up-sticky{animation:slideUpSticky 0.6s cubic-bezier(0.34,1.56,0.64,1) both}
+        .pulse-when-ready{animation:pulseDorado 2.6s ease-in-out infinite 1.5s}
+        .glow-once{animation:glowOnce 1.6s ease-out 0.3s both}
+        .month-nav-btn{transition:transform 0.25s cubic-bezier(0.34,1.56,0.64,1),background 0.2s}
+        .month-nav-btn:hover:not(:disabled){transform:scale(1.1);background:rgba(184,131,58,0.1)}
+        .month-nav-btn:active:not(:disabled){transform:scale(0.95)}
+        .slot-btn{transition:transform 0.2s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.2s,background 0.2s}
+        .slot-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 16px rgba(184,131,58,0.2)}
+        .slot-btn:active:not(:disabled){transform:translateY(0) scale(0.97)}
+        .booking-header{animation:slideDown 0.5s cubic-bezier(0.34,1.56,0.64,1) both}
+        @media (prefers-reduced-motion:reduce){
+          .fade-up,.slide-down,.slide-in-right,.slide-up-sticky,.pulse-when-ready,.glow-once,.booking-header,.success-icon,.success-content,.slot-anim,.day-anim{animation:none !important;opacity:1 !important;transform:none !important}
+          .month-nav-btn,.slot-btn{transition:none !important}
+        }
         .slot-anim{animation:slotPop 0.3s ease forwards}
         .day-anim{animation:pulse 0.4s ease}
         .skel{background:linear-gradient(90deg,#f0ede8 25%,#e8e4de 50%,#f0ede8 75%);background-size:400px 100%;animation:shimmer 1.4s infinite}
@@ -370,7 +392,7 @@ const { mutate: rescheduleConflict, isPending: rescheduling } = useMutation({
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
             {/* Servicio */}
-            <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(184,131,58,0.2)', borderRadius: 14, padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
+            <div className="fade-up glow-once" style={{ background: '#FFFFFF', border: '1.5px solid rgba(184,131,58,0.2)', borderRadius: 14, padding: '14px 16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, animationDelay: '0.1s' }}>
               <div>
                 <p style={{ fontWeight: 600, fontSize: 14, marginBottom: 2, color: '#1A1612' }}>{service?.name}</p>
                 <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.45)', margin: 0 }}>⏱ {service?.duration_minutes} min</p>
@@ -379,7 +401,7 @@ const { mutate: rescheduleConflict, isPending: rescheduling } = useMutation({
             </div>
 
             {/* Calendario */}
-            <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 16, padding: '16px 14px' }}>
+            <div className="fade-up" style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 16, padding: '16px 14px', animationDelay: '0.2s' }}>
               <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.3)', marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(184,131,58,0.12)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#B8833A', fontWeight: 700 }}>1</span>
                 Selecciona el día
@@ -429,7 +451,7 @@ const { mutate: rescheduleConflict, isPending: rescheduling } = useMutation({
 
             {/* Horas */}
             {selectedDate && (
-              <div ref={slotsRef} style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 16, padding: '16px 14px' }}>
+              <div ref={slotsRef} className="fade-up" style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 16, padding: '16px 14px' }}>
                 <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.3)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(184,131,58,0.12)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#B8833A', fontWeight: 700 }}>2</span>
                   Hora — {format(selectedDate, "EEEE d MMM", { locale: es })}
@@ -482,7 +504,7 @@ const { mutate: rescheduleConflict, isPending: rescheduling } = useMutation({
             )}
 
             {/* Notas */}
-            <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 16, padding: '16px 14px' }}>
+            <div className="fade-up" style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 16, padding: '16px 14px', animationDelay: '0.4s' }}>
               <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.3)', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ width: 18, height: 18, borderRadius: '50%', background: 'rgba(184,131,58,0.12)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#B8833A', fontWeight: 700 }}>3</span>
                 Notas <span style={{ color: 'rgba(26,22,18,0.3)', fontSize: 10, textTransform: 'none', letterSpacing: 0 }}>(opcional)</span>
@@ -492,7 +514,7 @@ const { mutate: rescheduleConflict, isPending: rescheduling } = useMutation({
           </div>
 
           {/* Resumen Desktop */}
-          <div className="booking-summary-desktop" style={{ position: 'sticky', top: 100 }}>
+          <div className="booking-summary-desktop slide-in-right" style={{ position: 'sticky', top: 100, animationDelay: '0.3s' }}>
             <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 20, overflow: 'hidden' }}>
               {prof?.cover_image_url && (
                 <div style={{ height: 80, overflow: 'hidden', position: 'relative' }}>
@@ -523,6 +545,7 @@ const { mutate: rescheduleConflict, isPending: rescheduling } = useMutation({
               </div>
               <div style={{ padding: '0 24px 24px' }}>
                 <button onClick={() => book()} disabled={!selectedSlot || isPending}
+                  className={selectedSlot ? 'pulse-when-ready' : ''}
                   style={{ width: '100%', border: 'none', borderRadius: 12, padding: '15px', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', cursor: selectedSlot ? 'pointer' : 'not-allowed', transition: 'all 0.2s', background: selectedSlot ? 'linear-gradient(135deg,#B8833A,#D4A055)' : '#F0EDE8', color: selectedSlot ? '#FFFFFF' : 'rgba(26,22,18,0.3)', boxShadow: selectedSlot ? '0 8px 24px rgba(201,150,90,0.3)' : 'none' }}>
                   {isPending ? 'Confirmando...' : selectedSlot ? 'Confirmar cita ✓' : 'Selecciona horario'}
                 </button>
@@ -534,7 +557,7 @@ const { mutate: rescheduleConflict, isPending: rescheduling } = useMutation({
       </div>
 
       {/* Barra inferior móvil */}
-      <div className="booking-summary-mobile" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#FFFFFF', borderTop: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 -4px 16px rgba(0,0,0,0.06)', padding: '12px 16px', paddingBottom: 'calc(12px + env(safe-area-inset-bottom))', zIndex: 999, flexDirection: 'column', gap: 10 }}>
+      <div className="booking-summary-mobile slide-up-sticky" style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#FFFFFF', borderTop: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 -4px 16px rgba(0,0,0,0.06)', padding: '12px 16px', paddingBottom: 'calc(12px + env(safe-area-inset-bottom))', zIndex: 999, flexDirection: 'column', gap: 10, animationDelay: '0.5s' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
           <div style={{ flex: 1, minWidth: 0 }}>
             <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1A1612' }}>{service?.name}</p>
@@ -551,6 +574,7 @@ const { mutate: rescheduleConflict, isPending: rescheduling } = useMutation({
           </button>
         ) : (
           <button onClick={() => book()} disabled={!selectedSlot || isPending}
+            className={selectedSlot ? 'pulse-when-ready' : ''}
             style={{ width: '100%', border: 'none', borderRadius: 12, padding: '16px', fontSize: 15, fontWeight: 700, fontFamily: 'Outfit, sans-serif', cursor: selectedSlot ? 'pointer' : 'not-allowed', transition: 'all 0.2s', background: selectedSlot ? 'linear-gradient(135deg,#B8833A,#D4A055)' : '#F0EDE8', color: selectedSlot ? '#FFFFFF' : 'rgba(26,22,18,0.3)', boxShadow: selectedSlot ? '0 8px 24px rgba(201,150,90,0.3)' : 'none' }}>
             {isPending ? '⏳ Confirmando...' : selectedSlot ? '✓ Confirmar cita' : 'Selecciona un horario'}
           </button>
