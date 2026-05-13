@@ -11,6 +11,7 @@ import { PushNotifications } from '@capacitor/push-notifications'
 import { createClient } from '@supabase/supabase-js'
 
 import Layout from './components/layout/Layout'
+import ScrollToTop from './components/ScrollToTop'
 import OnboardingScreen from './components/OnboardingScreen'
 
 // ── Carga inmediata ──────────────────────────────────────────────────────────
@@ -214,6 +215,7 @@ const [showOnboarding, setShowOnboarding] = useState(
       />
 
       <Suspense fallback={<PageLoader />}>
+        <ScrollToTop />
         <CapacitorDeepLinkHandler />
         <PushNotificationsHandler />
 
