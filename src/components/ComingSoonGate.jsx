@@ -31,25 +31,6 @@ function useCountdown(target) {
   return { days, hours, mins, secs }
 }
 
-// ─── Logos SVG ──────────────────────────────────────────────────
-const AppleLogo = () => (
-  <svg width="22" height="26" viewBox="0 0 22 26" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-    <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
-  </svg>
-)
-
-const GooglePlayLogo = () => (
-  <svg width="22" height="24" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-    <path fill="#00C3FF" d="M280.7 271.3 67.4 484.5c-7.1 7.1-18.3 9.7-28 6.5l213.3-219.7z"/>
-    <path fill="#00E26F" d="M67.4 27.5l213.3 213.3-28-219.7c-9.7-3.2-20.9-.6-28 6.5z"/>
-    <path fill="#FFCB04" d="M280.7 240.8L411.6 173l-37.4-19.8c-7.5-4-15.6-7-23.7-9z"/>
-    <path fill="#FF383D" d="M280.7 271.3l69.8 116.2c8.1-2 16.2-5 23.7-9L411.6 339z"/>
-    <path fill="#00C3FF" d="M280.7 271.3 67.4 484.5c7.1 7.1 18.3 9.7 28 6.5l185.3-104.4z"/>
-    <path fill="#FFCB04" d="m280.7 240.8 130.9-67.8c19.3 10.2 19.3 39.6 0 49.8L280.7 271.3z"/>
-    <path fill="#00E26F" d="M67.4 27.5c-3.7 3.7-5.9 8.9-6.4 14.9v427.2c.5 6 2.7 11.2 6.4 14.9l213.3-213.3z"/>
-  </svg>
-)
-
 export default function ComingSoonGate({ children }) {
   const [hasBypass, setHasBypass] = useState(() => getCookie(COOKIE_NAME) === '1')
   const [email, setEmail] = useState('')
@@ -374,41 +355,28 @@ export default function ComingSoonGate({ children }) {
 
           <div style={{
             display: 'flex', justifyContent: 'center',
-            gap: 14, flexWrap: 'wrap',
+            gap: 16, flexWrap: 'wrap', alignItems: 'center',
           }}>
-            {/* App Store */}
+            {/* App Store oficial */}
             <div className="store-btn" style={{
-              display: 'flex', alignItems: 'center', gap: 12,
-              background: 'rgba(255,255,255,0.025)',
-              border: '1.5px solid rgba(255,255,255,0.12)',
-              borderRadius: 14,
-              padding: '12px 22px',
-              cursor: 'not-allowed',
-              minWidth: 170,
-              color: '#FFFFFF',
+              opacity: 0.92, cursor: 'not-allowed',
+              borderRadius: 10,
+              overflow: 'hidden',
+              display: 'inline-block',
             }}>
-              <AppleLogo />
-              <div style={{ textAlign: 'left' }}>
-                <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', margin: 0, letterSpacing: '0.05em' }}>Descárgalo en</p>
-                <p style={{ fontSize: 16, fontWeight: 700, color: '#FFFFFF', margin: 0, fontFamily: 'Outfit, sans-serif', lineHeight: 1.1 }}>App Store</p>
-              </div>
+              <img src="/badges/app-store.svg" alt="Descárgalo en App Store"
+                style={{ display: 'block', height: 52, width: 'auto' }} />
             </div>
 
-            {/* Google Play */}
+            {/* Google Play oficial */}
             <div className="store-btn" style={{
-              display: 'flex', alignItems: 'center', gap: 12,
-              background: 'rgba(255,255,255,0.025)',
-              border: '1.5px solid rgba(255,255,255,0.12)',
-              borderRadius: 14,
-              padding: '12px 22px',
-              cursor: 'not-allowed',
-              minWidth: 170,
+              opacity: 0.92, cursor: 'not-allowed',
+              borderRadius: 10,
+              overflow: 'hidden',
+              display: 'inline-block',
             }}>
-              <GooglePlayLogo />
-              <div style={{ textAlign: 'left' }}>
-                <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)', margin: 0, letterSpacing: '0.05em' }}>Disponible en</p>
-                <p style={{ fontSize: 16, fontWeight: 700, color: '#FFFFFF', margin: 0, fontFamily: 'Outfit, sans-serif', lineHeight: 1.1 }}>Google Play</p>
-              </div>
+              <img src="/badges/google-play.png" alt="Disponible en Google Play"
+                style={{ display: 'block', height: 52, width: 'auto' }} />
             </div>
           </div>
         </div>
