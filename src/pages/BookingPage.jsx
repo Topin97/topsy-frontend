@@ -309,7 +309,7 @@ const { mutate: rescheduleConflict, isPending: rescheduling } = useMutation({
     <div style={{ background: '#F7F5F2', minHeight: '100vh', paddingBottom: 200, fontFamily: 'Outfit, sans-serif' }}>
       <style>{`
         .cal-day:hover:not(:disabled){background:rgba(201,150,90,0.1) !important}
-        .slot-btn:hover{background:rgba(201,150,90,0.1) !important;border-color:rgba(201,150,90,0.4) !important}
+        .slot-btn:not([style*="linear-gradient"]):hover{background:rgba(201,150,90,0.1) !important;border-color:rgba(201,150,90,0.4) !important}
         textarea:focus{outline:none;border-color:rgba(201,150,90,0.4) !important}
         @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(201,150,90,0.5)}50%{box-shadow:0 0 0 8px rgba(201,150,90,0)}}
         @keyframes slotPop{0%{transform:scale(0.9)}60%{transform:scale(1.08)}100%{transform:scale(1)}}
