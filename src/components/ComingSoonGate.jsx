@@ -355,34 +355,60 @@ export default function ComingSoonGate({ children }) {
 
           <div style={{
             display: 'flex', justifyContent: 'center',
-            gap: 14, flexWrap: 'wrap', alignItems: 'center',
+            gap: 12, flexWrap: 'wrap', alignItems: 'center',
           }}>
-            {/* App Store oficial */}
+            {/* App Store */}
             <div className="store-btn" style={{
-              opacity: 0.92, cursor: 'not-allowed',
-              display: 'inline-flex',
-              alignItems: 'center', justifyContent: 'center',
-              height: 56,
-              width: 178,
-              borderRadius: 10,
-              overflow: 'hidden',
+              opacity: 0.95, cursor: 'not-allowed',
+              display: 'inline-flex', alignItems: 'center', gap: 11,
+              background: '#000000', border: '1px solid rgba(255,255,255,0.18)',
+              borderRadius: 11, padding: '10px 18px 10px 16px',
+              width: 178, height: 56, boxSizing: 'border-box',
             }}>
-              <img src="/badges/app-store.svg" alt="Descárgalo en App Store"
-                style={{ display: 'block', height: '100%', width: '100%', objectFit: 'contain' }} />
+              <svg width="26" height="32" viewBox="0 0 24 28" fill="#FFFFFF" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+                <path d="M19.665 21.353c-.81 1.206-1.665 2.388-3.02 2.412-1.323.024-1.752-.78-3.27-.78s-1.997.756-3.247.804c-1.31.048-2.305-1.302-3.118-2.508C5.36 18.78 4.07 14.05 5.795 10.83c.855-1.59 2.388-2.604 4.06-2.628 1.286-.024 2.495.876 3.27.876.785 0 2.262-1.08 3.81-.924.65.024 2.46.264 3.623 1.98-.094.06-2.165 1.272-2.14 3.804.03 3.03 2.66 4.044 2.69 4.056-.024.06-.42 1.452-1.395 2.892zM12.85 6.18c.713-.864 1.916-1.512 2.91-1.572.126 1.14-.336 2.292-1.024 3.12-.69.84-1.825 1.5-2.937 1.416-.15-1.14.404-2.33 1.05-2.964z"/>
+              </svg>
+              <div style={{ textAlign: 'left', lineHeight: 1.1 }}>
+                <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.78)', margin: 0, letterSpacing: '0.02em' }}>Descárgalo en</p>
+                <p style={{ fontSize: 17, fontWeight: 600, color: '#FFFFFF', margin: '2px 0 0', fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.01em' }}>App Store</p>
+              </div>
             </div>
 
-            {/* Google Play oficial */}
+            {/* Google Play */}
             <div className="store-btn" style={{
-              opacity: 0.92, cursor: 'not-allowed',
-              display: 'inline-flex',
-              alignItems: 'center', justifyContent: 'center',
-              height: 56,
-              width: 178,
-              borderRadius: 10,
-              overflow: 'hidden',
+              opacity: 0.95, cursor: 'not-allowed',
+              display: 'inline-flex', alignItems: 'center', gap: 11,
+              background: '#000000', border: '1px solid rgba(255,255,255,0.18)',
+              borderRadius: 11, padding: '10px 18px 10px 16px',
+              width: 178, height: 56, boxSizing: 'border-box',
             }}>
-              <img src="/badges/google-play.png" alt="Pre-regístrate en Google Play"
-                style={{ display: 'block', height: '100%', width: '100%', objectFit: 'contain' }} />
+              <svg width="26" height="30" viewBox="0 0 512 555" xmlns="http://www.w3.org/2000/svg" style={{ flexShrink: 0 }}>
+                <linearGradient id="ga" x1="125.18" y1="92.51" x2="332.46" y2="299.79" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stopColor="#00a0ff"/><stop offset="0.0066" stopColor="#00a1ff"/>
+                  <stop offset="0.2601" stopColor="#00beff"/><stop offset="0.5122" stopColor="#00d2ff"/>
+                  <stop offset="0.7604" stopColor="#00dfff"/><stop offset="1" stopColor="#00e3ff"/>
+                </linearGradient>
+                <linearGradient id="gb" x1="411.13" y1="295.96" x2="113.18" y2="295.96" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stopColor="#ffe000"/><stop offset="0.4087" stopColor="#ffbd00"/>
+                  <stop offset="0.7754" stopColor="#ffa500"/><stop offset="1" stopColor="#ff9c00"/>
+                </linearGradient>
+                <linearGradient id="gc" x1="288.62" y1="324.69" x2="79.99" y2="533.32" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stopColor="#ff3a44"/><stop offset="1" stopColor="#c31162"/>
+                </linearGradient>
+                <linearGradient id="gd" x1="91.94" y1="121.32" x2="185.13" y2="214.51" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stopColor="#32a071"/><stop offset="0.0685" stopColor="#2da771"/>
+                  <stop offset="0.4762" stopColor="#15cf74"/><stop offset="0.8009" stopColor="#06e775"/>
+                  <stop offset="1" stopColor="#00f076"/>
+                </linearGradient>
+                <path fill="url(#ga)" d="M22.45 14.07C11.5 25.66 5.04 43.66 5.04 67V488.66c0 23.34 6.46 41.34 17.41 52.94l1.41 1.37 236.34-236.34v-5.57L23.86 12.7l-1.41 1.37z"/>
+                <path fill="url(#gb)" d="M339.16 385.65l-78.97-79.02v-5.58l79.02-79.02 1.78.99 93.55 53.16c26.72 15.18 26.72 40.05 0 55.28l-93.55 53.16-1.83 1.03z"/>
+                <path fill="url(#gc)" d="M340.99 384.66l-80.79-80.79L22.45 541.6c8.8 9.32 23.34 10.47 39.78 1.18l278.76-158.13"/>
+                <path fill="url(#gd)" d="M340.99 223.07L62.23 64.99C45.79 55.65 31.25 56.85 22.45 66.17l237.75 237.71 80.79-80.81z"/>
+              </svg>
+              <div style={{ textAlign: 'left', lineHeight: 1.1 }}>
+                <p style={{ fontSize: 9, color: 'rgba(255,255,255,0.78)', margin: 0, letterSpacing: '0.02em' }}>Disponible en</p>
+                <p style={{ fontSize: 16, fontWeight: 600, color: '#FFFFFF', margin: '2px 0 0', fontFamily: 'Outfit, sans-serif', letterSpacing: '-0.01em' }}>Google Play</p>
+              </div>
             </div>
           </div>
         </div>
