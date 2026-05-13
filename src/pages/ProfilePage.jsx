@@ -348,7 +348,7 @@ const handleAvatarChange = async (e) => {
   if (section === 'privacidad') return <Privacidad onBack={() => setSection(null)} />
 
   const MenuRow = ({ icon, label, sublabel, onClick, danger = false }) => (
-    <button onClick={onClick} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'none', border: 'none', borderBottom: '1px solid rgba(0,0,0,0.06)', cursor: 'pointer', textAlign: 'left', gap: 12 }}>
+    <button onClick={onClick} className="menu-row" style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'none', border: 'none', borderBottom: '1px solid rgba(0,0,0,0.06)', cursor: 'pointer', textAlign: 'left', gap: 12 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
         <span style={{ fontSize: '1.2rem', width: 24, textAlign: 'center', flexShrink: 0 }}>{icon}</span>
         <div style={{ minWidth: 0 }}>
