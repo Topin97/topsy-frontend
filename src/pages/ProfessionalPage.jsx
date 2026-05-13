@@ -500,7 +500,7 @@ const activeServices = prof.services?.filter(s => s.is_active) ?? []
             ) : (
               <div style={{ background: '#FFFFFF', borderRadius: 22, overflow: 'hidden', boxShadow: '0 4px 24px rgba(0,0,0,0.07)', border: '1.5px solid rgba(0,0,0,0.06)' }}>
                 {activeServices.map((service, idx) => (
-                  <div key={service.id} style={{ borderBottom: idx < activeServices.length - 1 ? '1px solid rgba(0,0,0,0.05)' : 'none' }}>
+                  <div key={service.id} className="fade-up svc-row" style={{ borderBottom: idx < activeServices.length - 1 ? '1px solid rgba(0,0,0,0.05)' : 'none', animationDelay: `${0.35 + idx * 0.06}s` }}>
                     {/* Fila principal */}
                     <div style={{ display: 'flex', alignItems: 'stretch', gap: 0 }}>
                       {/* Acento dorado izquierda */}
