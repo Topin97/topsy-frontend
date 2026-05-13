@@ -292,15 +292,29 @@ const activeServices = prof.services?.filter(s => s.is_active) ?? []
     <div style={{ maxWidth: 700, margin: '0 auto', fontFamily: 'Outfit, sans-serif', background: '#F7F5F2', minHeight: '100vh', paddingBottom: 'calc(90px + env(safe-area-inset-bottom))' }}>
       <style>{`
         .tab-btn:hover { color: #1A1612 !important; }
-        .svc-row { transition: all 0.2s; }
-        .svc-row:hover { border-color: rgba(184,131,58,0.4) !important; box-shadow: 0 6px 24px rgba(184,131,58,0.1) !important; }
-        .gallery-thumb { transition: transform 0.22s ease, opacity 0.22s ease; cursor: pointer; }
-        .gallery-thumb:hover { transform: scale(1.03); opacity: 0.92; }
-        .book-btn:hover { opacity: 0.92; transform: translateY(-1px); }
-        .book-btn { transition: all 0.18s ease; }
-        @keyframes fadeUp { from { opacity:0; transform: translateY(10px) } to { opacity:1; transform:none } }
+        .svc-row { transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), border-color 0.2s, box-shadow 0.25s; }
+        .svc-row:hover { transform: translateY(-2px); border-color: rgba(184,131,58,0.4) !important; box-shadow: 0 10px 28px rgba(184,131,58,0.15) !important; }
+        .gallery-thumb { transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.22s ease; cursor: pointer; }
+        .gallery-thumb:hover { transform: scale(1.04); opacity: 0.93; }
+        .book-btn { transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease, opacity 0.2s ease; }
+        .book-btn:hover { opacity: 0.95; transform: translateY(-2px); box-shadow: 0 16px 32px rgba(184,131,58,0.32) !important; }
+        .book-btn:active { transform: translateY(-1px) scale(0.99); }
+        @keyframes fadeUp { from { opacity:0; transform: translateY(14px) } to { opacity:1; transform:none } }
+        @keyframes scaleIn { from { opacity:0; transform: scale(0.96) } to { opacity:1; transform: scale(1) } }
+        @keyframes pop { 0% { transform: scale(0.5); opacity:0 } 50% { transform: scale(1.05) } 100% { transform: scale(1); opacity:1 } }
         @keyframes shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+        .fade-up { animation: fadeUp 0.55s cubic-bezier(0.34,1.56,0.64,1) both; }
+        .scale-in { animation: scaleIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+        .pop { animation: pop 0.6s cubic-bezier(0.34,1.56,0.64,1) both; }
         .skeleton { background: linear-gradient(90deg,#f0ede8 25%,#e8e4de 50%,#f0ede8 75%); background-size:400px 100%; animation: shimmer 1.4s infinite; border-radius: 8px; }
+        .day-chip { transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s; }
+        .day-chip:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(184,131,58,0.15); }
+        .review-card { animation: fadeUp 0.5s cubic-bezier(0.34,1.56,0.64,1) both; }
+        @media (prefers-reduced-motion: reduce) {
+          .fade-up, .scale-in, .pop, .review-card { animation: none !important; opacity: 1 !important; transform: none !important; }
+          .svc-row, .gallery-thumb, .book-btn, .day-chip { transition: none !important; }
+          .skeleton { animation: none !important; }
+        }
       `}</style>
 
       {/* Waitlist Sheet */}
@@ -331,7 +345,7 @@ const activeServices = prof.services?.filter(s => s.is_active) ?? []
       })()}
 
       {/* ══ PORTADA ══ */}
-      <div style={{ position: 'relative', height: 300, overflow: 'hidden', background: 'linear-gradient(135deg,#1A0F05,#2C1A0A)' }}>
+      <div className="fade-up" style={{ position: 'relative', height: 300, overflow: 'hidden', background: 'linear-gradient(135deg,#1A0F05,#2C1A0A)' }}>
         {prof.cover_image_url
           ? <img
               src={prof.cover_image_url}
@@ -426,7 +440,7 @@ const activeServices = prof.services?.filter(s => s.is_active) ?? []
 
         {/* Galería */}
         {gallery.length > 0 && (
-          <div style={{ padding: '16px 16px 0' }}>
+          <div className="fade-up" style={{ padding: '16px 16px 0', animationDelay: '0.15s' }}>
             {gallery.length === 1 ? (
               <div className="gallery-thumb" onClick={() => setGalleryOpen(0)} style={{ borderRadius: 18, overflow: 'hidden', height: 220, background: '#EFEDE9' }}>
                 <img src={gallery[0].url} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} onError={e => { e.target.style.display='none' }} />
@@ -462,7 +476,7 @@ const activeServices = prof.services?.filter(s => s.is_active) ?? []
         )}
 
         {/* ── TABS ── */}
-        <div style={{ display: 'flex', background: '#FFFFFF', borderBottom: '1px solid rgba(0,0,0,0.07)', padding: '0 16px', position: 'sticky', top: 60, zIndex: 20, boxShadow: '0 4px 16px rgba(0,0,0,0.06)', marginTop: 16 }}>
+        <div className="fade-up" style={{ display: 'flex', background: '#FFFFFF', borderBottom: '1px solid rgba(0,0,0,0.07)', padding: '0 16px', position: 'sticky', top: 60, zIndex: 20, boxShadow: '0 4px 16px rgba(0,0,0,0.06)', marginTop: 16, animationDelay: '0.25s' }}>
           {[
             { key: 'services', label: `Servicios`, count: activeServices.length },
             { key: 'reviews',  label: `Reseñas`,  count: prof.total_reviews ?? 0 },
