@@ -12,6 +12,7 @@ import { createClient } from '@supabase/supabase-js'
 
 import Layout from './components/layout/Layout'
 import ScrollToTop from './components/ScrollToTop'
+import ComingSoonGate from './components/ComingSoonGate'
 import OnboardingScreen from './components/OnboardingScreen'
 
 // ── Carga inmediata ──────────────────────────────────────────────────────────
@@ -215,6 +216,7 @@ const [showOnboarding, setShowOnboarding] = useState(
         }}
       />
 
+      <ComingSoonGate>
       <Suspense fallback={<PageLoader />}>
         <ScrollToTop />
         <CapacitorDeepLinkHandler />
@@ -252,6 +254,7 @@ const [showOnboarding, setShowOnboarding] = useState(
           </Route>
         </Routes>
       </Suspense>
+      </ComingSoonGate>
     </>
   )
 }
