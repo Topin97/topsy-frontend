@@ -28,6 +28,7 @@ const AdminPage           = lazy(() => import('./pages/admin/AdminPage'))
 const WelcomePage         = lazy(() => import('./pages/WelcomePage'))
 const NotFoundPage        = lazy(() => import('./pages/NotFoundPage'))
 const PricingPage         = lazy(() => import('./pages/PricingPage'))
+const PricingPage         = lazy(() => import('./pages/PricingPage'))
 const ForgotPasswordPage  = lazy(() => import('./pages/ForgotPasswordPage'))
 const ResetPasswordPage   = lazy(() => import('./pages/ResetPasswordPage'))
 const AuthCallbackPage    = lazy(() => import('./pages/AuthCallbackPage'))
@@ -229,6 +230,7 @@ const [showOnboarding, setShowOnboarding] = useState(
             <Route path="register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
             <Route path="register/client" element={<PublicRoute><RegisterClientPage /></PublicRoute>} />
             <Route path="register/pro" element={<PublicRoute><RegisterProPage /></PublicRoute>} />
+            <Route path="pricing" element={<PricingPage />} />
             <Route path="pricing" element={<PricingPage />} />
             <Route path="forgot-password" element={<ForgotPasswordPage />} />
             <Route path="reset-password" element={<ResetPasswordPage />} />
