@@ -365,11 +365,24 @@ const handleAvatarChange = async (e) => {
       <style>{`
         @keyframes spin{to{transform:rotate(360deg)}}
         @keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+        @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+        @keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
+        @keyframes scaleIn{from{opacity:0;transform:scale(0.96)}to{opacity:1;transform:scale(1)}}
+        .fade-up{animation:fadeUp 0.55s cubic-bezier(0.34,1.56,0.64,1) both}
+        .slide-down{animation:slideDown 0.55s cubic-bezier(0.34,1.56,0.64,1) both}
+        .scale-in{animation:scaleIn 0.5s cubic-bezier(0.34,1.56,0.64,1) both}
+        .menu-row{transition:background 0.2s ease,transform 0.2s cubic-bezier(0.34,1.56,0.64,1)}
+        .menu-row:hover{background:rgba(184,131,58,0.04) !important;transform:translateX(2px)}
+        .menu-row:active{transform:scale(0.99)}
+        @media (prefers-reduced-motion:reduce){
+          .fade-up,.slide-down,.scale-in{animation:none !important;opacity:1 !important;transform:none !important}
+          .menu-row{transition:none !important}
+        }
       `}</style>
 
       {/* Banner verificación email pendiente */}
       {showBanner && (
-        <div style={{ background: '#FEF3C7', borderBottom: '1px solid #F59E0B', padding: '12px 20px' }}>
+        <div className="fade-up" style={{ background: '#FEF3C7', borderBottom: '1px solid #F59E0B', padding: '12px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, marginBottom: 10 }}>
             <span style={{ fontSize: 16, flexShrink: 0, marginTop: 1 }}>⚠️</span>
             <div>
@@ -383,7 +396,7 @@ const handleAvatarChange = async (e) => {
 
       {/* Banner "completa tu perfil" — típico para Apple OAuth */}
       {showCompleteProfileBanner && (
-        <div style={{ background: 'linear-gradient(135deg, rgba(184,131,58,0.10), rgba(212,160,85,0.05))', borderBottom: '1px solid rgba(184,131,58,0.25)', padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
+        <div className="fade-up" style={{ background: 'linear-gradient(135deg, rgba(184,131,58,0.10), rgba(212,160,85,0.05))', borderBottom: '1px solid rgba(184,131,58,0.25)', padding: '14px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontSize: 22, flexShrink: 0 }}>✨</span>
           <div style={{ flex: 1, minWidth: 0 }}>
             <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13, fontWeight: 700, color: '#92400E', margin: 0 }}>Completa tu perfil</p>
@@ -397,7 +410,7 @@ const handleAvatarChange = async (e) => {
       )}
 
       {/* Cabecera con avatar y nombre */}
-      <div style={{ background: '#FFFFFF', padding: '28px 20px 20px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+      <div className="slide-down" style={{ background: '#FFFFFF', padding: '28px 20px 20px', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <div style={{ width: 72, height: 72, borderRadius: '50%', overflow: 'hidden', background: avatarSrc ? 'transparent' : 'linear-gradient(135deg,#1A0F05,#2C1810)', border: '2px solid rgba(197,138,61,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 14px rgba(17,17,17,0.1)' }}>
@@ -421,17 +434,12 @@ const handleAvatarChange = async (e) => {
               <span style={{ fontSize: 11, color: '#B57932', fontWeight: 700, background: 'rgba(197,138,61,0.1)', padding: '2px 10px', borderRadius: 999, display: 'inline-block' }}>
                 {ROLE_LABEL[me?.role] ?? me?.role}
               </span>
-              {me?.role === 'client' && (me?.points ?? 0) >= 0 && (
-                <span style={{ fontSize: 11, color: '#B57932', fontWeight: 700, background: 'rgba(197,138,61,0.08)', border: '1px solid rgba(197,138,61,0.2)', padding: '2px 10px', borderRadius: 999, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                  ⭐ {me?.points ?? 0} puntos
-                </span>
-              )}
             </div>
           </div>
         </div>
       </div>
 
-      <div style={{ background: '#FFFFFF', marginTop: 12, borderTop: '1px solid rgba(0,0,0,0.06)', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+      <div className="fade-up" style={{ background: '#FFFFFF', marginTop: 12, borderTop: '1px solid rgba(0,0,0,0.06)', borderBottom: '1px solid rgba(0,0,0,0.06)', animationDelay: '0.15s' }}>
         <MenuRow icon="👤" label="Datos de la cuenta" sublabel={userEmail} onClick={() => setSection('datos')} />
         <MenuRow icon="🔔" label="Notificaciones" sublabel="Email y alertas de la app" onClick={() => setSection('notificaciones')} />
         <MenuRow icon="🔒" label="Tu privacidad" sublabel="Cómo usamos tus datos" onClick={() => setSection('privacidad')} />
@@ -440,11 +448,11 @@ const handleAvatarChange = async (e) => {
         )}
       </div>
 
-      <div style={{ background: '#FFFFFF', marginTop: 12, borderTop: '1px solid rgba(0,0,0,0.06)', borderBottom: '1px solid rgba(0,0,0,0.06)' }}>
+      <div className="fade-up" style={{ background: '#FFFFFF', marginTop: 12, borderTop: '1px solid rgba(0,0,0,0.06)', borderBottom: '1px solid rgba(0,0,0,0.06)', animationDelay: '0.25s' }}>
         <MenuRow icon="🚪" label="Cerrar sesión" onClick={() => { logout(); navigate('/') }} danger />
       </div>
 
-      <p style={{ textAlign: 'center', fontSize: 11, color: 'rgba(24,21,18,0.25)', marginTop: 24, fontFamily: 'Outfit, sans-serif' }}>
+      <p className="fade-up" style={{ textAlign: 'center', fontSize: 11, color: 'rgba(24,21,18,0.25)', marginTop: 24, fontFamily: 'Outfit, sans-serif', animationDelay: '0.4s' }}>
         TopSy · v1.0
       </p>
     </div>
