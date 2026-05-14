@@ -13,6 +13,8 @@ const adminApi = {
   verifyProfessional: (id, verified) => api.patch(`/admin/professionals/${id}/verify`, { verified }),
   toggleProfessional: (id, active)   => api.patch(`/admin/professionals/${id}/toggle`, { active }),
   changeCategory:     (id, category) => api.patch(`/admin/professionals/${id}/category`, { category }),
+  getLeadsEmails:     () => api.get('/admin/leads/emails').then(r => r.data),
+  getLeadsPros:       () => api.get('/admin/leads/pros').then(r => r.data),
 }
 
 const CATEGORIES = [
@@ -37,8 +39,8 @@ const STATUS_COLOR = {
   completed: { color: '#B8833A', bg: 'rgba(184,131,58,0.1)',  label: 'Completada' },
 }
 
-const TABS = ['stats', 'professionals', 'users', 'bookings']
-const TAB_LABEL = { stats: '📊 Stats', professionals: '💼 Profesionales', users: '👥 Usuarios', bookings: '📅 Reservas' }
+const TABS = ['stats', 'professionals', 'users', 'bookings', 'leads']
+const TAB_LABEL = { stats: '📊 Stats', professionals: '💼 Profesionales', users: '👥 Usuarios', bookings: '📅 Reservas', leads: '📋 Leads' }
 
 function CategoryModal({ prof, onConfirm, onCancel }) {
   const [selected, setSelected] = useState(prof.category)
@@ -63,6 +65,8 @@ function CategoryModal({ prof, onConfirm, onCancel }) {
           <button onClick={onCancel} style={{ flex: 1, background: 'transparent', border: '1.5px solid rgba(0,0,0,0.1)', borderRadius: 10, padding: '11px', color: 'rgba(26,22,18,0.45)', fontSize: 13, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>Cancelar</button>
           <button onClick={() => onConfirm(selected)} style={{ flex: 2, background: 'linear-gradient(135deg,#B8833A,#D4A055)', border: 'none', borderRadius: 10, padding: '11px', color: '#FFFFFF', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif', boxShadow: '0 4px 14px rgba(184,131,58,0.25)' }}>Guardar cambio</button>
         </div>
+
+
       </div>
     </div>
   )
@@ -75,7 +79,22 @@ export default function AdminPage() {
   const [tab, setTab] = useState('professionals')
   const [profFilter, setProfFilter] = useState('false')
   const [bookingFilter, setBookingFilter] = useState('')
+
+  // Queries para leads (solo si tab activo)
+  // Se activan solo cuando entras al tab leads
+  const { data: leadsPros } = useQuery({
+    queryKey: ['admin', 'leads', 'pros'],
+    queryFn: adminApi.getLeadsPros,
+    enabled: false,
+  })
+  const { data: leadsEmails } = useQuery({
+    queryKey: ['admin', 'leads', 'emails'],
+    queryFn: adminApi.getLeadsEmails,
+    enabled: false,
+  })
   const [categoryModal, setCategoryModal] = useState(null)
+  const [leadSubTab, setLeadSubTab] = useState('pros')  // 'pros' | 'emails'
+  const [leadSearch, setLeadSearch] = useState('')
 
   if (user?.role !== 'admin') { navigate('/'); return null }
 
@@ -315,7 +334,209 @@ export default function AdminPage() {
             </div>
           </div>
         )}
+
+        {/* ── LEADS ── */}
+        {tab === 'leads' && (
+          <LeadsSection
+            subTab={leadSubTab}
+            setSubTab={setLeadSubTab}
+            search={leadSearch}
+            setSearch={setLeadSearch}
+          />
+        )}
+
       </div>
     </div>
   )
 }
+
+// ════════════════════════════════════════════════════════════════
+// LeadsSection — muestra waitlist coming-soon + pros interesados
+// ════════════════════════════════════════════════════════════════
+function LeadsSection({ subTab, setSubTab, search, setSearch }) {
+  const queryClient = useQueryClient()
+
+  // Cargar datos al montar
+  const { data: pros, isLoading: loadingPros } = useQuery({
+    queryKey: ['admin', 'leads', 'pros'],
+    queryFn: adminApi.getLeadsPros,
+  })
+  const { data: emails, isLoading: loadingEmails } = useQuery({
+    queryKey: ['admin', 'leads', 'emails'],
+    queryFn: adminApi.getLeadsEmails,
+  })
+
+  const prosList   = pros?.data ?? []
+  const emailsList = emails?.data ?? []
+
+  const filterPros = prosList.filter(p => {
+    if (!search) return true
+    const q = search.toLowerCase()
+    return [p.full_name, p.business, p.city, p.phone, p.email, p.category, p.team_size, p.notes]
+      .filter(Boolean).some(v => v.toString().toLowerCase().includes(q))
+  })
+  const filterEmails = emailsList.filter(e => {
+    if (!search) return true
+    return e.email?.toLowerCase().includes(search.toLowerCase())
+  })
+
+  // Export CSV
+  const exportCSV = () => {
+    const rows = subTab === 'pros' ? filterPros : filterEmails
+    if (rows.length === 0) {
+      toast.error('Nada que exportar')
+      return
+    }
+    const headers = subTab === 'pros'
+      ? ['Fecha', 'Nombre', 'Negocio', 'Ciudad', 'Teléfono', 'Categoría', 'Equipo', 'Email', 'Notas']
+      : ['Fecha', 'Email']
+    const escape = (v) => v == null ? '' : `"${String(v).replace(/"/g, '""')}"`
+    const rowsCsv = rows.map(r => subTab === 'pros'
+      ? [r.created_at, r.full_name, r.business, r.city, r.phone, r.category, r.team_size, r.email, r.notes].map(escape).join(',')
+      : [r.created_at, r.email].map(escape).join(',')
+    )
+    const csv = [headers.join(','), ...rowsCsv].join('\n')
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `topsy-leads-${subTab}-${new Date().toISOString().slice(0,10)}.csv`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+    toast.success(`${rows.length} leads exportados`)
+  }
+
+  const fmt = (iso) => {
+    if (!iso) return '—'
+    const d = new Date(iso)
+    return d.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' })
+      + ' · ' + d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })
+  }
+
+  const CAT_LABEL = {
+    peluqueria: '✂️ Peluquería', barberia: '💈 Barbería',
+    estetica: '💆 Estética', masaje: '🌿 Masaje',
+    unas: '💅 Uñas', cejas_pestanas: '👁️ Cejas/Pestañas',
+    spa: '🧖 Spa', maquillaje: '💄 Maquillaje', otros: '✨ Otros',
+  }
+
+  return (
+    <div>
+      {/* Cabecera con contadores */}
+      <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginBottom: 20, alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+          {[
+            { label: 'Pros interesados', value: prosList.length, color: '#B8833A' },
+            { label: 'Emails waitlist',  value: emailsList.length, color: '#7B5E2E' },
+          ].map(s => (
+            <div key={s.label} style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 14, padding: '14px 22px', minWidth: 160, boxShadow: '0 2px 8px rgba(0,0,0,0.04)' }}>
+              <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.8rem', color: s.color, lineHeight: 1, margin: 0, fontWeight: 700 }}>{s.value}</p>
+              <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: 'Outfit, sans-serif', margin: '4px 0 0' }}>{s.label}</p>
+            </div>
+          ))}
+        </div>
+
+        <button onClick={exportCSV} style={{
+          background: 'linear-gradient(135deg,#B8833A,#D4A055)', color: '#FFFFFF',
+          border: 'none', borderRadius: 10, padding: '11px 20px',
+          fontSize: 13, fontWeight: 600, cursor: 'pointer',
+          fontFamily: 'Outfit, sans-serif',
+          boxShadow: '0 4px 14px rgba(184,131,58,0.3)',
+        }}>📥 Exportar CSV</button>
+      </div>
+
+      {/* Sub-tabs Pros / Emails */}
+      <div style={{ display: 'flex', gap: 8, marginBottom: 18, flexWrap: 'wrap' }}>
+        {[['pros', `💼 Profesionales (${prosList.length})`], ['emails', `📧 Emails (${emailsList.length})`]].map(([val, label]) => (
+          <button key={val} onClick={() => setSubTab(val)} style={{
+            padding: '8px 18px', borderRadius: 100, cursor: 'pointer', fontSize: 12.5,
+            fontFamily: 'Outfit, sans-serif', fontWeight: subTab === val ? 700 : 500, transition: 'all 0.2s',
+            background: subTab === val ? 'rgba(184,131,58,0.12)' : '#FFFFFF',
+            color: subTab === val ? '#B8833A' : 'rgba(26,22,18,0.55)',
+            border: `1.5px solid ${subTab === val ? 'rgba(184,131,58,0.35)' : 'rgba(0,0,0,0.1)'}`,
+          }}>{label}</button>
+        ))}
+      </div>
+
+      {/* Buscador */}
+      <input type="text" placeholder={subTab === 'pros' ? 'Buscar por nombre, negocio, ciudad, teléfono...' : 'Buscar por email...'}
+        value={search} onChange={(e) => setSearch(e.target.value)}
+        style={{
+          width: '100%', padding: '13px 18px', borderRadius: 12,
+          border: '1.5px solid rgba(0,0,0,0.1)', background: '#FFFFFF',
+          fontSize: 13.5, marginBottom: 16, fontFamily: 'Outfit, sans-serif',
+          color: '#1A1612', outline: 'none', boxSizing: 'border-box',
+        }} />
+
+      {/* ── Tabla PROS ── */}
+      {subTab === 'pros' && (
+        <div style={{ background: '#FFFFFF', borderRadius: 14, border: '1.5px solid rgba(0,0,0,0.06)', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+          {loadingPros && <p style={{ padding: 30, textAlign: 'center', color: 'rgba(26,22,18,0.4)' }}>Cargando...</p>}
+          {!loadingPros && filterPros.length === 0 && (
+            <p style={{ padding: 40, textAlign: 'center', color: 'rgba(26,22,18,0.4)', fontFamily: 'Outfit, sans-serif' }}>
+              {search ? `Ningún resultado para "${search}"` : 'Aún no hay profesionales apuntados'}
+            </p>
+          )}
+          {!loadingPros && filterPros.map((p) => (
+            <div key={p.id} style={{
+              padding: '16px 20px', borderBottom: '1px solid rgba(0,0,0,0.05)',
+              display: 'grid', gridTemplateColumns: '1fr auto', gap: 12, alignItems: 'start',
+            }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', marginBottom: 4 }}>
+                  <p style={{ fontWeight: 700, fontSize: 14, color: '#1A1612', margin: 0, fontFamily: 'Outfit, sans-serif' }}>{p.full_name}</p>
+                  <span style={{ fontSize: 11, color: '#B8833A', background: 'rgba(184,131,58,0.1)', padding: '3px 8px', borderRadius: 100, fontWeight: 600 }}>
+                    {CAT_LABEL[p.category] ?? p.category}
+                  </span>
+                </div>
+                <p style={{ fontSize: 13, color: 'rgba(26,22,18,0.7)', margin: '0 0 4px', fontFamily: 'Outfit, sans-serif' }}>
+                  <strong>{p.business}</strong> · {p.city}{p.team_size ? ` · ${p.team_size}` : ''}
+                </p>
+                <p style={{ fontSize: 12.5, color: 'rgba(26,22,18,0.55)', margin: 0, fontFamily: 'Outfit, sans-serif' }}>
+                  📱 <a href={`tel:${p.phone}`} style={{ color: 'inherit', textDecoration: 'none' }}>{p.phone}</a>
+                  {p.email && <> · ✉️ <a href={`mailto:${p.email}`} style={{ color: 'inherit', textDecoration: 'none' }}>{p.email}</a></>}
+                </p>
+                {p.notes && (
+                  <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.5)', margin: '8px 0 0', fontStyle: 'italic', fontFamily: 'Outfit, sans-serif', lineHeight: 1.5 }}>
+                    "{p.notes}"
+                  </p>
+                )}
+              </div>
+              <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.35)', margin: 0, whiteSpace: 'nowrap', fontFamily: 'Outfit, sans-serif' }}>
+                {fmt(p.created_at)}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Tabla EMAILS ── */}
+      {subTab === 'emails' && (
+        <div style={{ background: '#FFFFFF', borderRadius: 14, border: '1.5px solid rgba(0,0,0,0.06)', overflow: 'hidden', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+          {loadingEmails && <p style={{ padding: 30, textAlign: 'center', color: 'rgba(26,22,18,0.4)' }}>Cargando...</p>}
+          {!loadingEmails && filterEmails.length === 0 && (
+            <p style={{ padding: 40, textAlign: 'center', color: 'rgba(26,22,18,0.4)', fontFamily: 'Outfit, sans-serif' }}>
+              {search ? `Ningún resultado para "${search}"` : 'Aún no hay emails apuntados'}
+            </p>
+          )}
+          {!loadingEmails && filterEmails.map((e) => (
+            <div key={e.id} style={{
+              padding: '14px 20px', borderBottom: '1px solid rgba(0,0,0,0.05)',
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12,
+            }}>
+              <a href={`mailto:${e.email}`} style={{ fontSize: 14, color: '#1A1612', textDecoration: 'none', fontFamily: 'Outfit, sans-serif', fontWeight: 500 }}>
+                {e.email}
+              </a>
+              <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.35)', margin: 0, fontFamily: 'Outfit, sans-serif' }}>
+                {fmt(e.created_at)}
+              </p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
