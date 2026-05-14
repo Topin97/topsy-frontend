@@ -193,7 +193,8 @@ export default function ComingSoonGate({ children }) {
           maxWidth: 460,
           animationDelay: '0.26s',
         }}>
-          El marketplace que conecta a los mejores profesionales con clientes que buscan calidad. Llega a TopSy el <strong style={{ color: '#FFFFFF', fontWeight: 600 }}>1 de junio de 2026</strong>.
+          El marketplace que conecta a los mejores profesionales con clientes que buscan calidad. Empezamos en <strong style={{ color: '#FFFFFF', fontWeight: 600 }}>El Cuervo de Sevilla</strong>{' '}
+          el <strong style={{ color: '#FFFFFF', fontWeight: 600 }}>1 de junio de 2026</strong>.
         </p>
 
         {/* 2 features */}
@@ -451,7 +452,7 @@ export default function ComingSoonGate({ children }) {
             margin: '14px 0 0', lineHeight: 1.5, maxWidth: 380,
             marginLeft: 'auto', marginRight: 'auto',
           }}>
-            Reserva tu lugar gratis. Te contactaremos antes del 1 de junio.
+            Buscamos pros de El Cuervo de Sevilla. Gratis durante el lanzamiento.
           </p>
         </div>
 
