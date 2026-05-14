@@ -101,9 +101,13 @@ export default function ProServicesPage() {
   })
 
   const { mutate: deleteService } = useMutation({
-    mutationFn: (id) => api.delete(`/professionals/services/${id}`),
-    onSuccess: () => {
-      toast.success('Servicio eliminado ✓')
+    mutationFn: (id) => api.delete(`/professionals/services/${id}`).then(r => r.data),
+    onSuccess: (data) => {
+      if (data?.soft) {
+        toast.success(data.message ?? 'Servicio desactivado', { duration: 5000, icon: 'ℹ️' })
+      } else {
+        toast.success('Servicio eliminado ✓')
+      }
       qc.invalidateQueries({ queryKey: ['my-services'] })
     },
     onError: (err) => {
