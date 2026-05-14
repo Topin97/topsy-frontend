@@ -4,6 +4,11 @@ on:
   push:
     branches: ["main"]
 
+# Cancelar deploys en cola si llega uno nuevo
+concurrency:
+  group: deploy-frontend
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -18,13 +23,15 @@ jobs:
 
       - name: Deploy frontend en VPS
         run: |
-          ssh -i ~/.ssh/github_actions ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} '
-            export GIT_SSH_COMMAND="ssh -i ~/.ssh/github_actions -o IdentitiesOnly=yes"
-            cd /home/topindev/topsy-frontend &&
-            git pull origin main &&
-            npm install &&
-            npm run build &&
-            sudo rm -rf /var/www/topsy/* &&
-            sudo cp -r dist/* /var/www/topsy/ &&
-            sudo systemctl reload nginx
-          '
+          ssh -i ~/.ssh/github_actions ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          export GIT_SSH_COMMAND="ssh -i ~/.ssh/github_actions -o IdentitiesOnly=yes"
+          cd /home/topindev/topsy-frontend
+          git pull origin main
+          npm install
+          npm run build
+          sudo rm -rf /var/www/topsy/*
+          sudo cp -r dist/. /var/www/topsy/
+          sudo systemctl reload nginx
+          echo "✅ Deploy completado: $(ls -t /var/www/topsy/assets/index-*.js | head -1)"
+          REMOTE
