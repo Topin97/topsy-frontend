@@ -161,9 +161,117 @@ export default function ProSignupPage() {
           margin: '0 0 30px', maxWidth: 460,
           animationDelay: '0.12s',
         }}>
-          Reserva tu lugar en el marketplace de belleza y bienestar. <strong style={{ color: '#FFFFFF', fontWeight: 600 }}>Sin coste,
-          sin compromiso.</strong> Te contactaremos antes de la apertura el 1 de junio.
+          Reserva tu lugar en el marketplace de belleza y bienestar.{' '}
+          <strong style={{ color: '#FFFFFF', fontWeight: 600 }}>Gratis durante el lanzamiento</strong>{' '}
+          y con condiciones exclusivas como profesional fundador. Te contactaremos antes del 1 de junio.
         </p>
+
+        {/* ─── Ventajas para fundadores ──────────────────────── */}
+        <div className="anim" style={{ animationDelay: '0.18s', marginBottom: 36 }}>
+          <p style={{
+            fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase',
+            color: '#D4A055', fontWeight: 700, margin: '0 0 18px',
+          }}>
+            ✦ Ventajas para profesionales fundadores
+          </p>
+          <div style={{ display: 'grid', gap: 12 }}>
+            {[
+              { icon: '💎', title: 'Gratis durante el lanzamiento', text: 'Sin coste hasta que introduzcamos el plan Pro.' },
+              { icon: '⭐', title: 'Condiciones exclusivas', text: 'Los fundadores tendrán tarifas preferentes cuando lancemos suscripción.' },
+              { icon: '🚀', title: 'Visibilidad prioritaria', text: 'Aparecerás primero en tu zona al lanzamiento.' },
+              { icon: '🤝', title: 'Soporte personal', text: 'Te llamamos uno por uno para ayudarte a configurar tu perfil.' },
+            ].map((v, i) => (
+              <div key={i} style={{
+                background: 'rgba(255,255,255,0.025)',
+                border: '1px solid rgba(184,131,58,0.18)',
+                borderRadius: 14,
+                padding: '14px 16px',
+                display: 'flex', gap: 14, alignItems: 'flex-start',
+              }}>
+                <span style={{ fontSize: 20, lineHeight: 1.2, flexShrink: 0 }}>{v.icon}</span>
+                <div>
+                  <p style={{
+                    fontSize: 14, fontWeight: 600, color: '#FFFFFF',
+                    margin: '0 0 3px', fontFamily: 'Outfit, sans-serif',
+                  }}>{v.title}</p>
+                  <p style={{
+                    fontSize: 12.5, color: 'rgba(255,255,255,0.55)',
+                    margin: 0, lineHeight: 1.5,
+                  }}>{v.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ─── Cómo funciona ─────────────────────────────────── */}
+        <div className="anim" style={{ animationDelay: '0.22s', marginBottom: 36 }}>
+          <p style={{
+            fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase',
+            color: '#D4A055', fontWeight: 700, margin: '0 0 18px',
+          }}>
+            ✦ Cómo funciona
+          </p>
+          <div style={{ display: 'grid', gap: 14 }}>
+            {[
+              { n: '1', title: 'Apúntate', text: 'Rellena el formulario de abajo. Te lleva 1 minuto.' },
+              { n: '2', title: 'Te llamamos', text: 'Hablamos contigo para conocer tu negocio y resolver dudas.' },
+              { n: '3', title: 'Empieza el 1 de junio', text: 'Te ayudamos a configurar perfil, servicios y horarios.' },
+            ].map((s) => (
+              <div key={s.n} style={{
+                display: 'flex', gap: 16, alignItems: 'flex-start',
+              }}>
+                <div style={{
+                  flexShrink: 0,
+                  width: 36, height: 36, borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #B8833A, #D4A055)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  fontFamily: 'Cormorant Garamond, serif',
+                  fontSize: 18, fontWeight: 700, color: '#FFFFFF',
+                  boxShadow: '0 6px 16px rgba(184,131,58,0.3)',
+                }}>{s.n}</div>
+                <div style={{ paddingTop: 4 }}>
+                  <p style={{
+                    fontSize: 14, fontWeight: 600, color: '#FFFFFF',
+                    margin: '0 0 3px', fontFamily: 'Outfit, sans-serif',
+                  }}>{s.title}</p>
+                  <p style={{
+                    fontSize: 12.5, color: 'rgba(255,255,255,0.55)',
+                    margin: 0, lineHeight: 1.5,
+                  }}>{s.text}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ─── FAQ ──────────────────────────────────────────── */}
+        <div className="anim" style={{ animationDelay: '0.26s', marginBottom: 36 }}>
+          <p style={{
+            fontSize: 10, letterSpacing: '0.3em', textTransform: 'uppercase',
+            color: '#D4A055', fontWeight: 700, margin: '0 0 18px',
+          }}>
+            ✦ Preguntas frecuentes
+          </p>
+          <div style={{ display: 'grid', gap: 8 }}>
+            {[
+              { q: '¿Cuánto cuesta usar TopSy?',
+                a: 'Durante el lanzamiento es 100% gratis. Más adelante introduciremos un plan Pro con funciones avanzadas, pero los fundadores tendrán condiciones exclusivas y aviso con tiempo.' },
+              { q: '¿Cobráis comisión por reserva?',
+                a: 'No. Los pagos se realizan directamente entre cliente y profesional, como siempre.' },
+              { q: '¿Tengo que pagar algo ahora?',
+                a: 'Nada. Apuntarte como profesional fundador no tiene coste ni compromiso.' },
+              { q: '¿Cuándo abrís?',
+                a: 'El 1 de junio de 2026. Hasta entonces preparamos todo y contactamos uno por uno con los pros apuntados.' },
+              { q: '¿Cómo aparecen mis servicios?',
+                a: 'Configuras tu perfil con servicios, precios, fotos y horarios. Los clientes pueden reservarte directamente en tu hueco disponible.' },
+              { q: '¿Dónde funciona TopSy?',
+                a: 'Empezamos en toda España y nos centramos primero en grandes ciudades. Estés donde estés, apúntate y te contactamos.' },
+            ].map((f, i) => (
+              <FaqItem key={i} q={f.q} a={f.a} />
+            ))}
+          </div>
+        </div>
 
         {/* Form */}
         <form onSubmit={submit} className="anim" style={{ animationDelay: '0.2s', display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -273,3 +381,46 @@ export default function ProSignupPage() {
     </div>
   )
 }
+
+// ─── FAQ acordeón item ────────────────────────────────────────
+function FaqItem({ q, a }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div style={{
+      background: 'rgba(255,255,255,0.02)',
+      border: '1px solid rgba(255,255,255,0.08)',
+      borderRadius: 12,
+      overflow: 'hidden',
+      transition: 'border-color 0.25s',
+    }}>
+      <button onClick={() => setOpen(!open)} type="button" style={{
+        width: '100%', textAlign: 'left',
+        background: 'transparent', border: 'none', cursor: 'pointer',
+        padding: '14px 16px',
+        display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+        gap: 10, color: '#FFFFFF',
+        fontFamily: 'Outfit, sans-serif', fontSize: 13.5, fontWeight: 600,
+      }}>
+        <span>{q}</span>
+        <span style={{
+          color: '#D4A055', fontSize: 18, lineHeight: 1,
+          transform: open ? 'rotate(45deg)' : 'rotate(0deg)',
+          transition: 'transform 0.25s cubic-bezier(0.22,1,0.36,1)',
+          flexShrink: 0,
+        }}>+</span>
+      </button>
+      <div style={{
+        maxHeight: open ? 200 : 0,
+        overflow: 'hidden',
+        transition: 'max-height 0.35s cubic-bezier(0.22,1,0.36,1)',
+      }}>
+        <p style={{
+          fontSize: 12.5, color: 'rgba(255,255,255,0.6)',
+          margin: 0, padding: '0 16px 16px',
+          lineHeight: 1.6,
+        }}>{a}</p>
+      </div>
+    </div>
+  )
+}
+
