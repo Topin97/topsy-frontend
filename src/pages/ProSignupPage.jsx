@@ -161,9 +161,10 @@ export default function ProSignupPage() {
           margin: '0 0 30px', maxWidth: 460,
           animationDelay: '0.12s',
         }}>
-          Reserva tu lugar en el marketplace de belleza y bienestar.{' '}
+          Empezamos en <strong style={{ color: '#FFFFFF', fontWeight: 600 }}>El Cuervo de Sevilla</strong>{' '}
+          y queremos contar contigo desde el primer día.{' '}
           <strong style={{ color: '#FFFFFF', fontWeight: 600 }}>Gratis durante el lanzamiento</strong>{' '}
-          y con condiciones exclusivas como profesional fundador. Te contactaremos antes del 1 de junio.
+          y con condiciones exclusivas como profesional fundador.
         </p>
 
         {/* ─── Ventajas para fundadores ──────────────────────── */}
@@ -176,9 +177,9 @@ export default function ProSignupPage() {
           </p>
           <div style={{ display: 'grid', gap: 12 }}>
             {[
+              { icon: '📍', title: 'Empezamos en El Cuervo de Sevilla', text: 'Apuesta local. Conocemos el pueblo y a sus vecinos.' },
               { icon: '💎', title: 'Gratis durante el lanzamiento', text: 'Sin coste hasta que introduzcamos el plan Pro.' },
               { icon: '⭐', title: 'Condiciones exclusivas', text: 'Los fundadores tendrán tarifas preferentes cuando lancemos suscripción.' },
-              { icon: '🚀', title: 'Visibilidad prioritaria', text: 'Aparecerás primero en tu zona al lanzamiento.' },
               { icon: '🤝', title: 'Soporte personal', text: 'Te llamamos uno por uno para ayudarte a configurar tu perfil.' },
             ].map((v, i) => (
               <div key={i} style={{
@@ -266,7 +267,7 @@ export default function ProSignupPage() {
               { q: '¿Cómo aparecen mis servicios?',
                 a: 'Configuras tu perfil con servicios, precios, fotos y horarios. Los clientes pueden reservarte directamente en tu hueco disponible.' },
               { q: '¿Dónde funciona TopSy?',
-                a: 'Empezamos en toda España y nos centramos primero en grandes ciudades. Estés donde estés, apúntate y te contactamos.' },
+                a: 'Empezamos en El Cuervo de Sevilla y poco a poco iremos ampliando a la zona. Si eres de fuera, apúntate igualmente: vamos llegando a más sitios.' },
             ].map((f, i) => (
               <FaqItem key={i} q={f.q} a={f.a} />
             ))}
