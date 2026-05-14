@@ -111,6 +111,8 @@ export default function ComingSoonGate({ children }) {
 
         .store-btn{transition:transform 0.3s cubic-bezier(0.22,1,0.36,1),background 0.25s,border-color 0.25s}
         .store-btn:hover{transform:translateY(-3px);background:rgba(255,255,255,0.05) !important;border-color:rgba(212,160,85,0.45) !important}
+        .pro-cta:hover{transform:translateY(-2px);background:rgba(184,131,58,0.14) !important;box-shadow:0 14px 32px rgba(184,131,58,0.28)}
+        .pro-cta:active{transform:translateY(0) scale(0.98)}
 
         .feature-card{transition:transform 0.35s cubic-bezier(0.22,1,0.36,1),border-color 0.25s,background 0.25s}
         .feature-card:hover{transform:translateY(-4px);border-color:rgba(212,160,85,0.35) !important;background:rgba(255,255,255,0.04) !important}
@@ -417,12 +419,48 @@ export default function ComingSoonGate({ children }) {
           </div>
         </div>
 
+        {/* Separador */}
+        <div className="gold-line" style={{ width: 60, margin: '60px auto 28px' }} />
+
+        {/* CTA profesionales */}
+        <div className="cs-anim" style={{ animationDelay: '0.82s' }}>
+          <p style={{
+            fontSize: 10, letterSpacing: '0.32em', textTransform: 'uppercase',
+            color: 'rgba(255,255,255,0.4)', margin: '0 0 14px', fontWeight: 700,
+          }}>
+            ¿Eres profesional?
+          </p>
+          <a href="/pro" className="pro-cta" style={{
+            display: 'inline-flex', alignItems: 'center', gap: 10,
+            background: 'rgba(184,131,58,0.08)',
+            border: '1.5px solid rgba(184,131,58,0.4)',
+            borderRadius: 14,
+            padding: '14px 26px',
+            color: '#D4A055', textDecoration: 'none',
+            fontWeight: 700, fontSize: 14,
+            fontFamily: 'Outfit, sans-serif',
+            letterSpacing: '0.04em',
+            transition: 'transform 0.3s cubic-bezier(0.22,1,0.36,1), background 0.25s, box-shadow 0.25s',
+          }}>
+            <span style={{ fontSize: 16 }}>✂</span>
+            Apúntate antes de la apertura
+            <span style={{ fontSize: 16, marginLeft: 2 }}>→</span>
+          </a>
+          <p style={{
+            fontSize: 11.5, color: 'rgba(255,255,255,0.4)',
+            margin: '14px 0 0', lineHeight: 1.5, maxWidth: 380,
+            marginLeft: 'auto', marginRight: 'auto',
+          }}>
+            Reserva tu lugar gratis. Te contactaremos antes del 1 de junio.
+          </p>
+        </div>
+
         {/* Footer */}
         <p className="cs-anim" style={{
-          marginTop: 60, fontSize: 11,
+          marginTop: 50, fontSize: 11,
           color: 'rgba(255,255,255,0.22)',
           letterSpacing: '0.08em',
-          animationDelay: '0.74s',
+          animationDelay: '0.9s',
         }}>
           © TopSy 2026 · <a href="mailto:hola@topsy.es" style={{ color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>hola@topsy.es</a>
         </p>
