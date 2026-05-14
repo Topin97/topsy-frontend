@@ -171,14 +171,14 @@ export default function ProSignupPage() {
           <div>
             <label className="label">Nombre y apellidos</label>
             <input className="input" type="text" required maxLength={80}
-              placeholder="Ej: María García"
+              placeholder="Tu nombre"
               value={form.full_name} onChange={update('full_name')} />
           </div>
 
           <div>
             <label className="label">Nombre de tu negocio</label>
             <input className="input" type="text" required maxLength={80}
-              placeholder="Ej: Peluquería María"
+              placeholder="Nombre de tu negocio"
               value={form.business} onChange={update('business')} />
           </div>
 
@@ -186,7 +186,7 @@ export default function ProSignupPage() {
             <div>
               <label className="label">Ciudad</label>
               <input className="input" type="text" required maxLength={50}
-                placeholder="Madrid"
+                placeholder="Ciudad"
                 value={form.city} onChange={update('city')} />
             </div>
             <div>
@@ -210,7 +210,7 @@ export default function ProSignupPage() {
           <div>
             <label className="label">Tamaño del equipo <span className="opt">(opcional)</span></label>
             <input className="input" type="text" maxLength={30}
-              placeholder="Ej: solo yo, 3 personas, 8+"
+              placeholder="¿Cuántas personas trabajáis?"
               value={form.team_size} onChange={update('team_size')} />
           </div>
 
@@ -224,7 +224,7 @@ export default function ProSignupPage() {
           <div>
             <label className="label">¿Algo que quieras contarnos? <span className="opt">(opcional)</span></label>
             <textarea className="textarea" maxLength={500} rows={3}
-              placeholder="Ej: trabajo solo los fines de semana, busco más clientela..."
+              placeholder="Cuéntanos lo que quieras..."
               value={form.notes} onChange={update('notes')}
               style={{ resize: 'vertical', minHeight: 80 }} />
           </div>
