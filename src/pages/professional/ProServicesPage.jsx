@@ -100,6 +100,24 @@ export default function ProServicesPage() {
     },
   })
 
+  const { mutate: deleteService } = useMutation({
+    mutationFn: (id) => api.delete(`/professionals/services/${id}`),
+    onSuccess: () => {
+      toast.success('Servicio eliminado ✓')
+      qc.invalidateQueries({ queryKey: ['my-services'] })
+    },
+    onError: (err) => {
+      const msg = err.response?.data?.error ?? 'Error al eliminar'
+      toast.error(msg, { duration: 5000 })
+    },
+  })
+
+  const handleDelete = (service) => {
+    if (window.confirm(`¿Eliminar "${service.name}" definitivamente?\n\nSi tiene reservas activas no podrá eliminarse, solo desactivarse.`)) {
+      deleteService(service.id)
+    }
+  }
+
   return (
     <div style={{ background: '#F7F5F2', minHeight: '100vh', paddingBottom: 60 }}>
       <style>{`
@@ -107,6 +125,7 @@ export default function ProServicesPage() {
         .svc-card:hover { border-color: rgba(184,131,58,0.2) !important; box-shadow: 0 4px 16px rgba(0,0,0,0.07) !important; }
         .toggle-btn:hover { background: rgba(184,131,58,0.08) !important; border-color: rgba(184,131,58,0.25) !important; color: #B8833A !important; }
         .edit-btn:hover { background: rgba(26,22,18,0.05) !important; }
+        .delete-btn:hover { background: rgba(220,38,38,0.08) !important; border-color: rgba(220,38,38,0.3) !important; color: #dc2626 !important; }
         .svc-actions { display: flex; gap: 8px; flex-shrink: 0; }
         @media (max-width: 480px) {
           .svc-card-inner { flex-wrap: wrap; }
@@ -189,6 +208,9 @@ export default function ProServicesPage() {
                       </button>
                       <button onClick={() => toggleService({ id: s.id, is_active: !s.is_active })} className="toggle-btn" style={{ background: '#F7F5F2', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 9, padding: '7px 14px', fontSize: 12, color: 'rgba(26,22,18,0.6)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600, transition: 'all 0.2s' }}>
                         {s.is_active ? 'Desactivar' : 'Activar'}
+                      </button>
+                      <button onClick={() => handleDelete(s)} className="delete-btn" title="Eliminar servicio" style={{ background: '#F7F5F2', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 9, padding: '7px 12px', fontSize: 14, color: 'rgba(26,22,18,0.5)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600, transition: 'all 0.2s' }}>
+                        🗑️
                       </button>
                     </div>
                   </div>{/* svc-card-inner */}
