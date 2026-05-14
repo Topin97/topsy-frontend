@@ -48,7 +48,11 @@ export default function ComingSoonGate({ children }) {
     }
   }, [])
 
-  if (hasBypass) return children
+  // Rutas siempre accesibles aunque el splash esté activo
+  const path = typeof window !== 'undefined' ? window.location.pathname : ''
+  const isPublicRoute = path === '/pro' || path === '/pricing'
+
+  if (hasBypass || isPublicRoute) return children
 
   const submit = async (e) => {
     e.preventDefault()
