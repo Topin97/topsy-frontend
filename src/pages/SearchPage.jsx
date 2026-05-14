@@ -193,7 +193,7 @@ function ProfCard({ prof, userCoords }) {
     ? haversine(userCoords.lat, userCoords.lng, prof.latitude, prof.longitude)
     : null
   const activeDays = prof.availability?.filter(a => a.is_available).map(a => a.day_of_week) ?? []
-  const isNew = prof.created_at && (Date.now() - new Date(prof.created_at).getTime()) < 30 * 24 * 60 * 60 * 1000
+  const isNew = prof.created_at && (Date.now() - new Date(prof.created_at).getTime()) < 90 * 24 * 60 * 60 * 1000
 
   return (
     <Link
@@ -228,6 +228,17 @@ function ProfCard({ prof, userCoords }) {
         >
           {isFav(prof.id) ? '❤️' : '🤍'}
         </button>
+        {isNew && (
+          <div style={{
+            position: 'absolute', top: 8, left: 8,
+            background: 'linear-gradient(135deg,#B8833A,#D4A055)',
+            color: '#FFFFFF', fontSize: 9, fontWeight: 800,
+            padding: '3px 8px', borderRadius: 999,
+            fontFamily: 'Outfit, sans-serif', letterSpacing: '0.08em',
+            boxShadow: '0 3px 8px rgba(184,131,58,0.45)',
+            textTransform: 'uppercase',
+          }}>✨ Nuevo</div>
+        )}
         {isNew && (
           <div style={{
             position: 'absolute', top: 8, left: 8,
