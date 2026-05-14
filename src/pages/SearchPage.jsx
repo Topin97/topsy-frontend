@@ -193,6 +193,7 @@ function ProfCard({ prof, userCoords }) {
     ? haversine(userCoords.lat, userCoords.lng, prof.latitude, prof.longitude)
     : null
   const activeDays = prof.availability?.filter(a => a.is_available).map(a => a.day_of_week) ?? []
+  const isNew = prof.created_at && (Date.now() - new Date(prof.created_at).getTime()) < 30 * 24 * 60 * 60 * 1000
 
   return (
     <Link
@@ -283,18 +284,45 @@ function ProfCard({ prof, userCoords }) {
             </div>
           )}
 
-          {/* Servicios */}
+          {/* Servicios estilo Treatwell — duración + precio destacado */}
           {topServices.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-              {topServices.map(s => (
-                <span key={s.id} style={{
-                  fontSize: 10, background: '#F8F5F0',
-                  border: '1px solid rgba(17,17,17,0.07)',
-                  borderRadius: 999, padding: '2px 8px',
-                  color: 'rgba(24,21,18,0.5)', whiteSpace: 'nowrap',
-                  fontFamily: 'Outfit, sans-serif',
-                }}>{s.name}</span>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 4 }}>
+              {topServices.slice(0, 2).map(s => (
+                <div key={s.id} style={{
+                  display: 'flex', justifyContent: 'space-between',
+                  alignItems: 'center', gap: 8,
+                  paddingTop: 4,
+                  borderTop: '1px solid rgba(17,17,17,0.05)',
+                }}>
+                  <div style={{ overflow: 'hidden', flex: 1 }}>
+                    <p style={{
+                      fontSize: 11.5, fontWeight: 600, color: '#1A1612',
+                      margin: 0, fontFamily: 'Outfit, sans-serif',
+                      whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis',
+                    }}>{s.name}</p>
+                    {s.duration_minutes && (
+                      <p style={{
+                        fontSize: 10, color: 'rgba(24,21,18,0.4)',
+                        margin: '1px 0 0', fontFamily: 'Outfit, sans-serif',
+                      }}>{s.duration_minutes} min</p>
+                    )}
+                  </div>
+                  <p style={{
+                    fontFamily: 'Cormorant Garamond, serif',
+                    fontSize: 14, color: '#B8833A', fontWeight: 700,
+                    margin: 0, whiteSpace: 'nowrap',
+                  }}>{s.price}€</p>
+                </div>
               ))}
+              {topServices.length > 2 && (
+                <p style={{
+                  fontSize: 10, color: '#B8833A',
+                  margin: '2px 0 0', fontFamily: 'Outfit, sans-serif',
+                  fontWeight: 600,
+                }}>
+                  + {topServices.length - 2} servicio{topServices.length - 2 > 1 ? 's' : ''} más
+                </p>
+              )}
             </div>
           )}
         </div>
