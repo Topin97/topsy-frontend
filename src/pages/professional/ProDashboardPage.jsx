@@ -335,6 +335,7 @@ export default function ProDashboardPage() {
       setRescheduleBooking(null)
       queryClient.invalidateQueries({ queryKey: ['pro-bookings-today'] })
       queryClient.invalidateQueries({ queryKey: ['pro-bookings-upcoming'] })
+      queryClient.invalidateQueries({ queryKey: ['reschedule-slots'] })
     },
     onError: err => toast.error(err.response?.data?.error ?? 'Error al reprogramar'),
   })
