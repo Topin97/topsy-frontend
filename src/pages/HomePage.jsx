@@ -425,32 +425,29 @@ export default function HomePage() {
             Profesionales locales verificados de belleza y bienestar, a un click.
           </p>
 
-          <div style={{ height: 40 }} aria-hidden="true" />
+          <div className="anim-fadeup search-in-hero-wrap" style={{ animationDelay: '0.3s' }}>
+            <div className="search-floating-card">
+              <div style={{ flex: 1, position: 'relative' }}>
+                <GoogleAddressInput
+                  type="city"
+                  value={search}
+                  onChange={setSearch}
+                  onSelect={({ city }) => { setSearch(city || ''); navigate(`/search?city=${encodeURIComponent(city || '')}`) }}
+                  placeholder="¿Qué ciudad o pueblo?"
+                />
+              </div>
+              <button type="button" onClick={handleSearch} className="gold-btn" style={{ borderRadius: 14, padding: '0 26px', fontSize: 14, flexShrink: 0, alignSelf: 'stretch', whiteSpace: 'nowrap' }}>Buscar</button>
+            </div>
+          </div>
         </div>
 
 
       </section>
 
-      {/* ═══════════════════ BUSCADOR FLOTANTE ═══════════════════ */}
-      <div style={{ position: 'relative', maxWidth: 720, margin: '-32px auto 24px', padding: '0 20px', zIndex: 30 }}>
-        <div className="anim-fadeup search-floating-card" style={{ animationDelay: '0.3s' }}>
-          <div style={{ flex: 1, position: 'relative' }}>
-            <GoogleAddressInput
-              type="city"
-              value={search}
-              onChange={setSearch}
-              onSelect={({ city }) => { setSearch(city || ''); navigate(`/search?city=${encodeURIComponent(city || '')}`) }}
-              placeholder="¿Qué ciudad o pueblo?"
-            />
-          </div>
-          <button type="button" onClick={handleSearch} className="gold-btn" style={{ borderRadius: 14, padding: '0 26px', fontSize: 14, flexShrink: 0, alignSelf: 'stretch', whiteSpace: 'nowrap' }}>Buscar</button>
-        </div>
-      </div>
-
       {/* ═══════════════════ CATEGORÍAS MÓVIL ═══════════════════ */}
       <div style={{ background: '#fff', borderBottom: '1px solid rgba(17,17,17,0.07)', padding: '18px 0 14px' }}>
         <div className="anim-fadeup" style={{ animationDelay: '0.35s', padding: '0 20px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <p className="sec-eyebrow" style={{ margin: 0 }}>Categorías</p>
+          <p className="sec-eyebrow hide-desktop" style={{ margin: 0 }}>Categorías</p>
           <span className="hide-desktop" style={{ fontSize: 11, color: 'rgba(181,121,50,0.6)', fontWeight: 600 }}>desliza →</span>
         </div>
         <div className="hide-sb cats-row" style={{ display: 'flex', gap: 16, overflowX: 'auto', padding: '0 20px 4px' }}>
