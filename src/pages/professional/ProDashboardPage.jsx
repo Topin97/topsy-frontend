@@ -232,7 +232,7 @@ function RescheduleModal({ booking, onClose, onConfirm, isLoading }) {
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 16, maxHeight: 180, overflowY: 'auto' }}>
             {freeSlots.map((slot, i) => {
-              const time = slot.starts_at.slice(11, 16)
+              const time = format(new Date(slot.starts_at), 'HH:mm')
               const isSelected = selectedSlot?.starts_at === slot.starts_at
               return (
                 <button key={slot.starts_at} onClick={() => setSelectedSlot(slot)}
