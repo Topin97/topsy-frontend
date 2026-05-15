@@ -399,32 +399,27 @@ export default function HomePage() {
             Profesionales locales verificados de belleza y bienestar, a un click.
           </p>
 
-          <div className="anim-fadeup" style={{ animationDelay: '0.28s', maxWidth: 580, position: 'relative', zIndex: 9999 }}>
-            <div style={{ display: 'flex', alignItems: 'stretch', gap: 8, background: 'rgba(255,255,255,0.97)', borderRadius: 18, padding: 8, boxShadow: '0 12px 40px rgba(0,0,0,0.3)' }}>
-              <div style={{ flex: 1, position: 'relative' }}>
-                <GoogleAddressInput
-                  type="city"
-                  value={search}
-                  onChange={setSearch}
-                  onSelect={({ city }) => { setSearch(city || ''); navigate(`/search?city=${encodeURIComponent(city || '')}`) }}
-                  placeholder="¿Qué ciudad o pueblo?"
-                />
-              </div>
-              <button type="button" onClick={handleSearch} className="gold-btn" style={{ borderRadius: 12, padding: '0 22px', fontSize: 14, flexShrink: 0, alignSelf: 'stretch' }}>Buscar</button>
-            </div>
-          </div>
+          <div style={{ height: 40 }} aria-hidden="true" />
         </div>
 
-        {/* Categorías desktop — barra inferior del hero */}
-        <div className="cats-desktop anim-fadeup"
-          style={{ animationDelay: '0.4s', position: 'relative', zIndex: 1, borderTop: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.65)', padding: '0 24px', overflowX: 'auto' }}>
-          {CATEGORIES.map((cat, i) => (
-            <button key={cat.value} className="cat-desktop-btn anim-fadeup" style={{ animationDelay: `${0.5 + i * 0.04}s` }} onClick={() => navigate(`/search?category=${cat.value}`)}>
-              {cat.label}
-            </button>
-          ))}
-        </div>
+
       </section>
+
+      {/* ═══════════════════ BUSCADOR FLOTANTE ═══════════════════ */}
+      <div style={{ position: 'relative', maxWidth: 720, margin: '-32px auto 24px', padding: '0 20px', zIndex: 30 }}>
+        <div className="anim-fadeup search-floating-card" style={{ animationDelay: '0.3s', background: '#FFFFFF', borderRadius: 22, padding: 10, boxShadow: '0 20px 60px rgba(17,11,5,0.18), 0 2px 8px rgba(17,11,5,0.06)', border: '1px solid rgba(212,160,85,0.15)', display: 'flex', alignItems: 'stretch', gap: 8 }}>
+          <div style={{ flex: 1, position: 'relative' }}>
+            <GoogleAddressInput
+              type="city"
+              value={search}
+              onChange={setSearch}
+              onSelect={({ city }) => { setSearch(city || ''); navigate(`/search?city=${encodeURIComponent(city || '')}`) }}
+              placeholder="¿Qué ciudad o pueblo?"
+            />
+          </div>
+          <button type="button" onClick={handleSearch} className="gold-btn" style={{ borderRadius: 14, padding: '0 26px', fontSize: 14, flexShrink: 0, alignSelf: 'stretch', whiteSpace: 'nowrap' }}>Buscar</button>
+        </div>
+      </div>
 
       {/* ═══════════════════ CATEGORÍAS MÓVIL ═══════════════════ */}
       <div className="cats-mobile" style={{ background: '#fff', borderBottom: '1px solid rgba(17,17,17,0.07)', padding: '18px 0 14px' }}>
