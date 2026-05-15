@@ -459,18 +459,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* ═══════════════════ BANNER MIS CITAS ═══════════════════ */}
-      {token && (
-        <section style={{ padding: '16px 20px 8px', maxWidth: 1140, margin: '0 auto', width: '100%' }}>
-          <div className="bookings-banner anim-fadeup" style={{ animationDelay: '0.5s', background: 'linear-gradient(135deg,#1A0F05,#2C1810)', borderRadius: 20, padding: '18px 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 8px 28px rgba(17,17,17,0.12)', cursor: 'pointer' }} onClick={() => navigate('/dashboard')}>
-            <div>
-              <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'rgba(212,160,85,0.65)', fontWeight: 700, marginBottom: 3 }}>Mis citas</div>
-              <div style={{ fontSize: 15, fontWeight: 600, color: '#F8F5F0' }}>Ver tus próximas reservas</div>
-            </div>
-            <button onClick={(e) => { e.stopPropagation(); navigate('/dashboard') }} className="gold-btn" style={{ fontSize: 13, padding: '10px 18px', borderRadius: 12 }}>Ver →</button>
-          </div>
-        </section>
-      )}
+
 
       {/* ═══════════════════ DESTACADOS (solo si hay 3+) ═══════════════════ */}
       {(featured.length >= 3 || loadingFeatured) && (
