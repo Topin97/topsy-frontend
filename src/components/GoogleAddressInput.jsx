@@ -148,7 +148,7 @@ export default function GoogleAddressInput({
   }
 
   return (
-    <div ref={containerRef} style={{ position: 'relative', width: '100%' }}>
+    <div ref={containerRef} style={{ position: 'relative', width: '100%', zIndex: 9999 }}>
       {label && (
         <label style={{ display: 'block', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.32)', marginBottom: 8, fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
           {label}
@@ -205,7 +205,7 @@ export default function GoogleAddressInput({
           maxHeight: 320,
           overflowY: 'auto',
           boxShadow: '0 14px 40px rgba(0,0,0,0.10)',
-          zIndex: 1000,
+          zIndex: 99999,
           fontFamily: 'Outfit, sans-serif',
         }}>
           {predictions.map((p, i) => (

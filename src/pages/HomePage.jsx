@@ -367,7 +367,7 @@ export default function HomePage() {
       `}</style>
 
       {/* ═══════════════════ HERO ═══════════════════ */}
-      <section className="hero-min-h" style={{ position: 'relative', display: 'flex', flexDirection: 'column', isolation: 'isolate' }}>
+      <section className="hero-min-h" style={{ position: 'relative', display: 'flex', flexDirection: 'column' }}>
         {/* Backgrounds con parallax sutil (envueltos en wrapper con overflow para no recortar el dropdown del autocomplete) */}
         <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 0 }}>
           <div className="hero-bg-dark" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg,#1A0F05 0%,#2C1810 55%,#1A0F05 100%)', transform: `translateY(${parallaxY * 0.4}px)` }} />
@@ -399,7 +399,7 @@ export default function HomePage() {
             Profesionales locales verificados de belleza y bienestar, a un click.
           </p>
 
-          <div className="anim-fadeup" style={{ animationDelay: '0.28s', maxWidth: 580, position: 'relative', zIndex: 100 }}>
+          <div className="anim-fadeup" style={{ animationDelay: '0.28s', maxWidth: 580, position: 'relative', zIndex: 9999 }}>
             <div style={{ display: 'flex', alignItems: 'stretch', gap: 8, background: 'rgba(255,255,255,0.97)', borderRadius: 18, padding: 8, boxShadow: '0 12px 40px rgba(0,0,0,0.3)' }}>
               <div style={{ flex: 1, position: 'relative' }}>
                 <GoogleAddressInput
