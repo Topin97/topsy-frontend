@@ -6,24 +6,44 @@ import { useAuthStore } from '../store/authStore'
 import GoogleAddressInput from '../components/GoogleAddressInput'
 
 import heroBg       from '../assets/hero-bg.webp'
-import catHair      from '../assets/cat-hair.webp'
-import catNails     from '../assets/cat-nails.webp'
-import catSpa       from '../assets/cat-spa.webp'
-import catBarber    from '../assets/cat-barber.webp'
-import catAesthetic from '../assets/cat-aesthetic.webp'
-import catBrows     from '../assets/cat-brows.webp'
-import catMassage   from '../assets/cat-massage.webp'
-import catSkincare  from '../assets/cat-skincare.webp'
+
+// Iconos SVG inline — línea dorada, estilo minimal premium
+const IC_HAIR = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="100%" height="100%">
+    <circle cx="6" cy="6" r="3" /><circle cx="6" cy="18" r="3" />
+    <line x1="20" y1="4" x2="8.12" y2="15.88" /><line x1="14.47" y1="14.48" x2="20" y2="20" /><line x1="8.12" y1="8.12" x2="12" y2="12" />
+  </svg>
+)
+const IC_BARBER = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="100%" height="100%">
+    <path d="M9 2v6m6-6v6M5 8h14a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"/>
+    <line x1="7" y1="13" x2="17" y2="13"/>
+  </svg>
+)
+const IC_NAILS = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="100%" height="100%">
+    <path d="M12 2c-3 0-5 2-5 5v10a5 5 0 0 0 10 0V7c0-3-2-5-5-5z"/>
+    <path d="M9 8c1-1 5-1 6 0"/>
+  </svg>
+)
+const IC_AESTHETIC = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="100%" height="100%">
+    <path d="M12 2l2.5 6.5L21 11l-6.5 2.5L12 20l-2.5-6.5L3 11l6.5-2.5z"/>
+  </svg>
+)
+const IC_PETS = (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" width="100%" height="100%">
+    <circle cx="11" cy="4.5" r="1.5"/><circle cx="17.5" cy="7.5" r="1.5"/><circle cx="4.5" cy="7.5" r="1.5"/><circle cx="6.5" cy="14" r="1.5"/><circle cx="15.5" cy="14" r="1.5"/>
+    <path d="M11 9c-2.5 0-4 2-4 4 0 1.5 1 3 2 4 1 1 1 2 2 2s1-1 2-2c1-1 2-2.5 2-4 0-2-1.5-4-4-4z"/>
+  </svg>
+)
 
 const CATEGORIES = [
-  { img: catHair,      label: 'Peluquería', value: 'hair' },
-  { img: catBarber,    label: 'Barbería',   value: 'barber' },
-  { img: catNails,     label: 'Uñas',       value: 'nails' },
-  { img: catMassage,   label: 'Masajes',    value: 'massage' },
-  { img: catAesthetic, label: 'Estética',   value: 'aesthetic' },
-  { img: catBrows,     label: 'Cejas',      value: 'brows' },
-  { img: catSkincare,  label: 'Skincare',   value: 'skincare' },
-  { img: catSpa,       label: 'Spa',        value: 'spa' },
+  { icon: IC_HAIR,      label: 'Peluquería', value: 'hair' },
+  { icon: IC_BARBER,    label: 'Barbería',   value: 'barber' },
+  { icon: IC_NAILS,     label: 'Uñas',       value: 'nails' },
+  { icon: IC_AESTHETIC, label: 'Estética',   value: 'aesthetic' },
+  { icon: IC_PETS,      label: 'Mascotas',   value: 'pets' },
 ]
 
 const TYPEWRITER_TEXTS = [
@@ -257,7 +277,7 @@ export default function HomePage() {
         /* Categorías móvil — hover + entrada */
         .cat-pill { transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1); }
         .cat-pill:hover { transform: translateY(-3px); }
-        .cat-pill:hover .cat-img { transform: scale(1.1) !important; }
+        .cat-pill:hover .cat-circle { border-color: #B8833A; background: linear-gradient(135deg,#FFF8EE,#FAEFDF); transform: scale(1.05); box-shadow: 0 8px 24px rgba(184,131,58,0.18); }
         .cat-pill:hover .cat-label { color: #B57932 !important; }
         .cat-pill:active { transform: translateY(-1px) scale(0.97); }
 
@@ -454,9 +474,8 @@ export default function HomePage() {
           {CATEGORIES.map((cat, i) => (
             <button key={cat.value} className="cat-pill anim-fadeup" onClick={() => navigate(`/search?category=${cat.value}`)}
               style={{ animationDelay: `${0.4 + i * 0.05}s`, flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7, padding: 0 }}>
-              <div style={{ width: 64, height: 64, borderRadius: '50%', overflow: 'hidden', border: '2.5px solid rgba(197,138,61,0.25)', boxShadow: '0 4px 16px rgba(17,17,17,0.1)' }}>
-                <img className="cat-img" src={cat.img} alt={cat.label} loading="lazy"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.35s cubic-bezier(0.34,1.56,0.64,1)' }} />
+              <div className="cat-circle" style={{ width: 54, height: 54, borderRadius: '50%', border: '1.5px solid rgba(184,131,58,0.4)', display: 'grid', placeItems: 'center', background: 'linear-gradient(135deg, #FFFDF9, #FFF8EE)', color: '#B8833A', padding: 14, transition: 'all 0.3s cubic-bezier(0.34,1.56,0.64,1)' }}>
+                {cat.icon}
               </div>
               <span className="cat-label" style={{ fontSize: 11, fontWeight: 600, color: '#181512', fontFamily: 'Outfit, sans-serif', transition: 'color 0.2s ease', whiteSpace: 'nowrap' }}>{cat.label}</span>
             </button>
