@@ -262,8 +262,6 @@ export default function HomePage() {
         .cat-pill:active { transform: translateY(-1px) scale(0.97); }
 
         /* Botones cat desktop */
-        .cat-desktop-btn { background: none; border: none; cursor: pointer; color: rgba(248,245,240,0.72); font-size: 14px; font-weight: 500; font-family: Outfit, sans-serif; padding: 18px 20px; white-space: nowrap; transition: all .25s ease; border-bottom: 2px solid transparent; letter-spacing: .01em; }
-        .cat-desktop-btn:hover { color: #D4A055; border-bottom-color: #D4A055; transform: translateY(-1px); }
 
         /* Botones generales */
         .gold-btn { border: none; cursor: pointer; background: linear-gradient(135deg,#B97830,#D19B52); color: #fff; font-weight: 700; border-radius: 14px; padding: 14px 26px; font-family: Outfit, sans-serif; box-shadow: 0 6px 20px rgba(185,120,48,0.32); transition: all .25s cubic-bezier(0.34,1.56,0.64,1); }
@@ -333,8 +331,8 @@ export default function HomePage() {
         .hero-bg-dark { display: block; }
         .hero-bg-img { display: none; }
         .hero-overlay { display: none; }
-        .cats-desktop { display: none !important; }
-        .cats-mobile { display: block; }
+        /* removed: .cats-desktop { display: none !important; } */
+        /* removed: .cats-mobile { display: block; } */
 
         /* ── RECAPTCHA FIX ── */
         .grecaptcha-badge {
@@ -347,8 +345,8 @@ export default function HomePage() {
           .hero-bg-dark { display: none !important; }
           .hero-bg-img { display: block !important; }
           .hero-overlay { display: block !important; }
-          .cats-desktop { display: flex !important; }
-          .cats-mobile { display: none !important; }
+        /* removed: .cats-desktop { display: flex !important; } */
+        /* removed: .cats-mobile { display: none !important; } */
           .hero-min-h { min-height: 520px; }
           .grecaptcha-badge { bottom: 14px !important; }
         }
@@ -422,7 +420,7 @@ export default function HomePage() {
       </div>
 
       {/* ═══════════════════ CATEGORÍAS MÓVIL ═══════════════════ */}
-      <div className="cats-mobile" style={{ background: '#fff', borderBottom: '1px solid rgba(17,17,17,0.07)', padding: '18px 0 14px' }}>
+      <div style={{ background: '#fff', borderBottom: '1px solid rgba(17,17,17,0.07)', padding: '18px 0 14px' }}>
         <div className="anim-fadeup" style={{ animationDelay: '0.35s', padding: '0 20px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <p className="sec-eyebrow" style={{ margin: 0 }}>Categorías</p>
           <span style={{ fontSize: 11, color: 'rgba(181,121,50,0.6)', fontWeight: 600 }}>desliza →</span>
