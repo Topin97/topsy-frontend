@@ -463,8 +463,12 @@ export default function SearchPage() {
         .skel{background:linear-gradient(90deg,#f0ede8 25%,#e8e4de 50%,#f0ede8 75%);background-size:400px 100%;animation:shimmer 1.4s infinite;}
         .search-inp:focus{border-color:#C58A3D !important;box-shadow:0 0 0 3px rgba(197,138,61,0.1) !important;}
         .cat-chip:hover{transform:translateY(-1px);}
-        .city-input-desktop{display:none}
-        @media(min-width:500px){.city-input-desktop{display:block !important}}
+        .pros-input-desktop{display:none}
+        .city-input-search{flex:1 1 100% !important; min-width:0}
+        @media(min-width:500px){
+          .pros-input-desktop{display:block !important; flex:1}
+          .city-input-search{flex:0 1 auto !important; min-width:220px}
+        }
       `}</style>
 
       {/* ══ STICKY HEADER */}
@@ -477,7 +481,7 @@ export default function SearchPage() {
       }}>
         {/* Barra búsqueda */}
         <form onSubmit={handleSearch} style={{ display: 'flex', gap: 8, padding: '12px 16px 0', maxWidth: 860, margin: '0 auto' }}>
-          <div style={{ flex: 1, position: 'relative' }}>
+          <div className="pros-input-desktop" style={{ flex: 1, position: 'relative' }}>
             <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 15, pointerEvents: 'none', opacity: 0.3 }}>⌕</span>
             <input ref={inputRef} value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Buscar pros (opcional)..."
@@ -485,14 +489,14 @@ export default function SearchPage() {
               style={{ width: '100%', background: '#F8F5F0', border: '1.5px solid rgba(17,17,17,0.09)', borderRadius: 14, padding: '11px 12px 11px 36px', color: '#181512', fontSize: 14, outline: 'none', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', boxSizing: 'border-box' }}
             />
           </div>
-          <div className="city-input-desktop" style={{ flexShrink: 0 }}>
+          <div className="city-input-search" style={{ flexShrink: 0, flex: 1 }}>
             <GoogleAddressInput
-            type="city"
-            value={city}
-            onChange={setCity}
-            onSelect={({ city }) => setCity(city || '')}
-            placeholder="Ciudad"
-          />
+              type="city"
+              value={city}
+              onChange={setCity}
+              onSelect={({ city }) => setCity(city || '')}
+              placeholder="Ciudad o pueblo"
+            />
           </div>
           <button type="submit" style={{
             background: 'linear-gradient(135deg,#B97830,#D19B52)', border: 'none',
