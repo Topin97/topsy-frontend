@@ -421,9 +421,6 @@ export default function HomePage() {
             {typeText}<span className="cursor" />
           </div>
 
-          <div className="anim-fadeup" style={{ animationDelay: '0.04s', display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: 'rgba(212,160,85,0.13)', border: '1px solid rgba(212,160,85,0.3)', borderRadius: 100, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', color: '#D4A055', marginBottom: 14, textTransform: 'uppercase', alignSelf: 'flex-start' }}>
-            📍 El Cuervo de Sevilla · Apertura 1 junio
-          </div>
           <p className="anim-fadeup" style={{ animationDelay: '0.2s', margin: '0 0 24px', fontSize: 14, color: 'rgba(248,245,240,0.55)', lineHeight: 1.65, maxWidth: 480 }}>
             Profesionales locales verificados de belleza y bienestar, a un click.
           </p>
