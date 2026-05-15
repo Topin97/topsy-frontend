@@ -6,6 +6,7 @@ import { createClient } from '@supabase/supabase-js'
 import Cropper from 'react-easy-crop'
 import toast from 'react-hot-toast'
 import { useState, useRef, useCallback, useEffect } from 'react'
+import GoogleAddressInput from '../../components/GoogleAddressInput'
 
 const supabase = createClient(
   import.meta.env.VITE_SUPABASE_URL,
@@ -170,80 +171,44 @@ function MapPin({ lat, lng }) {
 
 // ── Address autocomplete ──────────────────────────────────────────────────────
 function AddressSearch({ initialAddress, initialCity, initialLat, initialLng, onChangeAddress, onChangeCity, onChangeCoords }) {
-  const [query, setQuery] = useState(initialAddress || '')
+  const [address, setAddress] = useState(initialAddress || '')
   const [city, setCity] = useState(initialCity || '')
-  const [suggestions, setSuggestions] = useState([])
-  const [searching, setSearching] = useState(false)
   const [coords, setCoords] = useState(initialLat && initialLng ? { lat: initialLat, lng: initialLng } : null)
-  const debounceRef = useRef(null)
 
-  const handleInput = (val) => {
-    setQuery(val)
-    onChangeAddress(val)
-    setCoords(null)
-    onChangeCoords(null, null)
-    clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(async () => {
-      if (val.length < 3) { setSuggestions([]); return }
-      setSearching(true)
-      try {
-        const res = await fetch(
-          `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(val + ', Spain')}&format=json&limit=5&addressdetails=1`,
-          { headers: { 'User-Agent': 'TopSy/1.0' } }
-        )
-        setSuggestions(await res.json())
-      } catch {}
-      setSearching(false)
-    }, 500)
+  const handleSelect = ({ address: addr, city: c, lat, lng }) => {
+    setAddress(addr)
+    setCity(c)
+    setCoords(lat && lng ? { lat, lng } : null)
+    onChangeAddress(addr)
+    onChangeCity(c)
+    onChangeCoords(lat, lng)
   }
 
-  const selectSuggestion = (s) => {
-    const addr = s.address
-    const street = [addr.road, addr.house_number].filter(Boolean).join(' ')
-    const newCity = addr.city || addr.town || addr.village || addr.municipality || ''
-    const newAddress = street || s.display_name.split(',')[0]
-    const lat = parseFloat(s.lat)
-    const lng = parseFloat(s.lon)
-    setQuery(newAddress)
-    setCity(newCity)
-    setCoords({ lat, lng })
-    setSuggestions([])
-    onChangeAddress(newAddress)
-    onChangeCity(newCity)
-    onChangeCoords(lat, lng)
+  const handleAddressChange = (val) => {
+    setAddress(val)
+    onChangeAddress(val)
+    // Si limpia/edita, invalidamos coords hasta nueva selección
+    setCoords(null)
+    onChangeCoords(null, null)
   }
 
   return (
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
-      {/* Dirección con autocomplete */}
-      <div style={{ position: 'relative', gridColumn: '1 / -1' }}>
-        <label style={{ display: 'block', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.32)', marginBottom: 8 }}>Dirección</label>
-        <div style={{ position: 'relative' }}>
-          <input
-            value={query}
-            onChange={e => handleInput(e.target.value)}
-            placeholder="Calle Mayor 10, Madrid..."
-            className="input"
-            autoComplete="off"
-          />
-          {searching && <span style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 11, color: 'rgba(201,150,90,0.5)' }}>Buscando...</span>}
-        </div>
-        {suggestions.length > 0 && (
-          <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, background: '#FFFFFF', border: '1px solid rgba(201,150,90,0.2)', borderRadius: 12, overflow: 'hidden', marginTop: 4, boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
-            {suggestions.map((s, i) => (
-              <button key={i} type="button" onClick={() => selectSuggestion(s)}
-                style={{ width: '100%', textAlign: 'left', padding: '11px 14px', background: 'none', border: 'none', borderBottom: i < suggestions.length - 1 ? '1px solid rgba(0,0,0,0.07)' : 'none', color: 'rgba(26,22,18,0.63)', fontSize: 13, fontFamily: 'Outfit, sans-serif', cursor: 'pointer' }}
-                onMouseEnter={e => e.currentTarget.style.background = 'rgba(201,150,90,0.08)'}
-                onMouseLeave={e => e.currentTarget.style.background = 'none'}
-              >📍 {s.display_name}</button>
-            ))}
-          </div>
-        )}
+      {/* Dirección con Google Places */}
+      <div style={{ gridColumn: '1 / -1' }}>
+        <GoogleAddressInput
+          label="Dirección"
+          value={address}
+          onChange={handleAddressChange}
+          onSelect={handleSelect}
+          placeholder="Calle Mayor 10, Madrid..."
+          helpText="Empieza a escribir y selecciona tu dirección de la lista"
+        />
       </div>
 
-      {/* Ciudad */}
+      {/* Ciudad (auto-completada al seleccionar dirección) */}
       <div style={{ gridColumn: '1 / -1' }}>
-        <label style={{ display: 'block', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.32)', marginBottom: 8 }}>Ciudad *</label>
+        <label style={{ display: 'block', fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.32)', marginBottom: 8, fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>Ciudad *</label>
         <input
           value={city}
           onChange={e => { setCity(e.target.value); onChangeCity(e.target.value) }}
