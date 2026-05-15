@@ -342,6 +342,8 @@ export default function HomePage() {
         }
 
         @media (min-width: 768px) {
+          .hide-desktop { display: none !important; }
+          .cats-row { justify-content: center !important; gap: 40px !important; padding: 0 32px 4px !important; }
           .hero-bg-dark { display: none !important; }
           .hero-bg-img { display: block !important; }
           .hero-overlay { display: block !important; }
@@ -423,9 +425,9 @@ export default function HomePage() {
       <div style={{ background: '#fff', borderBottom: '1px solid rgba(17,17,17,0.07)', padding: '18px 0 14px' }}>
         <div className="anim-fadeup" style={{ animationDelay: '0.35s', padding: '0 20px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <p className="sec-eyebrow" style={{ margin: 0 }}>Categorías</p>
-          <span style={{ fontSize: 11, color: 'rgba(181,121,50,0.6)', fontWeight: 600 }}>desliza →</span>
+          <span className="hide-desktop" style={{ fontSize: 11, color: 'rgba(181,121,50,0.6)', fontWeight: 600 }}>desliza →</span>
         </div>
-        <div className="hide-sb" style={{ display: 'flex', gap: 16, overflowX: 'auto', padding: '0 20px 4px' }}>
+        <div className="hide-sb cats-row" style={{ display: 'flex', gap: 16, overflowX: 'auto', padding: '0 20px 4px' }}>
           {CATEGORIES.map((cat, i) => (
             <button key={cat.value} className="cat-pill anim-fadeup" onClick={() => navigate(`/search?category=${cat.value}`)}
               style={{ animationDelay: `${0.4 + i * 0.05}s`, flexShrink: 0, background: 'none', border: 'none', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7, padding: 0 }}>
