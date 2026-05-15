@@ -373,7 +373,7 @@ export default function HomePage() {
           .hero-overlay { display: block !important; }
         /* removed: .cats-desktop { display: flex !important; } */
         /* removed: .cats-mobile { display: none !important; } */
-          .hero-min-h { min-height: 520px; }
+          .hero-min-h { min-height: 420px; }
           .grecaptcha-badge { bottom: 14px !important; }
         }
 
@@ -401,7 +401,7 @@ export default function HomePage() {
         </div>
 
         {/* Contenido del hero */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', maxWidth: 780, margin: '0 auto', width: '100%', position: 'relative', zIndex: 1, padding: 'calc(64px + env(safe-area-inset-top)) 20px 28px' }}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', maxWidth: 1140, margin: '0 auto', width: '100%', position: 'relative', zIndex: 1, padding: 'calc(64px + env(safe-area-inset-top)) 24px 28px' }}>
           {token && firstName && (
             <div className="anim-fadeup" style={{ animationDelay: '0s', fontSize: 14, color: 'rgba(248,245,240,0.5)', marginBottom: 8 }}>
               Hola de nuevo, <span style={{ color: '#D4A055', fontWeight: 600 }}>{firstName}</span> 👋
@@ -461,7 +461,7 @@ export default function HomePage() {
 
       {/* ═══════════════════ BANNER MIS CITAS ═══════════════════ */}
       {token && (
-        <section style={{ padding: '16px 20px 8px' }}>
+        <section style={{ padding: '16px 20px 8px', maxWidth: 1140, margin: '0 auto', width: '100%' }}>
           <div className="bookings-banner anim-fadeup" style={{ animationDelay: '0.5s', background: 'linear-gradient(135deg,#1A0F05,#2C1810)', borderRadius: 20, padding: '18px 22px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 8px 28px rgba(17,17,17,0.12)', cursor: 'pointer' }} onClick={() => navigate('/dashboard')}>
             <div>
               <div style={{ fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.14em', color: 'rgba(212,160,85,0.65)', fontWeight: 700, marginBottom: 3 }}>Mis citas</div>
