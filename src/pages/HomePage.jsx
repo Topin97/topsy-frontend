@@ -303,6 +303,35 @@ export default function HomePage() {
         .sec-eyebrow::before { content: ''; display: inline-block; width: 16px; height: 1.5px; background: #B57932; }
         .sec-title { margin: 0; font-family: 'Cormorant Garamond', serif; font-size: clamp(1.8rem,3vw,2.4rem); line-height: 1.05; font-weight: 600; color: #181512; }
 
+        /* ── BUSCADOR FLOTANTE — animaciones premium ── */
+        .search-floating-card {
+          background: #FFFFFF;
+          border-radius: 22px;
+          padding: 10px;
+          box-shadow: 0 20px 60px rgba(17,11,5,0.18), 0 2px 8px rgba(17,11,5,0.06);
+          border: 1.5px solid rgba(212,160,85,0.15);
+          display: flex;
+          align-items: stretch;
+          gap: 8px;
+          transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.35s ease, border-color 0.35s ease;
+        }
+        .search-floating-card:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 28px 70px rgba(17,11,5,0.22), 0 4px 12px rgba(184,131,58,0.10);
+          border-color: rgba(212,160,85,0.30);
+        }
+        .search-floating-card:focus-within {
+          transform: translateY(-3px) scale(1.012);
+          box-shadow: 0 0 0 6px rgba(212,160,85,0.18), 0 32px 80px rgba(17,11,5,0.25), 0 0 40px rgba(212,160,85,0.15);
+          border-color: rgba(212,160,85,0.55);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .search-floating-card, .search-floating-card:hover, .search-floating-card:focus-within {
+            transform: none !important;
+            transition: box-shadow 0.2s ease !important;
+          }
+        }
+
         /* ── HERO MOBILE ── */
         .hero-title-main {
           font-family: 'Cormorant Garamond', serif;
@@ -407,7 +436,7 @@ export default function HomePage() {
 
       {/* ═══════════════════ BUSCADOR FLOTANTE ═══════════════════ */}
       <div style={{ position: 'relative', maxWidth: 720, margin: '-32px auto 24px', padding: '0 20px', zIndex: 30 }}>
-        <div className="anim-fadeup search-floating-card" style={{ animationDelay: '0.3s', background: '#FFFFFF', borderRadius: 22, padding: 10, boxShadow: '0 20px 60px rgba(17,11,5,0.18), 0 2px 8px rgba(17,11,5,0.06)', border: '1px solid rgba(212,160,85,0.15)', display: 'flex', alignItems: 'stretch', gap: 8 }}>
+        <div className="anim-fadeup search-floating-card" style={{ animationDelay: '0.3s' }}>
           <div style={{ flex: 1, position: 'relative' }}>
             <GoogleAddressInput
               type="city"
