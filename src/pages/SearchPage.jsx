@@ -3,127 +3,9 @@ import { useFavorites } from '../hooks/useFavorites'
 import { useQuery } from '@tanstack/react-query'
 import { useSearchParams, Link } from 'react-router-dom'
 import { profApi } from '../services/api'
+import GoogleAddressInput from '../components/GoogleAddressInput'
 import { format, addDays, isToday, isTomorrow } from 'date-fns'
 import { es } from 'date-fns/locale'
-
-function CityAutocomplete({ value, onChange, placeholder = 'Ciudad', inputStyle = {}, className = '' }) {
-  const [query, setQuery] = useState(value)
-  const [suggestions, setSuggestions] = useState([])
-  const [open, setOpen] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [activeIdx, setActiveIdx] = useState(-1)
-  const debounceRef = useRef(null)
-  const wrapRef = useRef(null)
-
-  // Sync external value changes
-  useEffect(() => { setQuery(value) }, [value])
-
-  // Close on outside click
-  useEffect(() => {
-    const handler = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false) }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
-
-  const fetchCities = useCallback((q) => {
-    if (!q || q.length < 2) { setSuggestions([]); setOpen(false); return }
-    setLoading(true)
-    fetch(
-      `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&addressdetails=1&limit=6&countrycodes=es&featuretype=city`,
-      { headers: { 'Accept-Language': 'es', 'User-Agent': 'Topsy/1.0' } }
-    )
-      .then(r => r.json())
-      .then(data => {
-        const seen = new Set()
-        const cities = data
-          .filter(item => {
-            const city = item.address?.city || item.address?.town || item.address?.village || item.address?.municipality || item.name
-            if (!city || seen.has(city.toLowerCase())) return false
-            seen.add(city.toLowerCase())
-            return true
-          })
-          .map(item => ({
-            name: item.address?.city || item.address?.town || item.address?.village || item.address?.municipality || item.name,
-            province: item.address?.state || '',
-          }))
-        setSuggestions(cities)
-        setOpen(cities.length > 0)
-        setActiveIdx(-1)
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [])
-
-  const handleChange = (e) => {
-    const val = e.target.value
-    setQuery(val)
-    onChange(val)
-    clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(() => fetchCities(val), 320)
-  }
-
-  const handleSelect = (city) => {
-    setQuery(city.name)
-    onChange(city.name)
-    setSuggestions([])
-    setOpen(false)
-  }
-
-  const handleKeyDown = (e) => {
-    if (!open || suggestions.length === 0) return
-    if (e.key === 'ArrowDown') { e.preventDefault(); setActiveIdx(i => Math.min(i + 1, suggestions.length - 1)) }
-    else if (e.key === 'ArrowUp') { e.preventDefault(); setActiveIdx(i => Math.max(i - 1, 0)) }
-    else if (e.key === 'Enter' && activeIdx >= 0) { e.preventDefault(); handleSelect(suggestions[activeIdx]) }
-    else if (e.key === 'Escape') { setOpen(false) }
-  }
-
-  return (
-    <div ref={wrapRef} style={{ position: 'relative' }}>
-      <div style={{ position: 'relative' }}>
-        <input
-          value={query}
-          onChange={handleChange}
-          onKeyDown={handleKeyDown}
-          onFocus={() => suggestions.length > 0 && setOpen(true)}
-          placeholder={placeholder}
-          className={className}
-          style={inputStyle}
-          autoComplete="off"
-        />
-        {loading && (
-          <span style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', width: 12, height: 12, border: '2px solid rgba(197,138,61,0.3)', borderTopColor: '#B57932', borderRadius: '50%', animation: 'spin 0.7s linear infinite', display: 'inline-block' }} />
-        )}
-      </div>
-      {open && suggestions.length > 0 && (
-        <div style={{
-          position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 300,
-          background: '#FFFFFF', borderRadius: 14, boxShadow: '0 8px 32px rgba(17,17,17,0.14)',
-          border: '1.5px solid rgba(17,17,17,0.07)', overflow: 'hidden',
-        }}>
-          {suggestions.map((city, i) => (
-            <button
-              key={i}
-              onMouseDown={() => handleSelect(city)}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 10, width: '100%',
-                padding: '11px 14px', background: activeIdx === i ? 'rgba(197,138,61,0.07)' : 'transparent',
-                border: 'none', borderBottom: i < suggestions.length - 1 ? '1px solid rgba(17,17,17,0.05)' : 'none',
-                cursor: 'pointer', textAlign: 'left', transition: 'background 0.12s',
-              }}
-              onMouseEnter={() => setActiveIdx(i)}
-            >
-              <span style={{ fontSize: 13, opacity: 0.4, flexShrink: 0 }}>📍</span>
-              <div>
-                <span style={{ fontSize: 14, color: '#181512', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{city.name}</span>
-                {city.province && <span style={{ fontSize: 11, color: 'rgba(24,21,18,0.35)', fontFamily: 'Outfit, sans-serif', marginLeft: 6 }}>{city.province}</span>}
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
 
 const CATEGORIES = [
   { value: '',            label: 'Todo',       icon: '✦' },
@@ -425,14 +307,12 @@ function FilterSheet({ onClose, sort, setSort, minRating, setMinRating, maxPrice
 
         <div style={{ padding: '20px 20px 0' }}>
           <p style={{ fontSize: 11, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.14em', color: '#B57932', marginBottom: 12, fontFamily: 'Outfit, sans-serif' }}>Ciudad</p>
-          <CityAutocomplete
-            value={city} onChange={setCity}
+          <GoogleAddressInput
+            type="city"
+            value={city}
+            onChange={setCity}
+            onSelect={({ city }) => setCity(city || '')}
             placeholder="Ej: Madrid, Barcelona..."
-            inputStyle={{
-              width: '100%', background: '#F8F5F0', border: '1.5px solid rgba(17,17,17,0.09)',
-              borderRadius: 14, padding: '12px 14px', color: '#181512', fontSize: 14,
-              outline: 'none', fontFamily: 'Outfit, sans-serif', boxSizing: 'border-box',
-            }}
           />
         </div>
 
@@ -606,12 +486,13 @@ export default function SearchPage() {
             />
           </div>
           <div className="city-input-desktop" style={{ flexShrink: 0 }}>
-            <CityAutocomplete
-              value={city} onChange={setCity}
-              placeholder="Ciudad"
-              inputStyle={{ width: 110, background: '#F8F5F0', border: '1.5px solid rgba(17,17,17,0.09)', borderRadius: 14, padding: '11px 12px', color: '#181512', fontSize: 14, outline: 'none', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', boxSizing: 'border-box' }}
-              className="search-inp"
-            />
+            <GoogleAddressInput
+            type="city"
+            value={city}
+            onChange={setCity}
+            onSelect={({ city }) => setCity(city || '')}
+            placeholder="Ciudad"
+          />
           </div>
           <button type="submit" style={{
             background: 'linear-gradient(135deg,#B97830,#D19B52)', border: 'none',
