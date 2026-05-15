@@ -401,9 +401,9 @@ export default function HomePage() {
         </div>
 
         {/* Contenido del hero */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', maxWidth: 1140, margin: '0 auto', width: '100%', position: 'relative', zIndex: 1, padding: 'calc(64px + env(safe-area-inset-top)) 24px 28px' }}>
+        <div className="hero-content-wrap" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', maxWidth: 1140, margin: '0 auto', width: '100%', position: 'relative', zIndex: 1, padding: 'calc(64px + env(safe-area-inset-top)) 24px 28px' }}>
           {token && firstName && (
-            <div className="anim-fadeup" style={{ animationDelay: '0s', fontSize: 14, color: 'rgba(248,245,240,0.5)', marginBottom: 8 }}>
+            <div className="anim-fadeup hide-desktop" style={{ animationDelay: '0s', fontSize: 14, color: 'rgba(248,245,240,0.5)', marginBottom: 8 }}>
               Hola de nuevo, <span style={{ color: '#D4A055', fontWeight: 600 }}>{firstName}</span> 👋
             </div>
           )}
