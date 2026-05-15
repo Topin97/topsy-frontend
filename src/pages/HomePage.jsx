@@ -318,7 +318,7 @@ export default function HomePage() {
           font-family: 'Cormorant Garamond', serif;
           font-weight: 400;
           font-style: italic;
-          font-size: clamp(1.4rem, 5.5vw, 3.2rem);
+          font-size: clamp(1.3rem, 4.2vw, 2.6rem);
           line-height: 1.2;
           color: #D4A055;
           margin-bottom: 20px;
@@ -326,6 +326,7 @@ export default function HomePage() {
           overflow-wrap: break-word;
           min-height: 2.6em;
           display: block;
+          max-width: 100%;
         }
 
         /* ── HERO BG ── */
@@ -398,9 +399,9 @@ export default function HomePage() {
             Profesionales locales verificados de belleza y bienestar, a un click.
           </p>
 
-          <div className="anim-fadeup" style={{ animationDelay: '0.28s', maxWidth: 580 }}>
+          <div className="anim-fadeup" style={{ animationDelay: '0.28s', maxWidth: 580, position: 'relative', zIndex: 100 }}>
             <div style={{ display: 'flex', alignItems: 'stretch', gap: 8, background: 'rgba(255,255,255,0.97)', borderRadius: 18, padding: 8, boxShadow: '0 12px 40px rgba(0,0,0,0.3)' }}>
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, position: 'relative' }}>
                 <GoogleAddressInput
                   type="city"
                   value={search}
@@ -416,7 +417,7 @@ export default function HomePage() {
 
         {/* Categorías desktop — barra inferior del hero */}
         <div className="cats-desktop anim-fadeup"
-          style={{ animationDelay: '0.4s', position: 'relative', zIndex: 1, borderTop: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.38)', backdropFilter: 'blur(14px)', padding: '0 24px', overflowX: 'auto' }}>
+          style={{ animationDelay: '0.4s', position: 'relative', zIndex: 1, borderTop: '1px solid rgba(255,255,255,0.1)', background: 'rgba(0,0,0,0.65)', padding: '0 24px', overflowX: 'auto' }}>
           {CATEGORIES.map((cat, i) => (
             <button key={cat.value} className="cat-desktop-btn anim-fadeup" style={{ animationDelay: `${0.5 + i * 0.04}s` }} onClick={() => navigate(`/search?category=${cat.value}`)}>
               {cat.label}
