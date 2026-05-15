@@ -327,7 +327,6 @@ export default function HomePage() {
           }
         }
 
-        .hero-title-short { display: none; }
         /* ── HERO MOBILE ── */
         .hero-title-main {
           font-family: 'Cormorant Garamond', serif;
@@ -368,17 +367,7 @@ export default function HomePage() {
 
         @media (min-width: 768px) {
           .hide-desktop { display: none !important; }
-          .hide-mobile { display: block !important; }
-          .cats-row { justify-content: center !important; gap: 48px !important; padding: 0 32px 4px !important; }
-          /* Hero compacto en desktop: ocultar título grande, typewriter y subtitle */
-          .hero-title-main, .hero-title-typewriter, .hero-subtitle { display: none !important; }
-          /* Mostrar título corto compacto */
-          .hero-title-short { display: block !important; text-align: center; }
-          /* Categorías dentro del hero (visualmente sobrepuestas) */
-          .cats-section { margin-top: -50px; position: relative; z-index: 2; background: transparent !important; border-bottom: none !important; padding-top: 0 !important; }
-          .cats-section .cat-circle { background: rgba(255,255,255,0.97) !important; border: 1.5px solid rgba(184,131,58,0.5) !important; box-shadow: 0 8px 24px rgba(17,11,5,0.18); }
-          .cats-section .cat-label { color: #181512 !important; font-weight: 600 !important; text-shadow: 0 1px 2px rgba(255,255,255,0.4); }
-          .search-in-hero-wrap { margin: 0 auto !important; max-width: 640px; }
+          .cats-row { justify-content: center !important; gap: 40px !important; padding: 0 32px 4px !important; }
           .hero-bg-dark { display: none !important; }
           .hero-bg-img { display: block !important; }
           .hero-overlay { display: block !important; }
@@ -419,9 +408,6 @@ export default function HomePage() {
             </div>
           )}
 
-          <div className="anim-fadeup hero-title-short" style={{ animationDelay: '0.08s', fontFamily: 'Cormorant Garamond, serif', fontWeight: 500, fontStyle: 'italic', fontSize: 28, color: 'rgba(248,245,240,0.92)', marginBottom: 18, letterSpacing: '0.02em' }}>
-            Belleza, bienestar y cuidado
-          </div>
           <div className="anim-fadeup hero-title-main" style={{ animationDelay: '0.08s' }}>
             {token ? 'Reserva' : 'Descubre'}
           </div>
@@ -430,7 +416,7 @@ export default function HomePage() {
             {typeText}<span className="cursor" />
           </div>
 
-          <p className="anim-fadeup hero-subtitle" style={{ animationDelay: '0.2s', margin: '0 0 24px', fontSize: 14, color: 'rgba(248,245,240,0.55)', lineHeight: 1.65, maxWidth: 480 }}>
+          <p className="anim-fadeup" style={{ animationDelay: '0.2s', margin: '0 0 24px', fontSize: 14, color: 'rgba(248,245,240,0.55)', lineHeight: 1.65, maxWidth: 480 }}>
             Profesionales locales verificados de belleza y bienestar, a un click.
           </p>
 
@@ -454,7 +440,7 @@ export default function HomePage() {
       </section>
 
       {/* ═══════════════════ CATEGORÍAS MÓVIL ═══════════════════ */}
-      <div className="cats-section" style={{ background: '#fff', borderBottom: '1px solid rgba(17,17,17,0.07)', padding: '18px 0 14px' }}>
+      <div style={{ background: '#fff', borderBottom: '1px solid rgba(17,17,17,0.07)', padding: '18px 0 14px' }}>
         <div className="anim-fadeup" style={{ animationDelay: '0.35s', padding: '0 20px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <p className="sec-eyebrow hide-desktop" style={{ margin: 0 }}>Categorías</p>
           <span className="hide-desktop" style={{ fontSize: 11, color: 'rgba(181,121,50,0.6)', fontWeight: 600 }}>desliza →</span>
