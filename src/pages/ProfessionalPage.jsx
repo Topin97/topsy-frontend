@@ -626,7 +626,7 @@ const activeServices = prof.services?.filter(s => s.is_active) ?? []
             {(prof.address || prof.city) && (
               <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 20, overflow: 'hidden', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
                 {prof.latitude && prof.longitude
-                  ? <div style={{ height: 190 }}><iframe title="mapa" src={`https://www.openstreetmap.org/export/embed.html?bbox=${prof.longitude-0.005},${prof.latitude-0.003},${prof.longitude+0.005},${prof.latitude+0.003}&layer=mapnik&marker=${prof.latitude},${prof.longitude}`} style={{ width: '100%', height: '100%', border: 'none', display: 'block' }} loading="lazy" /></div>
+                  ? <div style={{ height: 190 }}><iframe title="mapa" src={`https://www.google.com/maps?q=${prof.latitude},${prof.longitude}&z=16&output=embed`} style={{ width: '100%', height: '100%', border: 'none', display: 'block' }} loading="lazy" allowFullScreen /></div>
                   : <div style={{ height: 130, background: '#EFEDE9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36, opacity: 0.5 }}>🗺️</div>
                 }
                 <div style={{ padding: '14px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>

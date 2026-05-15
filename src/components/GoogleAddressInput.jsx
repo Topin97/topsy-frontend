@@ -205,7 +205,7 @@ export default function GoogleAddressInput({
           maxHeight: 320,
           overflowY: 'auto',
           boxShadow: '0 14px 40px rgba(0,0,0,0.10)',
-          zIndex: 50,
+          zIndex: 1000,
           fontFamily: 'Outfit, sans-serif',
         }}>
           {predictions.map((p, i) => (

@@ -366,12 +366,14 @@ export default function HomePage() {
       `}</style>
 
       {/* ═══════════════════ HERO ═══════════════════ */}
-      <section className="hero-min-h" style={{ position: 'relative', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-        {/* Backgrounds con parallax sutil */}
-        <div className="hero-bg-dark" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg,#1A0F05 0%,#2C1810 55%,#1A0F05 100%)', transform: `translateY(${parallaxY * 0.4}px)` }} />
-        <div className="hero-bg-img" style={{ position: 'absolute', inset: 0, backgroundImage: `url(${heroBg})`, backgroundSize: 'cover', backgroundPosition: 'center', transform: `translateY(${parallaxY * 0.4}px)` }} />
-        <div className="hero-overlay" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right,rgba(8,5,2,0.88) 0%,rgba(8,5,2,0.65) 45%,rgba(8,5,2,0.25) 100%)' }} />
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 120, background: 'linear-gradient(to top,rgba(197,138,61,0.07),transparent)', pointerEvents: 'none' }} />
+      <section className="hero-min-h" style={{ position: 'relative', display: 'flex', flexDirection: 'column', isolation: 'isolate' }}>
+        {/* Backgrounds con parallax sutil (envueltos en wrapper con overflow para no recortar el dropdown del autocomplete) */}
+        <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', zIndex: 0 }}>
+          <div className="hero-bg-dark" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg,#1A0F05 0%,#2C1810 55%,#1A0F05 100%)', transform: `translateY(${parallaxY * 0.4}px)` }} />
+          <div className="hero-bg-img" style={{ position: 'absolute', inset: 0, backgroundImage: `url(${heroBg})`, backgroundSize: 'cover', backgroundPosition: 'center', transform: `translateY(${parallaxY * 0.4}px)` }} />
+          <div className="hero-overlay" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to right,rgba(8,5,2,0.88) 0%,rgba(8,5,2,0.65) 45%,rgba(8,5,2,0.25) 100%)' }} />
+          <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 120, background: 'linear-gradient(to top,rgba(197,138,61,0.07),transparent)', pointerEvents: 'none' }} />
+        </div>
 
         {/* Contenido del hero */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', maxWidth: 780, margin: '0 auto', width: '100%', position: 'relative', zIndex: 1, padding: 'calc(64px + env(safe-area-inset-top)) 20px 28px' }}>
