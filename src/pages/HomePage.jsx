@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { profApi } from '../services/api'
 import { useAuthStore } from '../store/authStore'
+import GoogleAddressInput from '../components/GoogleAddressInput'
 
 import heroBg       from '../assets/hero-bg.webp'
 import catHair      from '../assets/cat-hair.webp'
@@ -215,10 +216,10 @@ export default function HomePage() {
     staleTime: 5 * 60 * 1000,
   })
 
-  const handleSearch = e => {
-    e.preventDefault()
+  const handleSearch = (e) => {
+    if (e?.preventDefault) e.preventDefault()
     const q = search.trim()
-    navigate(q ? `/search?q=${encodeURIComponent(q)}` : '/search')
+    navigate(q ? `/search?city=${encodeURIComponent(q)}` : '/search')
   }
 
   const firstName = user?.full_name?.split(' ')[0]
@@ -388,31 +389,26 @@ export default function HomePage() {
             {typeText}<span className="cursor" />
           </div>
 
-          <p className="anim-fadeup" style={{ animationDelay: '0.2s', margin: '0 0 24px', fontSize: 14, color: 'rgba(248,245,240,0.5)', lineHeight: 1.65, maxWidth: 480 }}>
-            Profesionales verificados de belleza y bienestar, cerca de ti.
+          <div className="anim-fadeup" style={{ animationDelay: '0.04s', display: 'inline-flex', alignItems: 'center', gap: 8, padding: '6px 14px', background: 'rgba(212,160,85,0.13)', border: '1px solid rgba(212,160,85,0.3)', borderRadius: 100, fontSize: 11, fontWeight: 700, letterSpacing: '0.14em', color: '#D4A055', marginBottom: 14, textTransform: 'uppercase', alignSelf: 'flex-start' }}>
+            📍 El Cuervo de Sevilla · Apertura 1 junio
+          </div>
+          <p className="anim-fadeup" style={{ animationDelay: '0.2s', margin: '0 0 24px', fontSize: 14, color: 'rgba(248,245,240,0.55)', lineHeight: 1.65, maxWidth: 480 }}>
+            Profesionales locales verificados de belleza y bienestar, a un click.
           </p>
 
           <div className="anim-fadeup" style={{ animationDelay: '0.28s', maxWidth: 580 }}>
-            <form onSubmit={handleSearch}>
-              <div style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                background: 'rgba(255,255,255,0.97)',
-                border: `1.5px solid ${searchFocused ? '#C58A3D' : 'transparent'}`,
-                borderRadius: 18, padding: '8px 8px 8px 16px',
-                boxShadow: searchFocused
-                  ? '0 0 0 4px rgba(197,138,61,0.15),0 16px 48px rgba(0,0,0,0.3)'
-                  : '0 8px 32px rgba(0,0,0,0.28)',
-                transform: searchFocused ? 'translateY(-2px)' : 'translateY(0)',
-                transition: 'all 0.3s cubic-bezier(0.34,1.56,0.64,1)',
-              }}>
-                <span style={{ fontSize: 18, color: 'rgba(24,21,18,0.3)', lineHeight: 1, flexShrink: 0 }}>⌕</span>
-                <input value={search} onChange={e => setSearch(e.target.value)}
-                  onFocus={() => setSearchFocused(true)} onBlur={() => setSearchFocused(false)}
-                  placeholder="Buscar servicios o negocios..."
-                  style={{ flex: 1, height: 46, border: 'none', outline: 'none', background: 'transparent', fontSize: 15, color: '#181512', fontFamily: 'Outfit, sans-serif' }} />
-                <button type="submit" className="gold-btn" style={{ borderRadius: 12, padding: '11px 22px', fontSize: 14, flexShrink: 0 }}>Buscar</button>
+            <div style={{ display: 'flex', alignItems: 'stretch', gap: 8, background: 'rgba(255,255,255,0.97)', borderRadius: 18, padding: 8, boxShadow: '0 12px 40px rgba(0,0,0,0.3)' }}>
+              <div style={{ flex: 1 }}>
+                <GoogleAddressInput
+                  type="city"
+                  value={search}
+                  onChange={setSearch}
+                  onSelect={({ city }) => { setSearch(city || ''); navigate(`/search?city=${encodeURIComponent(city || '')}`) }}
+                  placeholder="¿Qué ciudad o pueblo?"
+                />
               </div>
-            </form>
+              <button type="button" onClick={handleSearch} className="gold-btn" style={{ borderRadius: 12, padding: '0 22px', fontSize: 14, flexShrink: 0, alignSelf: 'stretch' }}>Buscar</button>
+            </div>
           </div>
         </div>
 
@@ -460,7 +456,8 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* ═══════════════════ DESTACADOS ═══════════════════ */}
+      {/* ═══════════════════ DESTACADOS (solo si hay 3+) ═══════════════════ */}
+      {(featured.length >= 3 || loadingFeatured) && (
       <section ref={featuredRef} style={{ padding: '28px 0 12px' }}>
         <div className={`scroll-anim ${featuredInView ? 'in-view' : ''}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', padding: '0 20px', marginBottom: 16 }}>
           <div>
@@ -480,6 +477,7 @@ export default function HomePage() {
           }
         </div>
       </section>
+      )}
 
       {/* ═══════════════════ MÁS PROFESIONALES ═══════════════════ */}
       {featured.length > 8 && (

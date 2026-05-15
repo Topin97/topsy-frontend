@@ -480,7 +480,7 @@ export default function SearchPage() {
           <div style={{ flex: 1, position: 'relative' }}>
             <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 15, pointerEvents: 'none', opacity: 0.3 }}>⌕</span>
             <input ref={inputRef} value={search} onChange={e => setSearch(e.target.value)}
-              placeholder="Servicio o profesional..."
+              placeholder="Buscar pros (opcional)..."
               className="search-inp"
               style={{ width: '100%', background: '#F8F5F0', border: '1.5px solid rgba(17,17,17,0.09)', borderRadius: 14, padding: '11px 12px 11px 36px', color: '#181512', fontSize: 14, outline: 'none', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', boxSizing: 'border-box' }}
             />
