@@ -21,7 +21,7 @@ function buildCalendarDays(month) {
 
 const WEEK_DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom']
 const TODAY = new Date(); TODAY.setHours(0,0,0,0)
-const slotTime = (isoStr) => isoStr.slice(11, 16)
+const slotTime = (isoStr) => format(new Date(isoStr), 'HH:mm')
 
 // ── WaitlistModal ──────────────────────────────────────────────
 function WaitlistModal({ date, profName, serviceName, professionalId, serviceId, onClose }) {
