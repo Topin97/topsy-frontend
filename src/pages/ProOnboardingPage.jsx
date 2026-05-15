@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { profApi } from '../services/api'
 import { useAuthStore } from '../store/authStore'
+import GoogleAddressInput from '../components/GoogleAddressInput'
 import toast from 'react-hot-toast'
 
 const CATEGORIES = [
@@ -33,16 +34,7 @@ const DAYS = [
 
 const TOTAL_STEPS = 6
 
-// ── Nominatim address search ──────────────────────────────────────────────────
-async function searchAddress(query) {
-  if (!query || query.length < 3) return []
-  const q = encodeURIComponent(query + ', Spain')
-  const res = await fetch(
-    `https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=5&addressdetails=1`,
-    { headers: { 'User-Agent': 'TopSy/1.0' } }
-  )
-  return res.json()
-}
+
 
 // ── Simple Leaflet map via CDN ────────────────────────────────────────────────
 function MapPin({ lat, lng }) {
@@ -161,36 +153,11 @@ export default function ProOnboardingPage() {
   })
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }))
 
-  const [addressQuery, setAddressQuery] = useState('')
-  const [suggestions, setSuggestions] = useState([])
-  const [searching, setSearching] = useState(false)
-  const debounceRef = useRef(null)
-
-  const handleAddressInput = (val) => {
-    setAddressQuery(val)
-    set('address', val)
-    set('latitude', null)
-    set('longitude', null)
-    clearTimeout(debounceRef.current)
-    debounceRef.current = setTimeout(async () => {
-      if (val.length < 3) { setSuggestions([]); return }
-      setSearching(true)
-      const results = await searchAddress(val)
-      setSuggestions(results)
-      setSearching(false)
-    }, 500)
-  }
-
-  const selectSuggestion = (s) => {
-    const addr = s.address
-    const street = [addr.road, addr.house_number].filter(Boolean).join(' ')
-    const city = addr.city || addr.town || addr.village || addr.municipality || ''
-    set('address', street || s.display_name.split(',')[0])
+  const handleAddressSelect = ({ address, city, lat, lng }) => {
+    set('address', address)
     set('city', city)
-    set('latitude', parseFloat(s.lat))
-    set('longitude', parseFloat(s.lon))
-    setAddressQuery(street || s.display_name.split(',')[0])
-    setSuggestions([])
+    set('latitude', lat ?? null)
+    set('longitude', lng ?? null)
   }
 
   // ── State step 3: Servicios ─────────────────────────────────────────────────
@@ -607,43 +574,15 @@ export default function ProOnboardingPage() {
           {step === 2 && (
             <div className="step-content focusable" key="step-2">
               <div style={{ marginBottom: 16, position: 'relative' }}>
-                <label style={labelStyle}>Dirección *</label>
-                <input
-                  type="text"
-                  value={addressQuery}
-                  onChange={e => handleAddressInput(e.target.value)}
+                <GoogleAddressInput
+                  label="Dirección *"
+                  value={form.address}
+                  onChange={(val) => { set('address', val); set('latitude', null); set('longitude', null) }}
+                  onSelect={handleAddressSelect}
                   placeholder="Calle Gran Vía 12, Madrid"
-                  style={inputStyle}
+                  helpText="Empieza a escribir y selecciona tu dirección de la lista"
                   autoFocus
                 />
-                {searching && (
-                  <span style={{ position: 'absolute', right: 14, top: 38, width: 16, height: 16, border: '2px solid rgba(184,131,58,0.2)', borderTopColor: '#B8833A', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
-                )}
-                {suggestions.length > 0 && (
-                  <div className="scale-in" style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4, background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 12, boxShadow: '0 12px 32px rgba(0,0,0,0.1)', zIndex: 10, maxHeight: 260, overflowY: 'auto' }}>
-                    {suggestions.map((s, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        onClick={() => selectSuggestion(s)}
-                        style={{
-                          display: 'block', width: '100%', textAlign: 'left',
-                          padding: '12px 14px', background: 'none', border: 'none',
-                          cursor: 'pointer', fontSize: 13,
-                          color: '#1A1612', fontFamily: 'inherit',
-                          borderBottom: i < suggestions.length - 1 ? '1px solid rgba(0,0,0,0.04)' : 'none',
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.background = 'rgba(184,131,58,0.05)'}
-                        onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                      >
-                        <div style={{ fontWeight: 600 }}>{s.display_name.split(',').slice(0, 2).join(',')}</div>
-                        <div style={{ fontSize: 11, color: 'rgba(0,0,0,0.4)', marginTop: 2 }}>
-                          {s.display_name.split(',').slice(2).join(',').trim()}
-                        </div>
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
 
               {form.latitude != null && (
