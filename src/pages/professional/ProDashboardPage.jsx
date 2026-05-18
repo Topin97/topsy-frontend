@@ -369,244 +369,67 @@ export default function ProDashboardPage() {
   // Booking card — reutilizable para hoy y próximas
   const BookingCard = ({ b, compact = false, index = 0 }) => {
     const st = STATUS[b.status] ?? STATUS.pending
-    const startDate = new Date(b.starts_at)
-    const endDate = new Date(b.ends_at)
-    const isPast = endDate < new Date()
-    const clientName = b.profiles?.full_name ?? 'Cliente'
-    const initial = clientName[0]?.toUpperCase() ?? '?'
-
-    const day = format(startDate, 'd', { locale: es })
-    const month = format(startDate, 'MMM', { locale: es }).toUpperCase().replace('.', '')
-    const time = format(startDate, 'HH:mm')
-    const endTime = format(endDate, 'HH:mm')
-    const weekday = format(startDate, 'EEEE', { locale: es })
-
-    // Hours to event
-    const hoursToEvent = Math.round((startDate - new Date()) / (1000 * 60 * 60))
-    let timeBadge = null
-    if (b.status === 'confirmed' && !isPast) {
-      if (hoursToEvent < 0 && endDate > new Date()) timeBadge = '🔴 En curso'
-      else if (hoursToEvent === 0) timeBadge = '⏰ Próxima'
-      else if (hoursToEvent < 1) timeBadge = `⏰ ${Math.round((startDate - new Date()) / 60000)} min`
-      else if (hoursToEvent < 24) timeBadge = `⏰ En ${hoursToEvent}h`
-    }
-
+    const isPast = new Date(b.ends_at) < new Date()
     return (
-      <div className="booking-card anim-fadeup" style={{
-        animationDelay: `${0.1 + index * 0.05}s`,
-        background: '#FFFFFF',
-        border: `1.5px solid ${timeBadge?.includes('curso') ? 'rgba(220,38,38,0.3)' : 'rgba(0,0,0,0.07)'}`,
-        borderRadius: 18, overflow: 'hidden',
-        boxShadow: timeBadge?.includes('curso') ? '0 4px 16px rgba(220,38,38,0.1)' : '0 2px 10px rgba(0,0,0,0.04)',
-        position: 'relative',
-      }}>
-        {/* Badge "En curso / próxima" arriba */}
-        {timeBadge && (
-          <div style={{
-            background: timeBadge.includes('curso')
-              ? 'linear-gradient(90deg, #dc2626, #ef4444)'
-              : 'linear-gradient(90deg, #B8833A, #D4A055)',
-            color: '#FFFFFF',
-            padding: '4px 14px',
-            fontSize: 11, fontWeight: 700,
-            fontFamily: 'Outfit, sans-serif',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          }}>
-            <span>{timeBadge}</span>
-            <span style={{ opacity: 0.85 }}>{time}–{endTime}</span>
+      <div className="booking-card anim-fadeup" style={{ animationDelay: `${0.1 + index * 0.05}s`, background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 14, padding: compact ? '12px 14px' : '14px 16px', boxShadow: '0 1px 6px rgba(0,0,0,0.04)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          {/* Avatar — tap abre perfil cliente */}
+          <button onClick={() => setClientBooking(b)} style={{ width: compact ? 32 : 38, height: compact ? 32 : 38, borderRadius: '50%', overflow: 'hidden', background: 'rgba(184,131,58,0.08)', border: '1.5px solid rgba(184,131,58,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', padding: 0, transition: 'transform 0.15s' }}
+            onMouseDown={e => e.currentTarget.style.transform = 'scale(0.92)'}
+            onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
+            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+          >
+            {b.profiles?.avatar_url
+              ? <img src={b.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: compact ? '0.85rem' : '1rem', color: '#B8833A' }}>{b.profiles?.full_name?.[0]?.toUpperCase()}</span>
+            }
+          </button>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontWeight: 600, fontSize: 13, marginBottom: 2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', color: '#1A1612', fontFamily: 'Outfit, sans-serif' }}>{b.services?.name}</p>
+            <button onClick={() => setClientBooking(b)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left' }}>
+              <p style={{ fontSize: 11, color: '#B8833A', fontFamily: 'Outfit, sans-serif', margin: 0, textDecoration: 'underline', textDecorationStyle: 'dotted' }}>
+                {b.profiles?.full_name} · {compact
+                  ? format(new Date(b.starts_at), "d MMM · HH:mm", { locale: es })
+                  : `${format(new Date(b.starts_at), 'HH:mm')}–${format(new Date(b.ends_at), 'HH:mm')}`
+                }
+              </p>
+            </button>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
+            <span style={{ fontSize: 10, padding: '3px 8px', borderRadius: 100, color: st.color, background: st.bg, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{st.label}</span>
+            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1rem', color: '#B8833A' }}>{b.total_price}€</span>
+          </div>
+        </div>
+        {/* Nota del cliente al reservar */}
+        {b.notes && (() => {
+          // La primera línea sin timestamp es la nota original del cliente
+          const clientNote = b.notes.split('\n---\n')[0]?.replace(/^\[.*?\]\n/, '').trim()
+          return clientNote ? (
+            <div style={{ marginTop: 8, background: 'rgba(184,131,58,0.05)', border: '1px solid rgba(184,131,58,0.15)', borderRadius: 8, padding: '6px 10px', display: 'flex', gap: 6, alignItems: 'flex-start' }}>
+              <span style={{ fontSize: 12, flexShrink: 0 }}>✏️</span>
+              <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.6)', margin: 0, fontFamily: 'Outfit, sans-serif', fontStyle: 'italic', lineHeight: 1.4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{clientNote}</p>
+            </div>
+          ) : null
+        })()}
+        {b.status === 'confirmed' && (
+          <div style={{ display: 'flex', gap: 6, marginTop: 10, paddingTop: 10, borderTop: '1px solid rgba(0,0,0,0.06)', flexWrap: 'wrap' }}>
+            {isPast && <button className="complete-btn action-btn" onClick={() => completeBooking(b.id)} style={{ flex: 1, minWidth: 70, background: 'rgba(37,99,235,0.06)', border: '1.5px solid rgba(37,99,235,0.2)', borderRadius: 8, padding: '7px 4px', fontSize: 12, color: '#2563eb', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', fontWeight: 600 }}>✓ OK</button>}
+            {isPast && <button className="noshow-btn action-btn" onClick={() => { if (confirm('¿Marcar como no presentado?')) noShowBooking(b.id) }} style={{ flex: 1, minWidth: 50, background: 'rgba(245,158,11,0.05)', border: '1.5px solid rgba(245,158,11,0.2)', borderRadius: 8, padding: '7px 4px', fontSize: 12, color: '#d97706', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', fontWeight: 600 }}>👻</button>}
+            <button className="action-btn" onClick={() => setNotesBooking(b)} style={{ flex: 1, minWidth: 50, background: b.notes ? 'rgba(184,131,58,0.06)' : 'transparent', border: `1.5px solid ${b.notes ? 'rgba(184,131,58,0.2)' : 'rgba(0,0,0,0.1)'}`, borderRadius: 8, padding: '7px 4px', fontSize: 12, color: b.notes ? '#B8833A' : 'rgba(26,22,18,0.4)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600, transition: 'all 0.2s' }}>💬</button>
+            <button className="action-btn" onClick={() => setRescheduleBooking(b)} style={{ flex: 1, minWidth: 50, background: 'rgba(184,131,58,0.04)', border: '1.5px solid rgba(184,131,58,0.18)', borderRadius: 8, padding: '7px 4px', fontSize: 12, color: '#B8833A', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600, transition: 'all 0.2s' }}>🔄</button>
+            <button className="cancel-btn action-btn" onClick={() => { if (confirm('¿Cancelar esta cita?')) cancelBooking(b.id) }} style={{ flex: 1, minWidth: 50, background: 'rgba(220,38,38,0.05)', border: '1.5px solid rgba(220,38,38,0.15)', borderRadius: 8, padding: '7px 4px', fontSize: 12, color: '#dc2626', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.2s', fontWeight: 600 }}>✕</button>
           </div>
         )}
-
-        <div style={{ padding: compact ? '12px 14px' : '14px 16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            {/* Badge fecha iOS (solo si compact, sino avatar) */}
-            {compact ? (
-              <div style={{
-                width: 50, flexShrink: 0,
-                border: `1.5px solid rgba(184,131,58,0.2)`,
-                borderRadius: 10, overflow: 'hidden',
-                background: '#FAFAF9', textAlign: 'center',
-              }}>
-                <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: '0.1em', background: '#B8833A', color: '#FFFFFF', padding: '2px 0', fontFamily: 'Outfit, sans-serif' }}>{month}</div>
-                <div style={{ fontSize: 18, fontWeight: 700, color: '#1A1612', fontFamily: 'Outfit, sans-serif', lineHeight: 1.1, padding: '3px 0 1px' }}>{day}</div>
-                <div style={{ fontSize: 9, color: '#B8833A', fontFamily: 'Outfit, sans-serif', fontWeight: 600, padding: '0 0 3px' }}>{time}</div>
-              </div>
-            ) : (
-              <button onClick={() => setClientBooking(b)} style={{
-                width: 44, height: 44, borderRadius: '50%',
-                overflow: 'hidden', background: 'linear-gradient(135deg, rgba(184,131,58,0.15), rgba(212,160,85,0.25))',
-                border: '2px solid rgba(184,131,58,0.3)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                flexShrink: 0, cursor: 'pointer', padding: 0,
-                transition: 'transform 0.15s',
-              }}
-                onMouseDown={e => e.currentTarget.style.transform = 'scale(0.92)'}
-                onMouseUp={e => e.currentTarget.style.transform = 'scale(1)'}
-                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-              >
-                {b.profiles?.avatar_url
-                  ? <img src={b.profiles.avatar_url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                  : <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.2rem', color: '#B8833A', fontWeight: 600 }}>{initial}</span>
-                }
-              </button>
-            )}
-
-            {/* Info principal */}
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{
-                fontFamily: 'Cormorant Garamond, serif',
-                fontSize: compact ? '0.95rem' : '1.1rem',
-                fontWeight: 600, color: '#1A1612',
-                margin: 0, lineHeight: 1.2,
-                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-              }}>{b.services?.name}</p>
-              <button onClick={() => setClientBooking(b)} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', textAlign: 'left', marginTop: 3 }}>
-                <p style={{
-                  fontSize: compact ? 11 : 12,
-                  color: '#B8833A',
-                  fontFamily: 'Outfit, sans-serif',
-                  fontWeight: 600,
-                  margin: 0,
-                  textDecoration: 'underline',
-                  textDecorationStyle: 'dotted',
-                  textUnderlineOffset: 2,
-                }}>{clientName}</p>
-              </button>
-              {!compact && !timeBadge && (
-                <p style={{
-                  fontSize: 11, color: 'rgba(26,22,18,0.45)',
-                  margin: '3px 0 0', fontFamily: 'Outfit, sans-serif',
-                  textTransform: 'capitalize',
-                }}>{weekday} {day} {month.toLowerCase()} · {time}–{endTime}</p>
-              )}
-            </div>
-
-            {/* Precio + estado */}
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5, flexShrink: 0 }}>
-              <span style={{
-                fontSize: 10, padding: '3px 9px', borderRadius: 100,
-                color: st.color, background: st.bg,
-                fontFamily: 'Outfit, sans-serif', fontWeight: 700,
-                display: 'flex', alignItems: 'center', gap: 4,
-              }}>
-                <span style={{ width: 5, height: 5, borderRadius: '50%', background: st.color }} />
-                {st.label}
-              </span>
-              <span style={{
-                fontFamily: 'Cormorant Garamond, serif',
-                fontSize: compact ? '1rem' : '1.15rem',
-                fontStyle: 'italic',
-                color: '#B8833A', fontWeight: 700,
-                lineHeight: 1,
-              }}>{b.total_price}€</span>
-            </div>
-          </div>
-
-          {/* Nota del cliente */}
-          {b.notes && (() => {
-            const clientNote = b.notes.split('\n---\n')[0]?.replace(/^\[.*?\]\n/, '').trim()
-            return clientNote ? (
-              <div style={{
-                marginTop: 10,
-                background: 'rgba(184,131,58,0.05)',
-                border: '1px solid rgba(184,131,58,0.15)',
-                borderRadius: 10, padding: '7px 11px',
-                display: 'flex', gap: 8, alignItems: 'flex-start',
-              }}>
-                <span style={{ fontSize: 13, flexShrink: 0 }}>✏️</span>
-                <p style={{
-                  fontSize: 12, color: 'rgba(26,22,18,0.65)',
-                  margin: 0, fontFamily: 'Outfit, sans-serif',
-                  fontStyle: 'italic', lineHeight: 1.4,
-                  overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                }}>{clientNote}</p>
-              </div>
-            ) : null
-          })()}
-
-          {/* Acciones */}
-          {b.status === 'confirmed' && (
-            <div style={{ display: 'flex', gap: 6, marginTop: 12, paddingTop: 10, borderTop: '1px solid rgba(0,0,0,0.05)', flexWrap: 'wrap' }}>
-              {isPast && (
-                <button className="complete-btn action-btn" onClick={() => completeBooking(b.id)} style={{
-                  flex: '1 1 100%', minWidth: 100,
-                  background: 'linear-gradient(135deg, #2563eb, #3b82f6)',
-                  border: 'none',
-                  boxShadow: '0 4px 12px rgba(37,99,235,0.25)',
-                  borderRadius: 10, padding: '9px 12px',
-                  fontSize: 13, color: '#FFFFFF',
-                  cursor: 'pointer', fontFamily: 'Outfit, sans-serif',
-                  fontWeight: 700,
-                }}>✓ Marcar como completada</button>
-              )}
-              {isPast && (
-                <button className="noshow-btn action-btn" onClick={() => { if (confirm('¿Marcar como no presentado?')) noShowBooking(b.id) }} style={{
-                  flex: 1, minWidth: 50,
-                  background: 'rgba(245,158,11,0.05)',
-                  border: '1.5px solid rgba(245,158,11,0.25)',
-                  borderRadius: 10, padding: '7px 4px',
-                  fontSize: 12, color: '#d97706',
-                  cursor: 'pointer', fontFamily: 'Outfit, sans-serif',
-                  fontWeight: 600,
-                }}>👻 No vino</button>
-              )}
-              {!isPast && (
-                <>
-                  <button className="action-btn" onClick={() => setNotesBooking(b)} style={{
-                    flex: 1, minWidth: 50,
-                    background: b.notes ? 'rgba(184,131,58,0.08)' : 'transparent',
-                    border: `1.5px solid ${b.notes ? 'rgba(184,131,58,0.25)' : 'rgba(0,0,0,0.1)'}`,
-                    borderRadius: 10, padding: '8px 4px',
-                    fontSize: 12, color: b.notes ? '#B8833A' : 'rgba(26,22,18,0.5)',
-                    cursor: 'pointer', fontFamily: 'Outfit, sans-serif',
-                    fontWeight: 600,
-                  }}>💬 {b.notes ? 'Nota' : 'Nota'}</button>
-                  <button className="action-btn" onClick={() => setRescheduleBooking(b)} style={{
-                    flex: 1, minWidth: 50,
-                    background: 'rgba(184,131,58,0.05)',
-                    border: '1.5px solid rgba(184,131,58,0.2)',
-                    borderRadius: 10, padding: '8px 4px',
-                    fontSize: 12, color: '#B8833A',
-                    cursor: 'pointer', fontFamily: 'Outfit, sans-serif',
-                    fontWeight: 600,
-                  }}>🔄 Reagendar</button>
-                  <button className="cancel-btn action-btn" onClick={() => { if (confirm('¿Cancelar esta cita?')) cancelBooking(b.id) }} style={{
-                    flex: 1, minWidth: 50,
-                    background: 'rgba(220,38,38,0.05)',
-                    border: '1.5px solid rgba(220,38,38,0.2)',
-                    borderRadius: 10, padding: '8px 4px',
-                    fontSize: 12, color: '#dc2626',
-                    cursor: 'pointer', fontFamily: 'Outfit, sans-serif',
-                    fontWeight: 600,
-                  }}>✕ Cancelar</button>
-                </>
-              )}
-            </div>
-          )}
-
-          {/* Pendiente: botón aceptar */}
-          {b.status === 'pending' && (
-            <div style={{ display: 'flex', gap: 6, marginTop: 12, paddingTop: 10, borderTop: '1px solid rgba(0,0,0,0.05)' }}>
-              <button onClick={() => setNotesBooking(b)} style={{
-                fontSize: 12, fontWeight: 600,
-                background: 'transparent', border: '1.5px solid rgba(0,0,0,0.1)',
-                borderRadius: 10, padding: '8px 14px',
-                color: 'rgba(26,22,18,0.55)', cursor: 'pointer',
-                fontFamily: 'Outfit, sans-serif',
-              }}>💬</button>
-              <button onClick={() => { if (confirm('¿Cancelar?')) cancelBooking(b.id) }} style={{
-                fontSize: 12, fontWeight: 600,
-                background: 'transparent', border: '1.5px solid rgba(220,38,38,0.2)',
-                borderRadius: 10, padding: '8px 14px',
-                color: '#dc2626', cursor: 'pointer',
-                fontFamily: 'Outfit, sans-serif',
-              }}>✕ Rechazar</button>
-            </div>
-          )}
-        </div>
       </div>
     )
   }
+
+  return (
+    <div style={{ background: '#F7F5F2', minHeight: '100vh', paddingBottom: 80 }}>
+      <style>{`
+        .nav-btn:hover { background: rgba(184,131,58,0.08) !important; border-color: rgba(184,131,58,0.3) !important; color: #B8833A !important; }
+        .booking-card { transition: box-shadow 0.25s, border-color 0.25s, transform 0.25s; }
+        .booking-card:hover { border-color: rgba(184,131,58,0.2) !important; box-shadow: 0 4px 16px rgba(0,0,0,0.06) !important; transform: translateY(-1px); }
         .kpi-card { transition: transform 0.25s, box-shadow 0.25s; }
         .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(0,0,0,0.1) !important; }
         .complete-btn:hover { background: rgba(37,99,235,0.1) !important; border-color: rgba(37,99,235,0.3) !important; }
