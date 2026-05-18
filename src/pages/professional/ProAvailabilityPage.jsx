@@ -17,6 +17,7 @@ const DAYS = [
 const DEFAULT_SCHEDULE = DAYS.map(d => ({
   day_of_week:         d.key,
   is_available:        false,
+  morning_available:   true,
   start_time:          '09:00',
   end_time:            '14:00',
   afternoon_available: true,
@@ -325,14 +326,18 @@ export default function ProAvailabilityPage() {
         const morning   = dayRows[0]
         const afternoon = dayRows[1]  // puede ser undefined
 
+        // Si solo hay 1 fila, decidir si es de mañana o tarde por la hora
+        const onlyOne = dayRows.length === 1
+        const isAfternoonOnly = onlyOne && (parseInt(morning.start_time, 10) >= 14)
         return {
           day_of_week:         d.key,
           is_available:        true,
-          start_time:          morning.start_time?.slice(0, 5) ?? '09:00',
-          end_time:            morning.end_time?.slice(0, 5)   ?? '14:00',
-          afternoon_available: !!afternoon,
-          afternoon_start:     afternoon?.start_time?.slice(0, 5) ?? '16:00',
-          afternoon_end:       afternoon?.end_time?.slice(0, 5)   ?? '20:00',
+          morning_available:   !isAfternoonOnly,
+          start_time:          isAfternoonOnly ? '09:00' : (morning.start_time?.slice(0, 5) ?? '09:00'),
+          end_time:            isAfternoonOnly ? '14:00' : (morning.end_time?.slice(0, 5)   ?? '14:00'),
+          afternoon_available: !!afternoon || isAfternoonOnly,
+          afternoon_start:     isAfternoonOnly ? (morning.start_time?.slice(0, 5) ?? '16:00') : (afternoon?.start_time?.slice(0, 5) ?? '16:00'),
+          afternoon_end:       isAfternoonOnly ? (morning.end_time?.slice(0, 5) ?? '20:00')   : (afternoon?.end_time?.slice(0, 5)   ?? '20:00'),
         }
       })
       setSchedule(merged)
@@ -345,15 +350,21 @@ export default function ProAvailabilityPage() {
       const flattened = []
       schedule.forEach(d => {
         if (!d.is_available) return
-        // Mañana
-        flattened.push({
-          day_of_week: d.day_of_week,
-          start_time:  d.start_time,
-          end_time:    d.end_time,
-          is_available: true,
-        })
+        const morningOn   = d.morning_available !== false
+        const afternoonOn = d.afternoon_available && d.afternoon_start && d.afternoon_end
+        // Si ambas están off, no guardamos nada
+        if (!morningOn && !afternoonOn) return
+        // Mañana (solo si activa)
+        if (morningOn) {
+          flattened.push({
+            day_of_week: d.day_of_week,
+            start_time:  d.start_time,
+            end_time:    d.end_time,
+            is_available: true,
+          })
+        }
         // Tarde (solo si activa)
-        if (d.afternoon_available && d.afternoon_start && d.afternoon_end) {
+        if (afternoonOn) {
           flattened.push({
             day_of_week: d.day_of_week,
             start_time:  d.afternoon_start,
@@ -473,9 +484,9 @@ export default function ProAvailabilityPage() {
                 {day.is_available && (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     <TimeBlock
-                      label="☀️ Mañana" accent active={true}
+                      label="☀️ Mañana" accent active={day.morning_available !== false}
                       startVal={day.start_time} endVal={day.end_time}
-                      onToggle={() => {}}
+                      onToggle={() => updateDay(day.day_of_week, 'morning_available', day.morning_available === false)}
                       onStartChange={v => updateDay(day.day_of_week, 'start_time', v)}
                       onEndChange={v => updateDay(day.day_of_week, 'end_time', v)}
                       minDuration={minDuration}
