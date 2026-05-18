@@ -12,7 +12,6 @@ ios/App/Pods/
 cat
 npm
 reset-pro-password.mjs
-ExportOptions.plist
 build.sh
 export.sh
 fix-env.sh
