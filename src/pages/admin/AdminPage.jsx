@@ -181,19 +181,174 @@ export default function AdminPage() {
 
         {/* ── STATS ── */}
         {tab === 'stats' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
-            {[
-              { label: 'Usuarios',       value: stats?.total_users ?? '—',                                    icon: '👥' },
-              { label: 'Profesionales',  value: stats?.total_professionals ?? '—',                            icon: '💼' },
-              { label: 'Reservas',       value: stats?.total_bookings ?? '—',                                 icon: '📅' },
-              { label: 'Ingresos totales', value: stats?.total_revenue ? `${stats.total_revenue.toFixed(2)}€` : '—', icon: '💰' },
-            ].map(s => (
-              <div key={s.label} style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.08)', borderRadius: 18, padding: '24px 20px', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
-                <p style={{ fontSize: '2rem', marginBottom: 12 }}>{s.icon}</p>
-                <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2.2rem', color: '#B8833A', lineHeight: 1, marginBottom: 4 }}>{s.value}</p>
-                <p style={{ fontSize: 12, color: 'rgba(26,22,18,0.4)', textTransform: 'uppercase', letterSpacing: '0.1em', fontFamily: 'Outfit, sans-serif' }}>{s.label}</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {/* ─── 4 cards principales ─── */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 14 }}>
+              {[
+                { label: 'Profesionales', value: stats?.total_professionals ?? '—', delta: stats?.pros_last_week, deltaLabel: 'últ. 7d', icon: '💼', color: '#B8833A' },
+                { label: 'Clientes',      value: stats?.total_users ?? '—',         delta: stats?.users_last_week, deltaLabel: 'últ. 7d', icon: '👥', color: '#0EA5E9' },
+                { label: 'Reservas mes',  value: stats?.bookings_this_month ?? '—', delta: stats?.bookings_growth, deltaLabel: '% vs mes anterior', isPercent: true, icon: '📅', color: '#16A34A' },
+                { label: 'Ingresos mes',  value: stats?.revenue_this_month != null ? `${stats.revenue_this_month.toFixed(0)}€` : '—', delta: stats?.revenue_growth, deltaLabel: '% vs mes anterior', isPercent: true, icon: '💰', color: '#D4A055' },
+              ].map(s => (
+                <div key={s.label} style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 18, padding: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                    <span style={{ fontSize: '1.4rem' }}>{s.icon}</span>
+                    {s.delta != null && (
+                      <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 100, background: s.delta >= 0 ? 'rgba(22,163,74,0.08)' : 'rgba(220,38,38,0.08)', color: s.delta >= 0 ? '#16a34a' : '#dc2626', fontFamily: 'Outfit, sans-serif' }}>
+                        {s.delta >= 0 ? '↑' : '↓'} {s.isPercent ? `${Math.abs(s.delta)}%` : `+${s.delta}`}
+                      </span>
+                    )}
+                  </div>
+                  <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '2rem', color: s.color, lineHeight: 1, marginBottom: 6, fontWeight: 500 }}>{s.value}</p>
+                  <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.45)', textTransform: 'uppercase', letterSpacing: '0.12em', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>{s.label}</p>
+                  {s.delta != null && (
+                    <p style={{ fontSize: 10, color: 'rgba(26,22,18,0.35)', fontFamily: 'Outfit, sans-serif', marginTop: 4 }}>{s.deltaLabel}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* ─── Gráfico reservas últimos 30 días ─── */}
+            <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 18, padding: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+              <p style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.5)', marginBottom: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>📈 Reservas últimos 30 días</p>
+              {(() => {
+                const days = Array.from({ length: 30 }, (_, i) => {
+                  const d = new Date()
+                  d.setDate(d.getDate() - (29 - i))
+                  return d.toISOString().slice(0, 10)
+                })
+                const counts = days.map(d => stats?.bookings_by_day?.[d] ?? 0)
+                const max = Math.max(...counts, 1)
+                return (
+                  <div style={{ display: 'flex', alignItems: 'flex-end', gap: 3, height: 120 }}>
+                    {counts.map((c, i) => (
+                      <div key={i} title={`${days[i]}: ${c} reservas`} style={{
+                        flex: 1,
+                        height: `${(c / max) * 100}%`,
+                        minHeight: 2,
+                        background: c > 0 ? 'linear-gradient(180deg, #D4A055 0%, #B8833A 100%)' : 'rgba(0,0,0,0.04)',
+                        borderRadius: '3px 3px 0 0',
+                        transition: 'all 0.2s',
+                        cursor: 'help',
+                      }} />
+                    ))}
+                  </div>
+                )
+              })()}
+              <p style={{ fontSize: 10, color: 'rgba(26,22,18,0.35)', fontFamily: 'Outfit, sans-serif', marginTop: 8, textAlign: 'right' }}>
+                Total 30d: {Object.values(stats?.bookings_by_day ?? {}).reduce((s, v) => s + v, 0)} reservas
+              </p>
+            </div>
+
+            {/* ─── Grid 2 columnas: Top Pros + Próximas 7 días ─── */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+              {/* Top Pros */}
+              <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 18, padding: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+                <p style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.5)', marginBottom: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>🏆 Top 5 pros (últ. 30d)</p>
+                {(stats?.top_pros ?? []).length === 0 ? (
+                  <p style={{ fontSize: 13, color: 'rgba(26,22,18,0.4)', fontFamily: 'Outfit, sans-serif' }}>Aún no hay reservas</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {stats.top_pros.map((p, i) => (
+                      <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 0' }}>
+                        <span style={{ width: 22, height: 22, borderRadius: '50%', background: i === 0 ? '#B8833A' : 'rgba(184,131,58,0.12)', color: i === 0 ? '#FFFFFF' : '#B8833A', fontSize: 11, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Outfit, sans-serif', flexShrink: 0 }}>{i + 1}</span>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <p style={{ fontSize: 13, fontWeight: 600, color: '#1A1612', fontFamily: 'Outfit, sans-serif', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.name}</p>
+                          <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.4)', fontFamily: 'Outfit, sans-serif' }}>{p.city ?? '—'}</p>
+                        </div>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: '#B8833A', fontFamily: 'Outfit, sans-serif' }}>{p.count}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-            ))}
+
+              {/* Próximas 7 días */}
+              <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 18, padding: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+                <p style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.5)', marginBottom: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>📅 Próximos 7 días</p>
+                {(() => {
+                  const days = Array.from({ length: 7 }, (_, i) => {
+                    const d = new Date()
+                    d.setDate(d.getDate() + i)
+                    return d
+                  })
+                  const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+                  const total = Object.values(stats?.upcoming_by_day ?? {}).reduce((s, v) => s + v, 0)
+                  return (
+                    <>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {days.map(d => {
+                          const key = d.toISOString().slice(0, 10)
+                          const count = stats?.upcoming_by_day?.[key] ?? 0
+                          return (
+                            <div key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
+                              <span style={{ fontSize: 12, color: count > 0 ? '#1A1612' : 'rgba(26,22,18,0.3)', fontFamily: 'Outfit, sans-serif', fontWeight: count > 0 ? 600 : 400 }}>
+                                {dayNames[d.getDay()]} {String(d.getDate()).padStart(2, '0')}
+                              </span>
+                              <span style={{ fontSize: 12, color: count > 0 ? '#B8833A' : 'rgba(26,22,18,0.25)', fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>
+                                {count > 0 ? `${count} reserva${count > 1 ? 's' : ''}` : '—'}
+                              </span>
+                            </div>
+                          )
+                        })}
+                      </div>
+                      <p style={{ fontSize: 11, color: 'rgba(26,22,18,0.4)', fontFamily: 'Outfit, sans-serif', marginTop: 10, textAlign: 'right' }}>Total: {total}</p>
+                    </>
+                  )
+                })()}
+              </div>
+            </div>
+
+            {/* ─── Grid: Estado reservas + Ciudades ─── */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
+              {/* Status */}
+              <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 18, padding: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+                <p style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.5)', marginBottom: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>🍽️ Reservas por estado</p>
+                {[
+                  { key: 'confirmed', label: 'Confirmadas', color: '#16a34a' },
+                  { key: 'pending',   label: 'Pendientes',  color: '#d97706' },
+                  { key: 'completed', label: 'Completadas', color: '#B8833A' },
+                  { key: 'cancelled', label: 'Canceladas',  color: '#dc2626' },
+                ].map(s => (
+                  <div key={s.key} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
+                    <span style={{ width: 10, height: 10, borderRadius: '50%', background: s.color }} />
+                    <span style={{ flex: 1, fontSize: 13, color: '#1A1612', fontFamily: 'Outfit, sans-serif' }}>{s.label}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: s.color, fontFamily: 'Outfit, sans-serif' }}>{stats?.status_counts?.[s.key] ?? 0}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Ciudades */}
+              <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 18, padding: '20px', boxShadow: '0 2px 12px rgba(0,0,0,0.04)' }}>
+                <p style={{ fontSize: 11, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(26,22,18,0.5)', marginBottom: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>🗺️ Pros por ciudad</p>
+                {(stats?.cities ?? []).length === 0 ? (
+                  <p style={{ fontSize: 13, color: 'rgba(26,22,18,0.4)', fontFamily: 'Outfit, sans-serif' }}>Sin datos aún</p>
+                ) : (
+                  stats.cities.map(c => (
+                    <div key={c.city} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid rgba(0,0,0,0.04)' }}>
+                      <span style={{ fontSize: 16 }}>📍</span>
+                      <span style={{ flex: 1, fontSize: 13, color: '#1A1612', fontFamily: 'Outfit, sans-serif' }}>{c.city}</span>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: '#B8833A', fontFamily: 'Outfit, sans-serif' }}>{c.count} pro{c.count > 1 ? 's' : ''}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* ─── Mini stats secundarias ─── */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 10 }}>
+              {[
+                { label: 'Pros verificados', value: stats?.verified_pros ?? '—' },
+                { label: 'Pros activos',     value: stats?.active_pros ?? '—' },
+                { label: 'Total reservas',   value: stats?.total_bookings ?? '—' },
+                { label: 'Ingresos totales', value: stats?.total_revenue != null ? `${stats.total_revenue.toFixed(0)}€` : '—' },
+              ].map(s => (
+                <div key={s.label} style={{ background: 'rgba(184,131,58,0.04)', border: '1px solid rgba(184,131,58,0.1)', borderRadius: 12, padding: '12px 16px' }}>
+                  <p style={{ fontSize: 10, color: 'rgba(26,22,18,0.45)', textTransform: 'uppercase', letterSpacing: '0.12em', fontFamily: 'Outfit, sans-serif', fontWeight: 600, marginBottom: 4 }}>{s.label}</p>
+                  <p style={{ fontSize: 18, color: '#B8833A', fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>{s.value}</p>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
