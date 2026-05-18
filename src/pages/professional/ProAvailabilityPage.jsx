@@ -313,23 +313,57 @@ export default function ProAvailabilityPage() {
     const saved = me?.professional_profiles?.availability
     if (saved && saved.length > 0) {
       const merged = DAYS.map(d => {
-        const found = saved.find(s => s.day_of_week === d.key)
-        return found ? {
+        // Coger TODAS las filas de este día y ordenarlas por hora de inicio
+        const dayRows = saved
+          .filter(s => s.day_of_week === d.key)
+          .sort((a, b) => (a.start_time ?? '').localeCompare(b.start_time ?? ''))
+
+        if (dayRows.length === 0) {
+          return DEFAULT_SCHEDULE.find(s => s.day_of_week === d.key)
+        }
+
+        const morning   = dayRows[0]
+        const afternoon = dayRows[1]  // puede ser undefined
+
+        return {
           day_of_week:         d.key,
-          is_available:        found.is_available,
-          start_time:          found.start_time?.slice(0, 5)       ?? '09:00',
-          end_time:            found.end_time?.slice(0, 5)         ?? '14:00',
-          afternoon_available: found.afternoon_available ?? true,
-          afternoon_start:     found.afternoon_start?.slice(0, 5)  ?? '16:00',
-          afternoon_end:       found.afternoon_end?.slice(0, 5)    ?? '20:00',
-        } : DEFAULT_SCHEDULE.find(s => s.day_of_week === d.key)
+          is_available:        true,
+          start_time:          morning.start_time?.slice(0, 5) ?? '09:00',
+          end_time:            morning.end_time?.slice(0, 5)   ?? '14:00',
+          afternoon_available: !!afternoon,
+          afternoon_start:     afternoon?.start_time?.slice(0, 5) ?? '16:00',
+          afternoon_end:       afternoon?.end_time?.slice(0, 5)   ?? '20:00',
+        }
       })
       setSchedule(merged)
     }
   }, [JSON.stringify(me?.professional_profiles?.availability)])
 
   const { mutate: save, isPending } = useMutation({
-    mutationFn: () => profApi.setAvail({ availability: schedule }),
+    mutationFn: () => {
+      // Aplanar: cada día puede generar 1 o 2 filas (mañana + tarde)
+      const flattened = []
+      schedule.forEach(d => {
+        if (!d.is_available) return
+        // Mañana
+        flattened.push({
+          day_of_week: d.day_of_week,
+          start_time:  d.start_time,
+          end_time:    d.end_time,
+          is_available: true,
+        })
+        // Tarde (solo si activa)
+        if (d.afternoon_available && d.afternoon_start && d.afternoon_end) {
+          flattened.push({
+            day_of_week: d.day_of_week,
+            start_time:  d.afternoon_start,
+            end_time:    d.afternoon_end,
+            is_available: true,
+          })
+        }
+      })
+      return profApi.setAvail({ availability: flattened })
+    },
     onSuccess: () => {
       toast.success('Disponibilidad guardada ✓')
       qc.invalidateQueries({ queryKey: ['me'] })
