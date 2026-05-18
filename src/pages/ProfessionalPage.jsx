@@ -268,8 +268,14 @@ export default function ProfessionalPage() {
   )
 
 const activeServices = prof.services?.filter(s => s.is_active) ?? []
-  const availability   = DAY_ORDER.map(d => prof.availability?.find(a => a.day_of_week === d)).filter(Boolean)
-  const availableDays  = availability.filter(a => a.is_available)
+  // Agrupar TODAS las franjas (mañana + tarde) por día
+  const availabilityByDay = DAY_ORDER.map(d => {
+    const slots = (prof.availability ?? [])
+      .filter(a => a.day_of_week === d && a.is_available)
+      .sort((a, b) => (a.start_time ?? '').localeCompare(b.start_time ?? ''))
+    return { day_of_week: d, slots }
+  })
+  const availableDays = availabilityByDay.filter(d => d.slots.length > 0)
   const gallery        = (() => {
     if (prof.gallery?.length) return prof.gallery
     if (prof.gallery_urls?.length) return prof.gallery_urls.filter(Boolean).map(url => ({ url, caption: '' }))
@@ -432,10 +438,12 @@ const activeServices = prof.services?.filter(s => s.is_active) ?? []
           {availableDays.length > 0 && (
             <div style={{ display: 'flex', gap: 7, overflowX: 'auto', paddingBottom: 4, marginBottom: 4 }}>
               <style>{`.no-sb2::-webkit-scrollbar{display:none}.no-sb2{-ms-overflow-style:none;scrollbar-width:none}`}</style>
-              {availableDays.map((a, idx) => (
-                <div key={a.day_of_week} className="day-chip fade-up" style={{ flexShrink: 0, fontSize: 11, background: '#FFFFFF', border: '1.5px solid rgba(184,131,58,0.22)', borderRadius: 12, padding: '6px 12px', color: '#B8833A', fontFamily: 'Outfit, sans-serif', boxShadow: '0 1px 4px rgba(184,131,58,0.08)', animationDelay: `${0.18 + idx * 0.05}s` }}>
-                  <span style={{ fontWeight: 800 }}>{DAY_MAP[a.day_of_week]}</span>
-                  <span style={{ color: 'rgba(26,22,18,0.4)', marginLeft: 5 }}>{a.start_time.slice(0,5)}–{a.end_time.slice(0,5)}</span>
+              {availableDays.map((d, idx) => (
+                <div key={d.day_of_week} className="day-chip fade-up" style={{ flexShrink: 0, fontSize: 11, background: '#FFFFFF', border: '1.5px solid rgba(184,131,58,0.22)', borderRadius: 12, padding: '6px 12px', color: '#B8833A', fontFamily: 'Outfit, sans-serif', boxShadow: '0 1px 4px rgba(184,131,58,0.08)', animationDelay: `${0.18 + idx * 0.05}s` }}>
+                  <span style={{ fontWeight: 800 }}>{DAY_MAP[d.day_of_week]}</span>
+                  <span style={{ color: 'rgba(26,22,18,0.4)', marginLeft: 5 }}>
+                    {d.slots.map(s => `${s.start_time.slice(0,5)}–${s.end_time.slice(0,5)}`).join(' · ')}
+                  </span>
                 </div>
               ))}
             </div>
@@ -606,13 +614,15 @@ const activeServices = prof.services?.filter(s => s.is_active) ?? []
             <div style={{ background: '#FFFFFF', border: '1.5px solid rgba(0,0,0,0.07)', borderRadius: 20, padding: '20px', boxShadow: '0 2px 10px rgba(0,0,0,0.04)' }}>
               <p style={{ fontSize: 10, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#B8833A', marginBottom: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>Horario</p>
               {DAY_ORDER.map((d, idx) => {
-                const slot = prof.availability?.find(a => a.day_of_week === d)
-                const open = slot?.is_available
+                const daySlots = (prof.availability ?? [])
+                  .filter(a => a.day_of_week === d && a.is_available)
+                  .sort((a, b) => (a.start_time ?? '').localeCompare(b.start_time ?? ''))
+                const open = daySlots.length > 0
                 return (
                   <div key={d} className="fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '9px 0', borderBottom: idx < 6 ? '1px solid rgba(0,0,0,0.04)' : 'none', animationDelay: `${idx * 0.05}s` }}>
                     <span style={{ fontSize: 13, fontWeight: 700, color: open ? '#1A1612' : 'rgba(26,22,18,0.25)', fontFamily: 'Outfit, sans-serif', width: 38 }}>{DAY_MAP[d]}</span>
                     <span style={{ flex: 1, fontSize: 13, color: open ? '#1A1612' : 'rgba(26,22,18,0.22)', fontFamily: 'Outfit, sans-serif' }}>
-                      {open ? `${slot.start_time.slice(0,5)} – ${slot.end_time.slice(0,5)}` : 'Cerrado'}
+                      {open ? daySlots.map(s => `${s.start_time.slice(0,5)} – ${s.end_time.slice(0,5)}`).join(' · ') : 'Cerrado'}
                     </span>
                     <span style={{ fontSize: 10, padding: '3px 9px', borderRadius: 999, background: open ? 'rgba(22,163,74,0.08)' : 'rgba(0,0,0,0.04)', color: open ? '#16a34a' : 'rgba(26,22,18,0.25)', fontWeight: 700, fontFamily: 'Outfit, sans-serif' }}>
                       {open ? '● Abierto' : '○ Cerrado'}
