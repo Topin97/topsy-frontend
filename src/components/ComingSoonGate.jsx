@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import api from '../services/api'
+import { Capacitor } from '@capacitor/core'
 
 const LAUNCH_DATE = new Date('2026-06-01T09:00:00+02:00')
 const DEV_PASSWORD = 'topin2026'
@@ -32,7 +33,7 @@ function useCountdown(target) {
 }
 
 export default function ComingSoonGate({ children }) {
-  const [hasBypass, setHasBypass] = useState(() => getCookie(COOKIE_NAME) === '1')
+  const [hasBypass, setHasBypass] = useState(() => Capacitor.isNativePlatform() || getCookie(COOKIE_NAME) === '1')
   const [email, setEmail] = useState('')
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
