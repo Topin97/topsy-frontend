@@ -242,7 +242,8 @@ function BookingCard({ booking, onCancel, onReview, onNotes, onReschedule }) {
   const [hov, setHov] = useState(false)
   const navigate = useNavigate()
   const st        = STATUS[booking.status] ?? STATUS.pending
-  const isPast    = new Date(booking.starts_at) < new Date()
+  const startDate = new Date(booking.starts_at)
+  const isPast    = startDate < new Date()
   const canCancel = ['pending','confirmed'].includes(booking.status) && !isPast
   const canReview = booking.status === 'completed' && !(booking.reviews?.length > 0)
   const hasReview = booking.reviews?.length > 0
@@ -251,76 +252,232 @@ function BookingCard({ booking, onCancel, onReview, onNotes, onReschedule }) {
   const isCompleted = booking.status === 'completed'
   const proName   = booking.professional_profiles?.business_name ?? '—'
   const coverUrl  = booking.professional_profiles?.cover_image_url
+  const proId     = booking.professional_profiles?.id
+
+  // Hours to event (para mostrar "en 3 días", "en 2 horas")
+  const hoursToEvent = Math.round((startDate - new Date()) / (1000 * 60 * 60))
+  let timeBadge = null
+  if (isActive && hoursToEvent >= 0) {
+    if (hoursToEvent < 24) timeBadge = `En ${hoursToEvent}h`
+    else if (hoursToEvent < 24 * 7) timeBadge = `En ${Math.round(hoursToEvent / 24)} días`
+  }
+
+  const day = format(startDate, 'd', { locale: es })
+  const month = format(startDate, 'MMM', { locale: es }).toUpperCase().replace('.', '')
+  const time = format(startDate, 'HH:mm', { locale: es })
+  const weekday = format(startDate, 'EEEE', { locale: es })
 
   return (
     <div
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
-        background: '#fff',
-        border: `1.5px solid ${hov ? 'rgba(197,138,61,0.3)' : 'rgba(17,17,17,0.07)'}`,
-        borderRadius: 20, overflow: 'hidden',
-        boxShadow: hov ? '0 8px 28px rgba(17,17,17,0.09)' : '0 2px 8px rgba(17,17,17,0.05)',
-        transform: hov ? 'translateY(-2px)' : 'none',
-        transition: 'all 0.22s cubic-bezier(0.34,1.56,0.64,1)',
+        background: '#FFFFFF',
+        border: `1.5px solid ${hov ? 'rgba(184,131,58,0.3)' : 'rgba(17,17,17,0.06)'}`,
+        borderRadius: 22, overflow: 'hidden',
+        boxShadow: hov ? '0 12px 32px rgba(17,17,17,0.1)' : '0 2px 10px rgba(17,17,17,0.04)',
+        transform: hov ? 'translateY(-3px)' : 'none',
+        transition: 'all 0.25s cubic-bezier(0.34,1.56,0.64,1)',
       }}
     >
-      <div style={{ display: 'flex' }}>
-        <div style={{ width: 4, flexShrink: 0, background: st.color, opacity: 0.7 }} />
-        <div style={{ width: 88, flexShrink: 0, background: 'linear-gradient(135deg,#F4EEE6,#EDE4D4)', position: 'relative', overflow: 'hidden', minHeight: 88 }}>
-          {coverUrl
-            ? <img src={coverUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', inset: 0 }} />
-            : <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28 }}>✂️</div>
-          }
+      {/* HERO: Foto del pro full-width */}
+      <div
+        onClick={() => proId && navigate(`/professional/${proId}`)}
+        style={{
+          height: 140,
+          background: coverUrl
+            ? `linear-gradient(180deg, rgba(0,0,0,0) 50%, rgba(0,0,0,0.4) 100%), url(${coverUrl}) center/cover no-repeat`
+            : 'linear-gradient(135deg, #F4EEE6, #EDE4D4)',
+          position: 'relative',
+          cursor: proId ? 'pointer' : 'default',
+        }}
+      >
+        {!coverUrl && (
+          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 40 }}>✂️</div>
+        )}
+        {/* Status badge esquina sup derecha */}
+        <span style={{
+          position: 'absolute', top: 12, right: 12,
+          fontSize: 11, fontWeight: 700,
+          padding: '4px 11px', borderRadius: 999,
+          background: 'rgba(255,255,255,0.95)', color: st.color,
+          fontFamily: 'Outfit, sans-serif',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          display: 'inline-flex', alignItems: 'center', gap: 5,
+        }}>
+          <span style={{ width: 6, height: 6, borderRadius: '50%', background: st.color }} />
+          {st.label}
+        </span>
+        {/* Time badge esquina sup izq (solo si en próximas) */}
+        {timeBadge && (
+          <span style={{
+            position: 'absolute', top: 12, left: 12,
+            fontSize: 11, fontWeight: 700,
+            padding: '4px 11px', borderRadius: 999,
+            background: 'rgba(184,131,58,0.95)', color: '#FFFFFF',
+            fontFamily: 'Outfit, sans-serif',
+            boxShadow: '0 2px 8px rgba(184,131,58,0.3)',
+          }}>
+            ⏰ {timeBadge}
+          </span>
+        )}
+        {/* Pro name abajo overlay */}
+        <div style={{ position: 'absolute', bottom: 10, left: 14, right: 14 }}>
+          <p style={{
+            fontSize: 13, color: 'rgba(255,255,255,0.85)',
+            margin: 0, fontFamily: 'Outfit, sans-serif',
+            textShadow: '0 2px 8px rgba(0,0,0,0.4)',
+            fontWeight: 500,
+          }}>{proName}</p>
         </div>
-        <div style={{ flex: 1, padding: '14px 16px', minWidth: 0, display: 'flex', flexDirection: 'column', gap: 5 }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
-            <div style={{ minWidth: 0 }}>
-              <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.1rem', fontWeight: 700, color: '#181512', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{booking.services?.name}</p>
-              <p style={{ fontSize: 12, color: 'rgba(24,21,18,0.45)', margin: '2px 0 0', fontFamily: 'Outfit, sans-serif' }}>{proName}</p>
-            </div>
-            <span style={{ fontSize: 11, padding: '3px 10px', borderRadius: 999, background: st.bg, color: st.color, whiteSpace: 'nowrap', flexShrink: 0, fontFamily: 'Outfit, sans-serif', fontWeight: 700 }}>{st.label}</span>
+      </div>
+
+      {/* BODY */}
+      <div style={{ padding: '14px 16px' }}>
+        {/* Fecha badge + servicio */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+          {/* Badge fecha estilo iOS Calendar */}
+          <div style={{
+            width: 58, flexShrink: 0,
+            border: `1.5px solid rgba(184,131,58,0.2)`,
+            borderRadius: 12, overflow: 'hidden',
+            background: '#FAFAF9',
+            textAlign: 'center',
+          }}>
+            <div style={{
+              fontSize: 9, fontWeight: 700, letterSpacing: '0.1em',
+              background: '#B8833A', color: '#FFFFFF',
+              padding: '3px 0', fontFamily: 'Outfit, sans-serif',
+            }}>{month}</div>
+            <div style={{
+              fontSize: 22, fontWeight: 700, color: '#1A1612',
+              fontFamily: 'Outfit, sans-serif', lineHeight: 1.1,
+              padding: '5px 0 2px',
+            }}>{day}</div>
+            <div style={{
+              fontSize: 10, color: '#B8833A',
+              fontFamily: 'Outfit, sans-serif', fontWeight: 600,
+              padding: '0 0 5px',
+            }}>{time}</div>
           </div>
-          <p style={{ fontSize: 12, color: 'rgba(24,21,18,0.38)', margin: 0, fontFamily: 'Outfit, sans-serif', display: 'flex', alignItems: 'center', gap: 3 }}>
-            📅 {format(new Date(booking.starts_at), "EEEE d MMM · HH:mm", { locale: es })}
-            <span style={{ opacity: 0.6 }}>· {booking.services?.duration_minutes} min</span>
-          </p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap', marginTop: 2 }}>
-            <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.2rem', color: '#B57932', fontStyle: 'italic', fontWeight: 600 }}>{booking.total_price}€</span>
+          {/* Servicio */}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{
+              fontFamily: 'Cormorant Garamond, serif',
+              fontSize: '1.25rem', fontWeight: 600,
+              color: '#1A1612', margin: 0, lineHeight: 1.2,
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }}>{booking.services?.name}</p>
+            <p style={{
+              fontSize: 11, color: 'rgba(26,22,18,0.5)',
+              margin: '4px 0 0', fontFamily: 'Outfit, sans-serif',
+              textTransform: 'capitalize',
+            }}>
+              {weekday} · {booking.services?.duration_minutes} min
+            </p>
+          </div>
+          {/* Precio */}
+          <div style={{ textAlign: 'right', flexShrink: 0 }}>
+            <p style={{
+              fontFamily: 'Cormorant Garamond, serif',
+              fontSize: '1.4rem', fontStyle: 'italic',
+              color: '#B8833A', fontWeight: 700,
+              margin: 0, lineHeight: 1,
+            }}>{booking.total_price}€</p>
             {hasReview && (
-              <span style={{ fontSize: 11, color: '#B57932', background: 'rgba(197,138,61,0.1)', padding: '3px 9px', borderRadius: 999, fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
-                {'★'.repeat(booking.reviews[0].rating)} Valorada
-              </span>
+              <p style={{
+                fontSize: 11, color: '#B8833A',
+                fontFamily: 'Outfit, sans-serif', fontWeight: 600,
+                margin: '4px 0 0',
+              }}>{'★'.repeat(booking.reviews[0].rating)}</p>
             )}
-            {isActive && (
-              <button onClick={() => onNotes(booking)} style={{ fontSize: 12, background: hasNotes ? 'rgba(197,138,61,0.08)' : 'transparent', border: `1.5px solid ${hasNotes ? 'rgba(197,138,61,0.25)' : 'rgba(17,17,17,0.1)'}`, borderRadius: 10, padding: '4px 11px', color: hasNotes ? '#B57932' : 'rgba(24,21,18,0.4)', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', transition: 'all 0.15s' }}>
-                💬 {hasNotes ? 'Notas' : 'Añadir nota'}
-              </button>
+          </div>
+        </div>
+
+        {/* Notas inline (si las hay y está activa) */}
+        {hasNotes && isActive && (
+          <div style={{
+            background: 'rgba(184,131,58,0.05)',
+            border: '1px solid rgba(184,131,58,0.12)',
+            borderRadius: 10, padding: '8px 12px',
+            marginBottom: 10,
+            fontSize: 12, color: 'rgba(26,22,18,0.7)',
+            fontFamily: 'Outfit, sans-serif',
+            display: 'flex', alignItems: 'flex-start', gap: 6,
+          }}>
+            <span>💬</span>
+            <span style={{ flex: 1, lineHeight: 1.4 }}>{booking.notes.slice(0, 80)}{booking.notes.length > 80 ? '…' : ''}</span>
+          </div>
+        )}
+
+        {/* Acciones */}
+        {(isActive || canReview || isCompleted) && (
+          <div style={{
+            display: 'flex', gap: 8, flexWrap: 'wrap',
+            paddingTop: 12, borderTop: '1px solid rgba(0,0,0,0.05)',
+          }}>
+            {isActive && !hasNotes && (
+              <button onClick={() => onNotes(booking)} style={{
+                fontSize: 12, fontWeight: 600,
+                background: 'transparent', border: '1.5px solid rgba(0,0,0,0.1)',
+                borderRadius: 10, padding: '8px 14px',
+                color: 'rgba(26,22,18,0.55)', cursor: 'pointer',
+                fontFamily: 'Outfit, sans-serif',
+              }}>💬 Nota</button>
+            )}
+            {isActive && hasNotes && (
+              <button onClick={() => onNotes(booking)} style={{
+                fontSize: 12, fontWeight: 600,
+                background: 'rgba(184,131,58,0.08)', border: '1.5px solid rgba(184,131,58,0.25)',
+                borderRadius: 10, padding: '8px 14px',
+                color: '#B8833A', cursor: 'pointer',
+                fontFamily: 'Outfit, sans-serif',
+              }}>💬 Notas</button>
+            )}
+            {canCancel && (
+              <button onClick={() => onReschedule(booking)} style={{
+                flex: 1, minWidth: 100,
+                fontSize: 12, fontWeight: 700,
+                background: 'rgba(22,163,74,0.06)', border: '1.5px solid rgba(22,163,74,0.25)',
+                borderRadius: 10, padding: '8px 14px',
+                color: '#16a34a', cursor: 'pointer',
+                fontFamily: 'Outfit, sans-serif',
+              }}>📅 Cambiar fecha</button>
+            )}
+            {canCancel && (
+              <button onClick={() => onCancel(booking)} style={{
+                fontSize: 12, fontWeight: 600,
+                background: 'transparent', border: '1.5px solid rgba(220,38,38,0.2)',
+                borderRadius: 10, padding: '8px 14px',
+                color: '#dc2626', cursor: 'pointer',
+                fontFamily: 'Outfit, sans-serif',
+              }}>✕ Cancelar</button>
             )}
             {canReview && (
-              <button onClick={() => onReview(booking)} style={{ fontSize: 12, background: 'rgba(197,138,61,0.08)', border: '1.5px solid rgba(197,138,61,0.2)', borderRadius: 10, padding: '4px 12px', color: '#B57932', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
-                ★ Valorar
-              </button>
+              <button onClick={() => onReview(booking)} style={{
+                flex: 1, minWidth: 120,
+                fontSize: 12, fontWeight: 700,
+                background: 'linear-gradient(135deg,#B8833A,#D4A055)',
+                border: 'none', boxShadow: '0 4px 12px rgba(184,131,58,0.25)',
+                borderRadius: 10, padding: '8px 14px',
+                color: '#FFFFFF', cursor: 'pointer',
+                fontFamily: 'Outfit, sans-serif',
+              }}>★ Valorar ahora</button>
             )}
-            {isCompleted && booking.professional_profiles?.id && booking.services?.id && (
+            {isCompleted && !canReview && booking.professional_profiles?.id && booking.services?.id && (
               <button
                 onClick={() => navigate(`/booking/${booking.professional_profiles.id}/${booking.services.id}`)}
-                style={{ fontSize: 12, background: 'rgba(184,131,58,0.08)', border: '1.5px solid rgba(184,131,58,0.25)', borderRadius: 10, padding: '4px 12px', color: '#B8833A', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', fontWeight: 600 }}>
-                ↺ Repetir
-              </button>
-            )}
-            {canCancel && (
-              <button onClick={() => onReschedule(booking)} style={{ fontSize: 12, background: 'transparent', border: '1.5px solid rgba(34,197,94,0.3)', borderRadius: 10, padding: '4px 12px', color: '#16a34a', cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
-                📅 Cambiar
-              </button>
-            )}
-            {canCancel && (
-              <button onClick={() => onCancel(booking)} style={{ fontSize: 12, background: 'transparent', border: '1.5px solid rgba(220,38,38,0.2)', borderRadius: 10, padding: '4px 12px', color: '#dc2626', cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
-                Cancelar
-              </button>
+                style={{
+                  flex: 1, minWidth: 100,
+                  fontSize: 12, fontWeight: 700,
+                  background: 'rgba(184,131,58,0.08)', border: '1.5px solid rgba(184,131,58,0.25)',
+                  borderRadius: 10, padding: '8px 14px',
+                  color: '#B8833A', cursor: 'pointer',
+                  fontFamily: 'Outfit, sans-serif',
+                }}>↺ Reservar de nuevo</button>
             )}
           </div>
-        </div>
+        )}
       </div>
     </div>
   )
