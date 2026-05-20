@@ -55,12 +55,20 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew bundleRelease --no-daemon
+          ./gradlew bundleRelease assembleRelease --no-daemon
           ls -la app/build/outputs/bundle/release/ || (echo "AAB NO generado" && exit 1)
+          ls -la app/build/outputs/apk/release/ || (echo "APK NO generado" && exit 1)
 
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
         with:
           name: TopSy-Android-AAB
           path: android/app/build/outputs/bundle/release/*.aab
+          retention-days: 30
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TopSy-Android-APK
+          path: android/app/build/outputs/apk/release/*.apk
           retention-days: 30
