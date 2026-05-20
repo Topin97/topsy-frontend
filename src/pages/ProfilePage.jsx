@@ -259,6 +259,7 @@ export default function ProfilePage() {
   const [uploading, setUploading] = useState(false)
   const [preview, setPreview] = useState(null)
   const [section, setSection] = useState(null)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
 
   const { data: meData, isLoading } = useQuery({
     queryKey: ['me'],
@@ -287,6 +288,16 @@ export default function ProfilePage() {
       setSection(null)
     },
     onError: err => toast.error(err.response?.data?.error ?? 'Error al guardar'),
+  })
+
+  const { mutate: deleteAccount, isPending: deleting } = useMutation({
+    mutationFn: () => authApi.deleteAccount(),
+    onSuccess: () => {
+      toast.success('Cuenta eliminada')
+      logout()
+      navigate('/')
+    },
+    onError: err => toast.error(err.response?.data?.error ?? 'Error al eliminar la cuenta'),
   })
 
 const handleAvatarChange = async (e) => {
@@ -452,6 +463,41 @@ const handleAvatarChange = async (e) => {
       <div className="fade-up" style={{ background: '#FFFFFF', marginTop: 12, borderTop: '1px solid rgba(0,0,0,0.06)', borderBottom: '1px solid rgba(0,0,0,0.06)', animationDelay: '0.25s' }}>
         <MenuRow icon="🚪" label="Cerrar sesión" onClick={() => { logout(); navigate('/') }} danger />
       </div>
+
+      <div className="fade-up" style={{ background: '#FFFFFF', marginTop: 12, borderTop: '1px solid rgba(0,0,0,0.06)', borderBottom: '1px solid rgba(0,0,0,0.06)', animationDelay: '0.3s' }}>
+        <MenuRow icon="🗑️" label="Eliminar mi cuenta" sublabel="Borra tu cuenta y todos tus datos" onClick={() => setShowDeleteModal(true)} danger />
+      </div>
+
+      {/* Modal confirmacion eliminar cuenta */}
+      {showDeleteModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: 20 }}>
+          <div style={{ background: '#FFFFFF', borderRadius: 20, padding: '28px 24px', maxWidth: 380, width: '100%', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
+            <div style={{ width: 56, height: 56, borderRadius: '50%', background: 'rgba(220,38,38,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, margin: '0 auto 16px' }}>
+              🗑️
+            </div>
+            <h3 style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.5rem', fontWeight: 600, color: '#181512', textAlign: 'center', margin: '0 0 10px' }}>
+              ¿Eliminar tu cuenta?
+            </h3>
+            <p style={{ fontFamily: 'Outfit, sans-serif', fontSize: 13.5, color: 'rgba(24,21,18,0.6)', textAlign: 'center', lineHeight: 1.6, margin: '0 0 22px' }}>
+              Esta acción es <strong style={{ color: '#DC2626' }}>permanente</strong>. Se eliminarán tu perfil, tus reservas y todos tus datos. No podrás recuperarlos.
+            </p>
+            <button
+              onClick={() => deleteAccount()}
+              disabled={deleting}
+              style={{ width: '100%', background: '#DC2626', color: '#FFFFFF', border: 'none', borderRadius: 12, padding: '13px', fontSize: 14, fontWeight: 700, fontFamily: 'Outfit, sans-serif', cursor: deleting ? 'wait' : 'pointer', marginBottom: 10, opacity: deleting ? 0.6 : 1 }}
+            >
+              {deleting ? 'Eliminando...' : 'Sí, eliminar mi cuenta'}
+            </button>
+            <button
+              onClick={() => setShowDeleteModal(false)}
+              disabled={deleting}
+              style={{ width: '100%', background: 'none', color: 'rgba(24,21,18,0.55)', border: '1.5px solid rgba(0,0,0,0.12)', borderRadius: 12, padding: '13px', fontSize: 14, fontWeight: 600, fontFamily: 'Outfit, sans-serif', cursor: 'pointer' }}
+            >
+              Cancelar
+            </button>
+          </div>
+        </div>
+      )}
 
       <p className="fade-up" style={{ textAlign: 'center', fontSize: 11, color: 'rgba(24,21,18,0.25)', marginTop: 24, fontFamily: 'Outfit, sans-serif', animationDelay: '0.4s' }}>
         TopSy · v1.0

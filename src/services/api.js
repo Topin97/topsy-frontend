@@ -47,6 +47,7 @@ export const authApi = {
   refresh:         (rt)    => api.post('/auth/refresh', { refresh_token: rt }),
   forgotPassword:  (email) => api.post('/auth/forgot-password', { email }),
   updateProfile:   (data)  => api.put('/auth/profile', data),
+  deleteAccount:   ()      => api.delete('/auth/account'),
   oauthGoogle:     (access_token, refresh_token, role) =>
     api.post('/auth/oauth', { access_token, refresh_token, role }),
   sendPhoneCode:        (phone)       => api.post('/auth/phone/send', { phone }),
