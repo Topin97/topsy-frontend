@@ -16,3 +16,7 @@ build.sh
 export.sh
 fix-env.sh
 public/og-pro.png
+
+# Android keystore - NUNCA subir a git
+*.keystore
+*.jks
