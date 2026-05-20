@@ -27,3 +27,4 @@ public/og-pro.png
 # Android keystore - NUNCA subir a git
 *.keystore
 *.jks
+android/app/google-services.json
