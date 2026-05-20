@@ -2,7 +2,14 @@ node_modules/
 .env
 .env.local
 dist/
-android/
+# android/ se commitea, pero no sus builds
+android/build/
+android/app/build/
+android/.gradle/
+android/.idea/
+android/app/release/
+android/capacitor-cordova-android-plugins/build/
+android/local.properties
 ios/build/
 ios/Pods/
 ios/App/Pods/
