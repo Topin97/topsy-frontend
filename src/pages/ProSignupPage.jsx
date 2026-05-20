@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../services/api'
+import { Capacitor } from '@capacitor/core'
 
 const CATEGORIES = [
   { value: 'peluqueria',     label: '✂️ Peluquería' },
@@ -15,6 +16,11 @@ const CATEGORIES = [
 ]
 
 export default function ProSignupPage() {
+  // iOS nativo: ocultar planes/precios (Apple Guideline 3.1.1)
+  if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios') {
+    if (typeof window !== 'undefined') window.location.replace('/')
+    return null
+  }
   const [form, setForm] = useState({
     full_name: '', business: '', city: '', phone: '',
     category: '', team_size: '', email: '', notes: '',

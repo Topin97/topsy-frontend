@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '../store/authStore'
+import { Capacitor } from '@capacitor/core'
 
 const FREE_FEATURES = [
   { icon: '👤', label: 'Perfil profesional completo' },
@@ -28,6 +29,11 @@ const PRO_FEATURES = [
 ]
 
 export default function PricingPage() {
+  // iOS nativo: ocultar planes/precios (Apple Guideline 3.1.1)
+  if (Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios') {
+    if (typeof window !== 'undefined') window.location.replace('/')
+    return null
+  }
   const navigate = useNavigate()
   const user = useAuthStore(s => s.user)
 
