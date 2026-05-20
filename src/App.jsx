@@ -35,6 +35,7 @@ const ResetPasswordPage   = lazy(() => import('./pages/ResetPasswordPage'))
 const AuthCallbackPage    = lazy(() => import('./pages/AuthCallbackPage'))
 const OAuthCallbackPage   = lazy(() => import('./pages/OAuthCallbackPage'))
 const PrivacyPage         = lazy(() => import('./pages/PrivacyPage'))
+const EliminarCuentaPage  = lazy(() => import('./pages/EliminarCuentaPage'))
 const ProOnboardingPage   = lazy(() => import('./pages/ProOnboardingPage'))
 const CompleteProfilePage = lazy(() => import('./pages/CompleteProfilePage'))
 const RegisterPage        = lazy(() => import('./pages/RegisterPage'))
@@ -239,6 +240,7 @@ const [showOnboarding, setShowOnboarding] = useState(
             <Route path="auth/callback" element={<AuthCallbackPage />} />
             <Route path="oauth/callback" element={<OAuthCallbackPage />} />
             <Route path="privacy" element={<PrivacyPage />} />
+            <Route path="eliminar-cuenta" element={<EliminarCuentaPage />} />
             <Route path="welcome" element={<WelcomePage />} />
             <Route path="complete-profile" element={<CompleteProfilePage />} />
             <Route path="booking/:professionalId/:serviceId" element={<PrivateRoute><BookingPage /></PrivateRoute>} />
