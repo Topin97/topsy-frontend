@@ -501,19 +501,6 @@ export default function RegisterProPage() {
                 ))}
               </div>
 
-              {/* Oferta primer año */}
-              <div className="anim-fadeup" style={{
-                animationDelay: '0.58s',
-                background: 'linear-gradient(135deg, rgba(184,131,58,0.15), rgba(212,160,85,0.08))',
-                border: '1px solid rgba(212,160,85,0.3)', borderRadius: 14, padding: '14px 18px', marginBottom: 24,
-                display: 'flex', alignItems: 'center', gap: 14, backdropFilter: 'blur(10px)',
-              }}>
-                <div style={{ fontSize: 24 }}>🎁</div>
-                <div style={{ flex: 1 }}>
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: '#D4A055', fontFamily: 'Outfit, sans-serif' }}>Primer año GRATIS</p>
-                  <p style={{ margin: '2px 0 0', fontSize: 11, color: 'rgba(255,255,255,0.6)', fontFamily: 'Outfit, sans-serif' }}>Sin tarjeta · Reservas ilimitadas</p>
-                </div>
-              </div>
 
               {/* Form fields */}
               <form onSubmit={(e) => e.preventDefault()}>
