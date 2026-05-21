@@ -678,10 +678,6 @@ export default function RegisterProPage() {
             ¿Ya tienes cuenta?{' '}
             <Link to="/login" className="login-link" style={{ color: '#D4A055', textDecoration: 'none', fontWeight: 700 }}>Iniciar sesión</Link>
           </p>
-          <p className="anim-fadeup" style={{ animationDelay: '1.2s', textAlign: 'center', color: 'rgba(255,255,255,0.35)', fontSize: 13, marginTop: 8, fontFamily: 'Outfit, sans-serif' }}>
-            ¿Tienes dudas?{' '}
-            <Link to="/pricing" style={{ color: '#D4A055', textDecoration: 'none', fontWeight: 600 }}>Ver planes y precios →</Link>
-          </p>
         </div>
       </main>
     </div>

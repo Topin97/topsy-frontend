@@ -456,9 +456,6 @@ const handleAvatarChange = async (e) => {
         <MenuRow icon="🔔" label="Notificaciones" sublabel="Email y alertas de la app" onClick={() => setSection('notificaciones')} />
         <MenuRow icon="🔒" label="Tu privacidad" sublabel="Cómo usamos tus datos" onClick={() => setSection('privacidad')} />
         <MenuRow icon="❓" label="Ayuda y soporte" sublabel="Contacto y preguntas frecuentes" onClick={() => navigate('/soporte')} />
-        {!(Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'ios') && (
-          <MenuRow icon="💎" label="Planes y precios" sublabel="Plan Free + Plan Pro próximamente" onClick={() => navigate('/pricing')} />
-        )}
         {me?.role === 'professional' && (
           <MenuRow icon="✂️" label="Panel profesional" sublabel="Servicios, horarios y perfil" onClick={() => navigate('/pro/dashboard')} />
         )}

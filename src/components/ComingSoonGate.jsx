@@ -51,7 +51,7 @@ export default function ComingSoonGate({ children }) {
 
   // Rutas siempre accesibles aunque el splash esté activo
   const path = typeof window !== 'undefined' ? window.location.pathname : ''
-  const isPublicRoute = path === '/pro' || path === '/pricing'
+  const isPublicRoute = path === '/register/pro'
 
   if (hasBypass || isPublicRoute) return children
 
@@ -432,7 +432,7 @@ export default function ComingSoonGate({ children }) {
           }}>
             ¿Eres profesional?
           </p>
-          <a href="/pro" className="pro-cta" style={{
+          <a href="/register/pro" className="pro-cta" style={{
             display: 'inline-flex', alignItems: 'center', gap: 10,
             background: 'rgba(184,131,58,0.08)',
             border: '1.5px solid rgba(184,131,58,0.4)',
