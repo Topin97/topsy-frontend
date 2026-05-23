@@ -101,11 +101,13 @@ export default function CompleteProfilePage() {
     }
   }
 
-  const handleOtpVerify = async () => {
-    if (otp.length < 6) { toast.error('Introduce el código completo'); return }
+  const handleOtpVerify = async ({ skip = false } = {}) => {
+    if (!skip && otp.length < 6) { toast.error('Introduce el código completo'); return }
     setLoading(true)
     try {
-      await api.post('/auth/phone/verify', { phone: normalizePhone(form.phone), code: otp })
+      if (!skip) {
+        await api.post('/auth/phone/verify', { phone: normalizePhone(form.phone), code: otp })
+      }
 
       let avatarUrl = pendingUser?.avatar_url ?? null
       if (avatarFile) {
@@ -374,7 +376,7 @@ export default function CompleteProfilePage() {
               <OtpInput value={otp} onChange={setOtp} length={6} />
             </div>
 
-            <button onClick={handleOtpVerify} disabled={loading || otp.length < 6}
+            <button onClick={() => handleOtpVerify()} disabled={loading || otp.length < 6}
               style={{ width: '100%', padding: '15px', background: otp.length < 6 ? 'rgba(26,22,18,0.12)' : '#1A1612', color: otp.length < 6 ? 'rgba(26,22,18,0.3)' : '#FFFFFF', border: 'none', borderRadius: 10, fontSize: 15, fontWeight: 700, fontFamily: 'Outfit, sans-serif', cursor: otp.length < 6 ? 'not-allowed' : 'pointer', marginBottom: 16 }}>
               {loading
                 ? <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}><span style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />Verificando...</span>
@@ -391,6 +393,10 @@ export default function CompleteProfilePage() {
                 Cambiar número
               </button>
             </div>
+            <button onClick={() => handleOtpVerify({ skip: true })} disabled={loading}
+              style={{ width: '100%', marginTop: 16, padding: '12px', background: 'none', border: 'none', fontSize: 13, fontFamily: 'Outfit, sans-serif', color: 'rgba(26,22,18,0.45)', cursor: 'pointer', textDecoration: 'underline' }}>
+              Omitir por ahora
+            </button>
           </div>
         )}
       </div>
