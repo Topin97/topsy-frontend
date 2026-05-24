@@ -325,7 +325,7 @@ export default function RegisterProPage() {
   })
 
   const goToStep2 = async () => {
-    const valid = await trigger(['full_name', 'email', 'phone', 'password'])
+    const valid = await trigger(['full_name', 'email', 'password'])
     if (valid) setStep(2)
   }
 
@@ -336,7 +336,7 @@ export default function RegisterProPage() {
       if (executeRecaptcha) token = await executeRecaptcha('register')
     } catch { /* captcha no disponible */ }
     const phone = data.phone?.replace(/\s/g, '') || ''
-    const fullPhone = phone.startsWith('+') ? phone : `+34${phone}`
+    const fullPhone = phone ? (phone.startsWith('+') ? phone : `+34${phone}`) : null
     mutate({ ...data, phone: fullPhone, category: selectedCategory, recaptcha_token: token ?? 'bypass' })
   }
 
@@ -531,13 +531,12 @@ export default function RegisterProPage() {
                   />
                 </Field>
 
-                <Field icon="📱" label="Teléfono" error={errors.phone?.message} focused={focused === 'phone'} delay={0.82}>
+                <Field icon="📱" label="Teléfono (opcional)" error={errors.phone?.message} focused={focused === 'phone'} delay={0.82}>
                   <div style={{ display: 'flex', alignItems: 'center', width: '100%', gap: 8 }}>
                     <span style={{ fontSize: 15, color: '#1A1612', fontFamily: 'Outfit, sans-serif', fontWeight: 500, flexShrink: 0, display: 'flex', alignItems: 'center', gap: 4 }}>🇪🇸 +34</span>
                     <div style={{ width: 1, height: 18, background: 'rgba(0,0,0,0.1)', flexShrink: 0 }} />
                     <input
                       {...register('phone', {
-                        required: 'Requerido',
                         pattern: { value: /^[0-9\s]{9,12}$/, message: 'Teléfono inválido' },
                         onChange: handleFieldChange('phone'),
                       })}
